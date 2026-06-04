@@ -27,7 +27,8 @@ export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete, dis
       <h2 style={{ fontFamily: "'Spline Sans Mono',monospace", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ink-dim)', marginBottom: 14 }}>
         보유 종목
       </h2>
-      <table>
+      <div className="table-scroll">
+        <table>
         <thead>
           <tr>
             <th>종목</th><th>수량</th><th>매수가</th><th>현재가</th>
@@ -69,6 +70,7 @@ export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete, dis
           )}
         </tbody>
       </table>
+      </div>
 
       <div className="addbar">
         <div className="field tk">

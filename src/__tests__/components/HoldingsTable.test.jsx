@@ -47,4 +47,13 @@ describe('HoldingsTable', () => {
     fireEvent.click(screen.getByText('+ 추가'))
     expect(onAdd).toHaveBeenCalledWith({ t: '005930', nm: '', q: 10, b: 75000, c: 82000, currency: 'KRW' })
   })
+
+  it('테이블이 table-scroll 래퍼 안에 존재한다', () => {
+    const { container } = render(
+      <HoldingsTable holdings={[]} totalVal={0} onAdd={vi.fn()} onDelete={vi.fn()} displayCurrency="USD" toDisplay={identity} />
+    )
+    const wrapper = container.querySelector('.table-scroll')
+    expect(wrapper).toBeInTheDocument()
+    expect(wrapper.querySelector('table')).toBeInTheDocument()
+  })
 })
