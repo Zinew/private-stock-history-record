@@ -11,9 +11,8 @@ function getGradient(ctx, chartArea, isUp) {
 }
 
 export default function Charts({ holdings, snaps, totalVal, displayCurrency, toDisplay }) {
-  const filteredSnaps = snaps.filter(s => (s.currency ?? 'USD') === displayCurrency)
-  const labels = filteredSnaps.map(s => s.label)
-  const data = filteredSnaps.map(s => s.total)
+  const labels = snaps.map(s => s.label)
+  const data = snaps.map(s => toDisplay(s.total, s.currency ?? 'USD'))
   const isUp = data.length < 2 || data[data.length - 1] >= data[0]
   const lineColor = isUp ? '#3fbf8f' : '#e8654f'
 
