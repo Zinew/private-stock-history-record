@@ -1,8 +1,10 @@
 import { useState } from 'react'
-import { fmt, pct } from '../utils/format.js'
+import { fmtCurrency, pct } from '../utils/format.js'
 
-export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete }) {
-  const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '' })
+export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete, displayCurrency, toDisplay }) {
+  const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD' })
+
+  const isKRW = form.currency === 'KRW'
 
   function handleAdd() {
     const t = form.ticker.trim().toUpperCase()
@@ -14,9 +16,11 @@ export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete }) {
       alert('티커·수량·매수가·현재가를 올바르게 입력해 주세요.')
       return
     }
-    onAdd({ t, nm, q, b, c })
-    setForm({ ticker: '', name: '', qty: '', buy: '', cur: '' })
+    onAdd({ t, nm, q, b, c, currency: form.currency })
+    setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: form.currency })
   }
+
+  const dispSym = displayCurrency === 'KRW' ? '₩' : '$'
 
   return (
     <div className="holdings">
@@ -27,7 +31,7 @@ export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete }) {
         <thead>
           <tr>
             <th>종목</th><th>수량</th><th>매수가</th><th>현재가</th>
-            <th>평가액</th><th>손익</th><th>수익률</th><th>비중</th><th></th>
+            <th>평가액 ({dispSym})</th><th>손익 ({dispSym})</th><th>수익률</th><th>비중</th><th></th>
           </tr>
         </thead>
         <tbody>
@@ -35,8 +39,9 @@ export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete }) {
             <tr><td colSpan={9} className="empty">아직 종목이 없습니다. 아래에서 첫 종목을 추가해 보세요.</td></tr>
           ) : (
             holdings.map((h, i) => {
-              const val = h.q * h.c
-              const cost = h.q * h.b
+              const hCur = h.currency ?? 'USD'
+              const val = toDisplay(h.q * h.c, hCur)
+              const cost = toDisplay(h.q * h.b, hCur)
               const p = val - cost
               const r = cost > 0 ? p / cost * 100 : 0
               const w = totalVal > 0 ? val / totalVal * 100 : 0
@@ -49,10 +54,10 @@ export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete }) {
                     </span>
                   </td>
                   <td>{h.q.toLocaleString()}</td>
-                  <td>{fmt(h.b)}</td>
-                  <td>{fmt(h.c)}</td>
-                  <td>{fmt(val)}</td>
-                  <td className={p >= 0 ? 'pos' : 'neg'}>{fmt(p)}</td>
+                  <td>{fmtCurrency(h.b, hCur)}</td>
+                  <td>{fmtCurrency(h.c, hCur)}</td>
+                  <td>{fmtCurrency(val, displayCurrency)}</td>
+                  <td className={p >= 0 ? 'pos' : 'neg'}>{fmtCurrency(p, displayCurrency)}</td>
                   <td className={r >= 0 ? 'pos' : 'neg'}>{pct(r)}</td>
                   <td>{w.toFixed(1)}%</td>
                   <td>
@@ -74,6 +79,19 @@ export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete }) {
             onChange={e => setForm(f => ({ ...f, ticker: e.target.value }))}
           />
         </div>
+        <div className="field">
+          <label>통화</label>
+          <div className="currency-toggle">
+            <button
+              className={`currency-btn ${form.currency === 'USD' ? 'active' : ''}`}
+              onClick={() => setForm(f => ({ ...f, currency: 'USD' }))}
+            >USD</button>
+            <button
+              className={`currency-btn ${form.currency === 'KRW' ? 'active' : ''}`}
+              onClick={() => setForm(f => ({ ...f, currency: 'KRW' }))}
+            >KRW</button>
+          </div>
+        </div>
         <div className="field nm">
           <label>이름(선택)</label>
           <input
@@ -93,7 +111,8 @@ export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete }) {
         <div className="field">
           <label>매수단가</label>
           <input
-            type="number" step="any" placeholder="150"
+            type="number" step="any"
+            placeholder={isKRW ? '75000' : '150'}
             value={form.buy}
             onChange={e => setForm(f => ({ ...f, buy: e.target.value }))}
           />
@@ -101,7 +120,8 @@ export default function HoldingsTable({ holdings, totalVal, onAdd, onDelete }) {
         <div className="field">
           <label>현재가</label>
           <input
-            type="number" step="any" placeholder="190"
+            type="number" step="any"
+            placeholder={isKRW ? '82000' : '190'}
             value={form.cur}
             onChange={e => setForm(f => ({ ...f, cur: e.target.value }))}
           />
