@@ -1,5 +1,5 @@
 import { Line, Doughnut } from 'react-chartjs-2'
-import { fmt } from '../utils/format.js'
+import { fmtCurrency } from '../utils/format.js'
 
 const PALETTE = ['#7fd1ae','#d4b483','#e8654f','#6aa9d8','#b98fd1','#d8c46a','#5fb0a0','#d88f9e','#9ed86a','#888']
 
@@ -10,9 +10,10 @@ function getGradient(ctx, chartArea, isUp) {
   return gradient
 }
 
-export default function Charts({ holdings, snaps, totalVal }) {
-  const labels = snaps.map(s => s.label)
-  const data = snaps.map(s => s.total)
+export default function Charts({ holdings, snaps, totalVal, displayCurrency, toDisplay }) {
+  const filteredSnaps = snaps.filter(s => (s.currency ?? 'USD') === displayCurrency)
+  const labels = filteredSnaps.map(s => s.label)
+  const data = filteredSnaps.map(s => s.total)
   const isUp = data.length < 2 || data[data.length - 1] >= data[0]
   const lineColor = isUp ? '#3fbf8f' : '#e8654f'
 
@@ -40,7 +41,7 @@ export default function Charts({ holdings, snaps, totalVal }) {
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      tooltip: { callbacks: { label: c => ' ' + fmt(c.parsed.y) } },
+      tooltip: { callbacks: { label: c => ' ' + fmtCurrency(c.parsed.y, displayCurrency) } },
     },
     scales: {
       x: {
@@ -52,7 +53,9 @@ export default function Charts({ holdings, snaps, totalVal }) {
         ticks: {
           color: '#5c6660',
           font: { family: 'Spline Sans Mono', size: 10 },
-          callback: v => '$' + v.toLocaleString(),
+          callback: v => displayCurrency === 'KRW'
+            ? '₩' + v.toLocaleString('ko-KR', { maximumFractionDigits: 0 })
+            : '$' + v.toLocaleString(),
         },
       },
     },
@@ -61,7 +64,7 @@ export default function Charts({ holdings, snaps, totalVal }) {
   const pieData = {
     labels: holdings.map(h => h.t),
     datasets: [{
-      data: holdings.map(h => h.q * h.c),
+      data: holdings.map(h => toDisplay(h.q * h.c, h.currency ?? 'USD')),
       backgroundColor: PALETTE,
       borderColor: '#141816',
       borderWidth: 2,
@@ -79,7 +82,7 @@ export default function Charts({ holdings, snaps, totalVal }) {
       },
       tooltip: {
         callbacks: {
-          label: c => ` ${c.label}: ${fmt(c.parsed)} (${totalVal > 0 ? (c.parsed / totalVal * 100).toFixed(1) : 0}%)`,
+          label: c => ` ${c.label}: ${fmtCurrency(c.parsed, displayCurrency)} (${totalVal > 0 ? (c.parsed / totalVal * 100).toFixed(1) : 0}%)`,
         },
       },
     },
