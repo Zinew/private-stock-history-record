@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 
 export function useExchangeRate(setExchangeRate) {
   useEffect(() => {
-    fetch('https://api.frankfurter.app/latest?from=USD&to=KRW')
+    fetch('https://open.er-api.com/v6/latest/USD')
       .then(r => r.json())
       .then(data => {
         setExchangeRate({
