@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { fmt, pct, fmtKRW, fmtCurrency } from '../utils/format.js'
+import { fmt, pct, fmtKRW, fmtCurrency, tooltipDeltaLines } from '../utils/format.js'
 
 describe('fmt', () => {
   it('양수를 $X,XXX.XX 형식으로 변환', () => {
@@ -46,5 +46,27 @@ describe('fmtCurrency', () => {
   })
   it('KRW는 fmtKRW로 위임', () => {
     expect(fmtCurrency(100000, 'KRW')).toBe('₩100,000')
+  })
+})
+
+describe('tooltipDeltaLines', () => {
+  it('첫 포인트(prev 없음)는 현재값 문자열 하나만 반환', () => {
+    expect(tooltipDeltaLines(12500, undefined, 'USD')).toBe(' $12,500.00')
+  })
+  it('상승 시 ▲ + 접두사와 변화량·변화율 포함 배열 반환', () => {
+    const result = tooltipDeltaLines(12500, 12000, 'USD')
+    expect(result).toEqual([' $12,500.00', ' ▲ +$500.00 (+4.2%)'])
+  })
+  it('하락 시 ▼ 접두사와 변화량·변화율 포함 배열 반환', () => {
+    const result = tooltipDeltaLines(11800, 12000, 'USD')
+    expect(result).toEqual([' $11,800.00', ' ▼ -$200.00 (-1.7%)'])
+  })
+  it('KRW 통화도 올바르게 포맷', () => {
+    const result = tooltipDeltaLines(15000000, 14000000, 'KRW')
+    expect(result).toEqual([' ₩15,000,000', ' ▲ +₩1,000,000 (+7.1%)'])
+  })
+  it('변화 없음(delta=0)은 ▲ + 처리', () => {
+    const result = tooltipDeltaLines(12000, 12000, 'USD')
+    expect(result).toEqual([' $12,000.00', ' ▲ +$0.00 (+0.0%)'])
   })
 })
