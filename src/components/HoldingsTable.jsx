@@ -1,13 +1,16 @@
 import { useState } from 'react'
+import EditModal from './EditModal.jsx'
 import { fmtCurrency, pct } from '../utils/format.js'
 import { fetchQuote } from '../utils/finnhub.js'
 
 export default function HoldingsTable({
   holdings, totalVal, onAdd, onDelete, displayCurrency, toDisplay,
   prices = {}, priceLoading = false, priceError = null, lastUpdatedAt = null, onRefresh = () => {},
+  rawHoldings = [], onEdit = () => {},
 }) {
   const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD' })
   const [tickerStatus, setTickerStatus] = useState('idle') // 'idle' | 'loading' | 'found' | 'error'
+  const [editingIndex, setEditingIndex] = useState(null)
 
   const isKRW = form.currency === 'KRW'
   const hasUsdHoldings = holdings.some(h => (h.currency ?? 'USD') === 'USD')
@@ -120,6 +123,7 @@ export default function HoldingsTable({
                     <td className={r >= 0 ? 'pos' : 'neg'}>{pct(r)}</td>
                     <td>{w.toFixed(1)}%</td>
                     <td>
+                      <button className="edit" onClick={() => setEditingIndex(i)} title="수정">✎</button>
                       <button className="del" onClick={() => onDelete(i)} title="삭제">✕</button>
                     </td>
                   </tr>
@@ -202,6 +206,13 @@ export default function HoldingsTable({
         </div>
         <button className="btn" onClick={handleAdd}>+ 추가</button>
       </div>
+      {editingIndex !== null && (
+        <EditModal
+          holding={rawHoldings[editingIndex]}
+          onSave={patch => { onEdit(editingIndex, patch); setEditingIndex(null) }}
+          onClose={() => setEditingIndex(null)}
+        />
+      )}
     </div>
   )
 }

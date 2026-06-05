@@ -12,9 +12,11 @@ const identity = (n) => n
 
 const defaultProps = {
   holdings: [],
+  rawHoldings: [],
   totalVal: 0,
   onAdd: vi.fn(),
   onDelete: vi.fn(),
+  onEdit: vi.fn(),
   displayCurrency: 'USD',
   toDisplay: identity,
   prices: {},
@@ -104,5 +106,28 @@ describe('HoldingsTable', () => {
     fireEvent.change(tickerInput, { target: { value: '005930' } })
     fireEvent.blur(tickerInput)
     expect(fetchQuote).not.toHaveBeenCalled()
+  })
+
+  it('✎ 버튼 클릭 시 EditModal 표시', () => {
+    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} rawHoldings={mockHoldings} totalVal={1900} />)
+    fireEvent.click(screen.getByTitle('수정'))
+    expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
+  })
+
+  it('EditModal 저장 시 onEdit 올바른 인덱스·patch로 호출', () => {
+    const onEdit = vi.fn()
+    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} rawHoldings={mockHoldings} totalVal={1900} onEdit={onEdit} />)
+    fireEvent.click(screen.getByTitle('수정'))
+    fireEvent.change(screen.getByDisplayValue('10'), { target: { value: '15' } })
+    fireEvent.click(screen.getByText('저장'))
+    expect(onEdit).toHaveBeenCalledWith(0, { nm: 'Apple Inc.', q: 15, b: 150, c: 190 })
+  })
+
+  it('EditModal 취소 시 모달 사라짐', () => {
+    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} rawHoldings={mockHoldings} totalVal={1900} />)
+    fireEvent.click(screen.getByTitle('수정'))
+    expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
+    fireEvent.click(screen.getByText('취소'))
+    expect(screen.queryByText('AAPL 수정')).not.toBeInTheDocument()
   })
 })
