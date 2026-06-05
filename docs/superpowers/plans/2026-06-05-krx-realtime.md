@@ -2,23 +2,68 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** KRW 종목 추가 시 이름 검색으로 종목을 선택하고, Yahoo Finance API(Cloudflare Worker 프록시)를 통해 현재가를 자동 조회한다.
+**Goal:** USD/KRW 모든 종목 추가 시 이름 검색으로 종목을 선택하고, 선택된 종목의 현재가를 자동 조회한다. KRW는 Yahoo Finance(Cloudflare Worker 프록시), USD는 기존 Finnhub 방식을 유지한다.
 
-**Architecture:** Cloudflare Pages Functions(`functions/api/`)가 Yahoo Finance CORS 프록시 역할을 하고, 새 `useKrxPrices` 훅이 KRW 종목 가격을 배치 조회한다. HoldingsTable의 KRW 이름 필드는 debounce 검색 + 드롭다운 선택 UI로 변환되며, App.jsx에서 USD/KRX 가격을 합산한다.
+**Architecture:** Cloudflare Pages Functions(`functions/api/`)가 Yahoo Finance CORS 프록시 역할을 하고, 새 `useKrxPrices` 훅이 KRW 종목 가격을 배치 조회한다. HoldingsTable의 이름 필드가 USD/KRW 모두 debounce 검색 + 드롭다운 선택 UI로 변환되며, App.jsx에서 USD/KRX 가격을 합산한다.
 
-**Tech Stack:** Cloudflare Pages Functions, Yahoo Finance API (비공식), React (useState/useRef/useMemo), Vitest
+**Tech Stack:** Cloudflare Pages Functions, Yahoo Finance API (비공식), Finnhub API, React (useState/useRef/useMemo), Vitest
 
 ---
 
 ### Task 1: Cloudflare Pages Functions
 
 **Files:**
+- Create: `functions/api/usd-search.js`
 - Create: `functions/api/krx-search.js`
 - Create: `functions/api/krx-quote.js`
 
 > Cloudflare Functions는 브라우저 단위 테스트가 어려우므로 배포 후 curl로 검증한다 (Task 7).
 
-- [ ] **Step 1: krx-search.js 생성**
+- [ ] **Step 1: usd-search.js 생성**
+
+`functions/api/usd-search.js`:
+
+```js
+export async function onRequestGet(context) {
+  const url = new URL(context.request.url)
+  const q = url.searchParams.get('q') ?? ''
+  if (!q.trim()) {
+    return new Response(JSON.stringify([]), {
+      headers: { 'Content-Type': 'application/json' },
+    })
+  }
+  try {
+    const res = await fetch(
+      `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(q)}&lang=en-US&region=US`,
+      { headers: { 'User-Agent': 'Mozilla/5.0' } }
+    )
+    const data = await res.json()
+    const quotes = (data.quotes ?? [])
+      .filter(item =>
+        item.symbol &&
+        item.quoteType === 'EQUITY' &&
+        !item.symbol.endsWith('.KS') &&
+        !item.symbol.endsWith('.KQ') &&
+        !item.symbol.includes('.')
+      )
+      .slice(0, 8)
+      .map(item => ({
+        symbol: item.symbol,
+        name: item.shortname ?? item.longname ?? item.symbol,
+        ticker: item.symbol,
+      }))
+    return new Response(JSON.stringify(quotes), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    })
+  } catch {
+    return new Response(JSON.stringify([]), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
+    })
+  }
+}
+```
+
+- [ ] **Step 2: krx-search.js 생성**
 
 `functions/api/krx-search.js`:
 
@@ -57,7 +102,7 @@ export async function onRequestGet(context) {
 }
 ```
 
-- [ ] **Step 2: krx-quote.js 생성**
+- [ ] **Step 3: krx-quote.js 생성**
 
 `functions/api/krx-quote.js`:
 
@@ -88,37 +133,73 @@ export async function onRequestGet(context) {
 }
 ```
 
-- [ ] **Step 3: 커밋**
+- [ ] **Step 4: 커밋**
 
 ```bash
-git add functions/api/krx-search.js functions/api/krx-quote.js
-git commit -m "feat: add Cloudflare Functions for KRX search and quote proxy"
+git add functions/api/usd-search.js functions/api/krx-search.js functions/api/krx-quote.js
+git commit -m "feat: add Cloudflare Functions for USD/KRX search and KRX quote proxy"
 ```
 
 ---
 
-### Task 2: src/utils/krx.js (TDD)
+### Task 2: src/utils/stockSearch.js (TDD)
 
 **Files:**
-- Create: `src/utils/krx.js`
-- Create: `src/__tests__/krx.test.js`
+- Create: `src/utils/stockSearch.js`
+- Create: `src/__tests__/stockSearch.test.js`
 
 - [ ] **Step 1: 실패하는 테스트 작성**
 
-`src/__tests__/krx.test.js`:
+`src/__tests__/stockSearch.test.js`:
 
 ```js
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { fetchKrxSearch, fetchKrxQuote } from '../utils/krx.js'
+import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../utils/stockSearch.js'
+
+describe('fetchUsdSearch', () => {
+  beforeEach(() => vi.restoreAllMocks())
+
+  it('빈 문자열 → 빈 배열 반환 (fetch 미호출)', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    expect(await fetchUsdSearch('')).toEqual([])
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('null → 빈 배열 반환 (fetch 미호출)', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    expect(await fetchUsdSearch(null)).toEqual([])
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
+  it('정상 응답 → 결과 배열 반환', async () => {
+    const mockResults = [{ symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' }]
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockResults),
+    }))
+    const result = await fetchUsdSearch('apple')
+    expect(result).toEqual(mockResults)
+    expect(fetch).toHaveBeenCalledWith('/api/usd-search?q=apple')
+  })
+
+  it('fetch 실패 시 빈 배열 반환', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('network')))
+    expect(await fetchUsdSearch('apple')).toEqual([])
+  })
+
+  it('응답 not ok 시 빈 배열 반환', async () => {
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue({ ok: false }))
+    expect(await fetchUsdSearch('apple')).toEqual([])
+  })
+})
 
 describe('fetchKrxSearch', () => {
   beforeEach(() => vi.restoreAllMocks())
 
   it('빈 문자열 → 빈 배열 반환 (fetch 미호출)', async () => {
-    const spy = vi.stubGlobal('fetch', vi.fn())
+    vi.stubGlobal('fetch', vi.fn())
     expect(await fetchKrxSearch('')).toEqual([])
     expect(fetch).not.toHaveBeenCalled()
-    spy.restore?.()
   })
 
   it('null → 빈 배열 반환 (fetch 미호출)', async () => {
@@ -184,16 +265,27 @@ describe('fetchKrxQuote', () => {
 - [ ] **Step 2: 테스트 실행 — FAIL 확인**
 
 ```bash
-npx vitest run src/__tests__/krx.test.js
+npx vitest run src/__tests__/stockSearch.test.js
 ```
 
-Expected: `Cannot find module '../utils/krx.js'`
+Expected: `Cannot find module '../utils/stockSearch.js'`
 
-- [ ] **Step 3: krx.js 구현**
+- [ ] **Step 3: stockSearch.js 구현**
 
-`src/utils/krx.js`:
+`src/utils/stockSearch.js`:
 
 ```js
+export async function fetchUsdSearch(query) {
+  if (!query?.trim()) return []
+  try {
+    const res = await fetch(`/api/usd-search?q=${encodeURIComponent(query.trim())}`)
+    if (!res.ok) return []
+    return await res.json()
+  } catch {
+    return []
+  }
+}
+
 export async function fetchKrxSearch(query) {
   if (!query?.trim()) return []
   try {
@@ -220,16 +312,16 @@ export async function fetchKrxQuote(ticker, exchange) {
 - [ ] **Step 4: 테스트 재실행 — PASS 확인**
 
 ```bash
-npx vitest run src/__tests__/krx.test.js
+npx vitest run src/__tests__/stockSearch.test.js
 ```
 
-Expected: 9개 전체 PASS
+Expected: 14개 전체 PASS
 
 - [ ] **Step 5: 커밋**
 
 ```bash
-git add src/utils/krx.js src/__tests__/krx.test.js
-git commit -m "feat: add fetchKrxSearch and fetchKrxQuote utilities"
+git add src/utils/stockSearch.js src/__tests__/stockSearch.test.js
+git commit -m "feat: add fetchUsdSearch, fetchKrxSearch, fetchKrxQuote utilities"
 ```
 
 ---
@@ -248,11 +340,12 @@ git commit -m "feat: add fetchKrxSearch and fetchKrxQuote utilities"
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook, act, waitFor } from '@testing-library/react'
 import { useKrxPrices } from '../../hooks/useKrxPrices.js'
-import { fetchKrxQuote } from '../../utils/krx.js'
+import { fetchKrxQuote } from '../../utils/stockSearch.js'
 
-vi.mock('../../utils/krx.js', () => ({
+vi.mock('../../utils/stockSearch.js', () => ({
   fetchKrxQuote: vi.fn(),
   fetchKrxSearch: vi.fn(),
+  fetchUsdSearch: vi.fn(),
 }))
 
 describe('useKrxPrices', () => {
@@ -313,7 +406,7 @@ Expected: `Cannot find module '../../hooks/useKrxPrices.js'`
 
 ```js
 import { useState, useCallback, useEffect, useRef } from 'react'
-import { fetchKrxQuote } from '../utils/krx.js'
+import { fetchKrxQuote } from '../utils/stockSearch.js'
 
 export function useKrxPrices(krwHoldings) {
   const [prices, setPrices] = useState({})
@@ -392,8 +485,8 @@ git commit -m "feat: add useKrxPrices hook for KRX batch price fetching"
 - [ ] **Step 1: index.css 맨 아래에 드롭다운 스타일 추가**
 
 ```css
-/* KRX search dropdown */
-.krw-dropdown {
+/* stock search dropdown (USD + KRW 공용) */
+.search-dropdown {
   position: absolute;
   top: 100%;
   left: 0;
@@ -407,7 +500,7 @@ git commit -m "feat: add useKrxPrices hook for KRX batch price fetching"
   margin-top: 2px;
   box-shadow: 0 4px 16px rgba(0,0,0,.3);
 }
-.krw-dropdown-item {
+.search-dropdown-item {
   padding: 8px 12px;
   cursor: pointer;
   display: flex;
@@ -415,9 +508,9 @@ git commit -m "feat: add useKrxPrices hook for KRX batch price fetching"
   align-items: center;
   gap: 8px;
 }
-.krw-dropdown-item:hover { background: rgba(127,209,174,.08) }
-.krw-item-name { font-size: 13px; color: var(--ink); }
-.krw-item-meta {
+.search-dropdown-item:hover { background: rgba(127,209,174,.08) }
+.search-item-name { font-size: 13px; color: var(--ink); }
+.search-item-meta {
   font-family: 'Spline Sans Mono', monospace;
   font-size: 10px;
   color: var(--ink-faint);
@@ -429,12 +522,12 @@ git commit -m "feat: add useKrxPrices hook for KRX batch price fetching"
 
 ```bash
 git add src/index.css
-git commit -m "feat: add KRX search dropdown styles"
+git commit -m "feat: add stock search dropdown styles"
 ```
 
 ---
 
-### Task 5: HoldingsTable KRW 검색 UX (TDD)
+### Task 5: HoldingsTable 이름 검색 UX (TDD)
 
 **Files:**
 - Modify: `src/components/HoldingsTable.jsx`
@@ -445,22 +538,65 @@ git commit -m "feat: add KRX search dropdown styles"
 `src/__tests__/components/HoldingsTable.test.jsx` 상단 import에 추가:
 
 ```js
-import { fetchKrxSearch, fetchKrxQuote } from '../../utils/krx.js'
+import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../../utils/stockSearch.js'
 ```
 
 mock 블록에 추가 (기존 `vi.mock('../../utils/finnhub.js', ...)` 아래):
 
 ```js
-vi.mock('../../utils/krx.js', () => ({
+vi.mock('../../utils/stockSearch.js', () => ({
+  fetchUsdSearch: vi.fn(),
   fetchKrxSearch: vi.fn(),
   fetchKrxQuote: vi.fn(),
 }))
 ```
 
-`describe` 블록 맨 아래에 테스트 3개 추가:
+`describe` 블록 맨 아래에 테스트 6개 추가:
 
 ```js
-it('KRW 선택 후 이름 입력 시 fetchKrxSearch 호출', async () => {
+// USD 이름 검색
+it('USD: 이름 입력 시 fetchUsdSearch 호출', async () => {
+  fetchUsdSearch.mockResolvedValue([
+    { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
+  ])
+  render(<HoldingsTable {...defaultProps} />)
+  fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
+  await waitFor(() => expect(fetchUsdSearch).toHaveBeenCalledWith('apple'), { timeout: 500 })
+})
+
+it('USD: 드롭다운 선택 시 티커·이름 자동 입력', async () => {
+  fetchUsdSearch.mockResolvedValue([
+    { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
+  ])
+  const { fetchQuote } = await import('../../utils/finnhub.js')
+  fetchQuote.mockResolvedValue(195.5)
+  render(<HoldingsTable {...defaultProps} />)
+  fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
+  await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
+  fireEvent.click(screen.getByText('Apple Inc.'))
+  await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('AAPL'))
+})
+
+it('USD: 종목 선택 후 추가 시 onAdd에 올바른 값 전달', async () => {
+  fetchUsdSearch.mockResolvedValue([
+    { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
+  ])
+  const { fetchQuote } = await import('../../utils/finnhub.js')
+  fetchQuote.mockResolvedValue(195.5)
+  const onAdd = vi.fn()
+  render(<HoldingsTable {...defaultProps} onAdd={onAdd} />)
+  fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
+  await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
+  fireEvent.click(screen.getByText('Apple Inc.'))
+  await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('AAPL'))
+  fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '3' } })
+  fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '180' } })
+  fireEvent.click(screen.getByText('+ 추가'))
+  expect(onAdd).toHaveBeenCalledWith({ t: 'AAPL', nm: 'Apple Inc.', q: 3, b: 180, c: 195.5, currency: 'USD' })
+})
+
+// KRW 이름 검색
+it('KRW: 이름 입력 시 fetchKrxSearch 호출', async () => {
   fetchKrxSearch.mockResolvedValue([
     { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
   ])
@@ -470,7 +606,7 @@ it('KRW 선택 후 이름 입력 시 fetchKrxSearch 호출', async () => {
   await waitFor(() => expect(fetchKrxSearch).toHaveBeenCalledWith('삼성'), { timeout: 500 })
 })
 
-it('드롭다운 항목 클릭 시 티커·이름·거래소 자동 입력', async () => {
+it('KRW: 드롭다운 선택 시 티커·이름·거래소 자동 입력', async () => {
   fetchKrxSearch.mockResolvedValue([
     { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
   ])
@@ -483,7 +619,7 @@ it('드롭다운 항목 클릭 시 티커·이름·거래소 자동 입력', asy
   await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('005930'))
 })
 
-it('KRW 종목 선택 후 추가 시 onAdd에 exchange 포함', async () => {
+it('KRW: 종목 선택 후 추가 시 onAdd에 exchange 포함', async () => {
   fetchKrxSearch.mockResolvedValue([
     { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
   ])
@@ -510,151 +646,297 @@ it('KRW 종목 선택 후 추가 시 onAdd에 exchange 포함', async () => {
 npx vitest run src/__tests__/components/HoldingsTable.test.jsx
 ```
 
-Expected: 신규 3개 FAIL
+Expected: 신규 6개 FAIL
 
 - [ ] **Step 3: HoldingsTable.jsx 수정**
 
-**3-1. import 추가** (파일 상단):
+현재 파일 전체를 아래 내용으로 교체:
 
-```js
-import { useRef } from 'react'
-import { fetchKrxSearch, fetchKrxQuote } from '../utils/krx.js'
-```
-
-기존 `import { useState } from 'react'`를 아래로 교체:
-
-```js
+```jsx
 import { useState, useRef } from 'react'
-```
+import EditModal from './EditModal.jsx'
+import { fmtCurrency, pct } from '../utils/format.js'
+import { fetchQuote } from '../utils/finnhub.js'
+import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../utils/stockSearch.js'
 
-**3-2. form 상태에 exchange 추가** (9번 줄):
+export default function HoldingsTable({
+  holdings, totalVal, onAdd, onDelete, displayCurrency, toDisplay,
+  prices = {}, priceLoading = false, priceError = null, lastUpdatedAt = null, onRefresh = () => {},
+  rawHoldings = [], onEdit = () => {},
+}) {
+  const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
+  const [tickerStatus, setTickerStatus] = useState('idle') // 'idle' | 'loading' | 'found' | 'error'
+  const [editingIndex, setEditingIndex] = useState(null)
+  const [searchResults, setSearchResults] = useState([])
+  const [searchOpen, setSearchOpen] = useState(false)
+  const debounceRef = useRef(null)
 
-```js
-const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
-```
+  const isKRW = form.currency === 'KRW'
+  const hasAutoHoldings = holdings.some(h =>
+    (h.currency ?? 'USD') === 'USD' || (h.currency === 'KRW' && h.exchange)
+  )
+  const dispSym = displayCurrency === 'KRW' ? '₩' : '$'
 
-**3-3. 새 state/ref 추가** (tickerStatus 선언 다음):
-
-```js
-const [krwSearchResults, setKrwSearchResults] = useState([])
-const [krwSearchOpen, setKrwSearchOpen] = useState(false)
-const debounceRef = useRef(null)
-```
-
-**3-4. handleKrwNameChange 함수 추가** (handleTickerBlur 함수 다음):
-
-```js
-function handleKrwNameChange(e) {
-  const val = e.target.value
-  setForm(f => ({ ...f, name: val, ticker: '', exchange: '', cur: '' }))
-  clearTimeout(debounceRef.current)
-  if (!val.trim()) { setKrwSearchResults([]); setKrwSearchOpen(false); return }
-  debounceRef.current = setTimeout(async () => {
-    const results = await fetchKrxSearch(val)
-    setKrwSearchResults(results)
-    setKrwSearchOpen(results.length > 0)
-  }, 300)
-}
-
-async function handleKrwSelect(item) {
-  setKrwSearchOpen(false)
-  setKrwSearchResults([])
-  setForm(f => ({ ...f, name: item.name, ticker: item.ticker, exchange: item.exchange, cur: '' }))
-  const price = await fetchKrxQuote(item.ticker, item.exchange)
-  if (price !== null) setForm(f => ({ ...f, cur: String(price) }))
-}
-```
-
-**3-5. handleAdd에 exchange 포함** (기존 handleAdd 함수 교체):
-
-```js
-function handleAdd() {
-  const t = form.ticker.trim().toUpperCase()
-  const nm = form.name.trim()
-  const q = parseFloat(form.qty)
-  const b = parseFloat(form.buy)
-  const c = parseFloat(form.cur)
-  if (!t || !(q > 0) || !(b >= 0) || !(c >= 0)) {
-    alert('티커·수량·매수가·현재가를 올바르게 입력해 주세요.')
-    return
+  async function handleTickerBlur() {
+    const ticker = form.ticker.trim().toUpperCase()
+    if (!ticker || form.currency !== 'USD') return
+    setTickerStatus('loading')
+    setForm(f => ({ ...f, cur: '' }))
+    const price = await fetchQuote(ticker)
+    setForm(f => {
+      if (f.ticker.trim().toUpperCase() !== ticker) return f
+      return { ...f, cur: price !== null ? String(price) : '' }
+    })
+    setTickerStatus(prev => {
+      if (prev !== 'loading') return prev
+      return price !== null ? 'found' : 'error'
+    })
   }
-  const holding = { t, nm, q, b, c, currency: form.currency }
-  if (form.currency === 'KRW' && form.exchange) holding.exchange = form.exchange
-  onAdd(holding)
-  setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: form.currency, exchange: '' })
-  setTickerStatus('idle')
-  setKrwSearchResults([])
-  setKrwSearchOpen(false)
-}
-```
 
-**3-6. 통화 버튼 onClick 업데이트** (USD 버튼):
+  function handleNameChange(e) {
+    const val = e.target.value
+    setForm(f => ({ ...f, name: val, ticker: '', exchange: '', cur: '' }))
+    setTickerStatus('idle')
+    clearTimeout(debounceRef.current)
+    if (!val.trim()) { setSearchResults([]); setSearchOpen(false); return }
+    debounceRef.current = setTimeout(async () => {
+      const results = isKRW
+        ? await fetchKrxSearch(val)
+        : await fetchUsdSearch(val)
+      setSearchResults(results)
+      setSearchOpen(results.length > 0)
+    }, 300)
+  }
 
-```jsx
-onClick={() => { setForm(f => ({ ...f, currency: 'USD', exchange: '' })); setTickerStatus('idle'); setKrwSearchOpen(false) }}
-```
+  async function handleSelect(item) {
+    setSearchOpen(false)
+    setSearchResults([])
+    if (isKRW) {
+      setForm(f => ({ ...f, name: item.name, ticker: item.ticker, exchange: item.exchange, cur: '' }))
+      const price = await fetchKrxQuote(item.ticker, item.exchange)
+      if (price !== null) setForm(f => ({ ...f, cur: String(price) }))
+    } else {
+      setForm(f => ({ ...f, name: item.name, ticker: item.ticker, cur: '' }))
+      setTickerStatus('loading')
+      const price = await fetchQuote(item.ticker)
+      setForm(f => f.ticker !== item.ticker ? f : { ...f, cur: price !== null ? String(price) : '' })
+      setTickerStatus(price !== null ? 'found' : 'error')
+    }
+  }
 
-KRW 버튼:
+  function handleAdd() {
+    const t = form.ticker.trim().toUpperCase()
+    const nm = form.name.trim()
+    const q = parseFloat(form.qty)
+    const b = parseFloat(form.buy)
+    const c = parseFloat(form.cur)
+    if (!t || !(q > 0) || !(b >= 0) || !(c >= 0)) {
+      alert('티커·수량·매수가·현재가를 올바르게 입력해 주세요.')
+      return
+    }
+    const holding = { t, nm, q, b, c, currency: form.currency }
+    if (form.currency === 'KRW' && form.exchange) holding.exchange = form.exchange
+    onAdd(holding)
+    setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: form.currency, exchange: '' })
+    setTickerStatus('idle')
+    setSearchResults([])
+    setSearchOpen(false)
+  }
 
-```jsx
-onClick={() => { setForm(f => ({ ...f, currency: 'KRW', exchange: '' })); setTickerStatus('idle'); setKrwSearchOpen(false) }}
-```
+  function formatUpdatedAt(date) {
+    if (!date) return null
+    return `${String(date.getHours()).padStart(2, '0')}:${String(date.getMinutes()).padStart(2, '0')}`
+  }
 
-**3-7. 이름 필드를 검색 UI로 교체** (기존 `<div className="field nm">` 전체 교체):
+  return (
+    <div className="holdings">
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
+        <h2 style={{ fontFamily: "'Spline Sans Mono',monospace", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ink-dim)', margin: 0 }}>
+          보유 종목
+        </h2>
+        {hasAutoHoldings && (
+          <>
+            <button
+              onClick={onRefresh}
+              disabled={priceLoading}
+              title="주가 새로고침"
+              style={{ background: 'none', border: '1px solid var(--ink-dim)', borderRadius: 4, color: 'var(--ink-dim)', cursor: priceLoading ? 'default' : 'pointer', fontSize: 12, padding: '2px 8px', opacity: priceLoading ? 0.5 : 1 }}
+            >
+              ↻
+            </button>
+            {lastUpdatedAt && (
+              <span style={{ fontFamily: "'Spline Sans Mono',monospace", fontSize: 10, color: 'var(--ink-faint)' }}>
+                {formatUpdatedAt(lastUpdatedAt)} 기준
+              </span>
+            )}
+          </>
+        )}
+      </div>
 
-```jsx
-<div className="field nm" style={{ position: 'relative' }}>
-  <label>{isKRW ? '이름 검색' : '이름(선택)'}</label>
-  <input
-    placeholder={isKRW ? '삼성전자' : 'Apple Inc.'}
-    value={form.name}
-    autoComplete="off"
-    onChange={isKRW ? handleKrwNameChange : e => setForm(f => ({ ...f, name: e.target.value }))}
-  />
-  {isKRW && krwSearchOpen && krwSearchResults.length > 0 && (
-    <div className="krw-dropdown">
-      {krwSearchResults.map(item => (
-        <div key={item.symbol} className="krw-dropdown-item" onClick={() => handleKrwSelect(item)}>
-          <span className="krw-item-name">{item.name}</span>
-          <span className="krw-item-meta">{item.ticker} · {item.exchange === 'KS' ? 'KOSPI' : 'KOSDAQ'}</span>
+      {priceError && (
+        <div style={{ background: 'rgba(232,101,79,.12)', border: '1px solid rgba(232,101,79,.3)', borderRadius: 6, color: '#e8654f', fontSize: 12, marginBottom: 12, padding: '6px 12px' }}>
+          ⚠ {priceError}
         </div>
-      ))}
+      )}
+
+      <div className="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>종목</th><th>수량</th><th>매수가</th><th>현재가</th>
+              <th>평가액 ({dispSym})</th><th>손익 ({dispSym})</th><th>수익률</th><th>비중</th><th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {holdings.length === 0 ? (
+              <tr><td colSpan={9} className="empty">아직 종목이 없습니다. 아래에서 첫 종목을 추가해 보세요.</td></tr>
+            ) : (
+              holdings.map((h, i) => {
+                const hCur = h.currency ?? 'USD'
+                const val = toDisplay(h.q * h.c, hCur)
+                const cost = toDisplay(h.q * h.b, hCur)
+                const p = val - cost
+                const r = cost > 0 ? p / cost * 100 : 0
+                const w = totalVal > 0 ? val / totalVal * 100 : 0
+                const isLive = prices[h.t] !== undefined
+                return (
+                  <tr key={i}>
+                    <td>
+                      <span className="tick">
+                        {h.t}
+                        {h.nm && <small>{h.nm}</small>}
+                      </span>
+                    </td>
+                    <td>{h.q.toLocaleString()}</td>
+                    <td>{fmtCurrency(h.b, hCur)}</td>
+                    <td>
+                      {isLive && <span style={{ color: '#3fbf8f', fontSize: 9, marginRight: 3 }}>●</span>}
+                      {fmtCurrency(h.c, hCur)}
+                    </td>
+                    <td>{fmtCurrency(val, displayCurrency)}</td>
+                    <td className={p >= 0 ? 'pos' : 'neg'}>{fmtCurrency(p, displayCurrency)}</td>
+                    <td className={r >= 0 ? 'pos' : 'neg'}>{pct(r)}</td>
+                    <td>{w.toFixed(1)}%</td>
+                    <td>
+                      <button className="edit" onClick={() => setEditingIndex(i)} title="수정">✎</button>
+                      <button className="del" onClick={() => onDelete(i)} title="삭제">✕</button>
+                    </td>
+                  </tr>
+                )
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      <div className="addbar">
+        <div className="field tk">
+          <label>티커</label>
+          <input
+            placeholder="AAPL"
+            value={form.ticker}
+            readOnly={!!form.exchange || (tickerStatus === 'found' && !!form.ticker)}
+            style={(!!form.exchange || tickerStatus === 'found') ? { opacity: 0.6 } : {}}
+            onChange={e => {
+              if (form.exchange) return
+              setForm(f => ({ ...f, ticker: e.target.value }))
+              if (tickerStatus !== 'idle') setTickerStatus('idle')
+            }}
+            onBlur={handleTickerBlur}
+          />
+        </div>
+        <div className="field">
+          <label>통화</label>
+          <div className="currency-toggle">
+            <button
+              className={`currency-btn ${form.currency === 'USD' ? 'active' : ''}`}
+              onClick={() => {
+                setForm(f => ({ ...f, currency: 'USD', exchange: '', ticker: '', name: '', cur: '' }))
+                setTickerStatus('idle')
+                setSearchOpen(false)
+                setSearchResults([])
+              }}
+            >USD</button>
+            <button
+              className={`currency-btn ${form.currency === 'KRW' ? 'active' : ''}`}
+              onClick={() => {
+                setForm(f => ({ ...f, currency: 'KRW', exchange: '', ticker: '', name: '', cur: '' }))
+                setTickerStatus('idle')
+                setSearchOpen(false)
+                setSearchResults([])
+              }}
+            >KRW</button>
+          </div>
+        </div>
+        <div className="field nm" style={{ position: 'relative' }}>
+          <label>이름 검색</label>
+          <input
+            placeholder={isKRW ? '삼성전자' : 'Apple Inc.'}
+            value={form.name}
+            autoComplete="off"
+            onChange={handleNameChange}
+          />
+          {searchOpen && searchResults.length > 0 && (
+            <div className="search-dropdown">
+              {searchResults.map(item => (
+                <div key={item.symbol} className="search-dropdown-item" onClick={() => handleSelect(item)}>
+                  <span className="search-item-name">{item.name}</span>
+                  <span className="search-item-meta">
+                    {item.ticker}{item.exchange ? ` · ${item.exchange === 'KS' ? 'KOSPI' : 'KOSDAQ'}` : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="field">
+          <label>수량</label>
+          <input
+            type="number" step="any" placeholder="10"
+            value={form.qty}
+            onChange={e => setForm(f => ({ ...f, qty: e.target.value }))}
+          />
+        </div>
+        <div className="field">
+          <label>매수단가</label>
+          <input
+            type="number" step="any"
+            placeholder={isKRW ? '75000' : '150'}
+            value={form.buy}
+            onChange={e => setForm(f => ({ ...f, buy: e.target.value }))}
+          />
+        </div>
+        <div className="field">
+          <label>현재가{tickerStatus === 'loading' ? ' 조회 중…' : ''}</label>
+          <input
+            type="number" step="any"
+            placeholder={isKRW ? '82000' : '190'}
+            value={form.cur}
+            readOnly={tickerStatus === 'found'}
+            style={tickerStatus === 'found' ? { opacity: 0.7 } : {}}
+            onChange={e => {
+              if (tickerStatus === 'found') return
+              setForm(f => ({ ...f, cur: e.target.value }))
+            }}
+          />
+          {tickerStatus === 'error' && (
+            <span style={{ color: '#e8654f', fontSize: 10, display: 'block', marginTop: 2 }}>
+              티커를 찾을 수 없습니다
+            </span>
+          )}
+        </div>
+        <button className="btn" onClick={handleAdd}>+ 추가</button>
+      </div>
+      {editingIndex !== null && (
+        <EditModal
+          holding={rawHoldings[editingIndex]}
+          onSave={patch => { onEdit(editingIndex, patch); setEditingIndex(null) }}
+          onClose={() => setEditingIndex(null)}
+        />
+      )}
     </div>
-  )}
-</div>
-```
-
-**3-8. 티커 필드: KRW 선택 완료 시 readOnly** (기존 티커 input 교체):
-
-```jsx
-<input
-  placeholder="AAPL"
-  value={form.ticker}
-  readOnly={isKRW && !!form.exchange}
-  style={isKRW && form.exchange ? { opacity: 0.6 } : {}}
-  onChange={e => {
-    if (isKRW && form.exchange) return
-    setForm(f => ({ ...f, ticker: e.target.value }))
-    if (tickerStatus !== 'idle') setTickerStatus('idle')
-  }}
-  onBlur={handleTickerBlur}
-/>
-```
-
-**3-9. hasUsdHoldings → hasAutoHoldings** (13번 줄 근처):
-
-```js
-const hasAutoHoldings = holdings.some(h =>
-  (h.currency ?? 'USD') === 'USD' || (h.currency === 'KRW' && h.exchange)
-)
-```
-
-JSX에서 `{hasUsdHoldings && (` → `{hasAutoHoldings && (` 로 교체 (2곳)
-
-**3-10. isLive 조건 변경** (각 행의 isLive 계산):
-
-```js
-const isLive = prices[h.t] !== undefined
+  )
+}
 ```
 
 - [ ] **Step 4: 테스트 재실행 — PASS 확인**
@@ -663,7 +945,7 @@ const isLive = prices[h.t] !== undefined
 npx vitest run src/__tests__/components/HoldingsTable.test.jsx
 ```
 
-Expected: 전체 PASS (기존 12 + 신규 3 = 15개)
+Expected: 전체 PASS (기존 + 신규 6개 포함)
 
 - [ ] **Step 5: 전체 테스트 확인**
 
@@ -677,7 +959,7 @@ Expected: 전체 PASS
 
 ```bash
 git add src/components/HoldingsTable.jsx src/__tests__/components/HoldingsTable.test.jsx
-git commit -m "feat: add KRW stock search typeahead to HoldingsTable"
+git commit -m "feat: add stock name search typeahead for USD and KRW in HoldingsTable"
 ```
 
 ---
@@ -774,6 +1056,9 @@ git push origin main
 배포된 URL에서 curl로 확인 (URL은 Cloudflare Pages 대시보드 참조):
 
 ```bash
+curl "https://<your-pages-url>/api/usd-search?q=apple"
+# Expected: [{"symbol":"AAPL","name":"Apple Inc.","ticker":"AAPL"}, ...]
+
 curl "https://<your-pages-url>/api/krx-search?q=삼성전자"
 # Expected: [{"symbol":"005930.KS","name":"삼성전자","ticker":"005930","exchange":"KS"}, ...]
 
@@ -785,9 +1070,9 @@ curl "https://<your-pages-url>/api/krx-quote?symbol=005930.KS"
 
 배포된 앱에서:
 
-- KRW 선택 → 이름 필드 placeholder가 "삼성전자"로 변경
-- "삼성" 입력 → 300ms 후 드롭다운 표시 (종목명·티커·거래소)
-- 종목 선택 → 티커 자동 입력, 현재가 자동 조회
-- 수량·매수가 입력 후 추가 → 테이블에 종목 추가, `●` live 인디케이터 표시
-- ↻ 버튼 → KRW 종목도 가격 재조회
-- 기존 USD 종목 동작 변화 없음 확인
+- USD 선택 → 이름 필드에 "apple" 입력 → 드롭다운에 "Apple Inc. · AAPL" 표시
+- 선택 → 티커 자동 입력, 현재가 자동 조회 (Finnhub)
+- KRW 선택 → "삼성" 입력 → 드롭다운에 "삼성전자 · 005930 · KOSPI" 표시
+- 선택 → 티커 자동 입력, 현재가 자동 조회 (Yahoo Finance)
+- 두 종목 모두 추가 후 `●` live 인디케이터 표시
+- ↻ 버튼 → USD + KRW 모두 가격 재조회
