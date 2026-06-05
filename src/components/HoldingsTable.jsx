@@ -1,19 +1,25 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import EditModal from './EditModal.jsx'
 import { fmtCurrency, pct } from '../utils/format.js'
 import { fetchQuote } from '../utils/finnhub.js'
+import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../utils/stockSearch.js'
 
 export default function HoldingsTable({
   holdings, totalVal, onAdd, onDelete, displayCurrency, toDisplay,
   prices = {}, priceLoading = false, priceError = null, lastUpdatedAt = null, onRefresh = () => {},
   rawHoldings = [], onEdit = () => {},
 }) {
-  const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD' })
+  const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
   const [tickerStatus, setTickerStatus] = useState('idle') // 'idle' | 'loading' | 'found' | 'error'
   const [editingIndex, setEditingIndex] = useState(null)
+  const [searchResults, setSearchResults] = useState([])
+  const [searchOpen, setSearchOpen] = useState(false)
+  const debounceRef = useRef(null)
 
   const isKRW = form.currency === 'KRW'
-  const hasUsdHoldings = holdings.some(h => (h.currency ?? 'USD') === 'USD')
+  const hasAutoHoldings = holdings.some(h =>
+    (h.currency ?? 'USD') === 'USD' || (h.currency === 'KRW' && h.exchange)
+  )
   const dispSym = displayCurrency === 'KRW' ? '₩' : '$'
 
   async function handleTickerBlur() {
@@ -33,6 +39,37 @@ export default function HoldingsTable({
     })
   }
 
+  function handleNameChange(e) {
+    const val = e.target.value
+    setForm(f => ({ ...f, name: val, ticker: '', exchange: '', cur: '' }))
+    setTickerStatus('idle')
+    clearTimeout(debounceRef.current)
+    if (!val.trim()) { setSearchResults([]); setSearchOpen(false); return }
+    debounceRef.current = setTimeout(async () => {
+      const results = isKRW
+        ? await fetchKrxSearch(val)
+        : await fetchUsdSearch(val)
+      setSearchResults(results)
+      setSearchOpen(results.length > 0)
+    }, 300)
+  }
+
+  async function handleSelect(item) {
+    setSearchOpen(false)
+    setSearchResults([])
+    if (isKRW) {
+      setForm(f => ({ ...f, name: item.name, ticker: item.ticker, exchange: item.exchange, cur: '' }))
+      const price = await fetchKrxQuote(item.ticker, item.exchange)
+      if (price !== null) setForm(f => ({ ...f, cur: String(price) }))
+    } else {
+      setForm(f => ({ ...f, name: item.name, ticker: item.ticker, cur: '' }))
+      setTickerStatus('loading')
+      const price = await fetchQuote(item.ticker)
+      setForm(f => f.ticker !== item.ticker ? f : { ...f, cur: price !== null ? String(price) : '' })
+      setTickerStatus(price !== null ? 'found' : 'error')
+    }
+  }
+
   function handleAdd() {
     const t = form.ticker.trim().toUpperCase()
     const nm = form.name.trim()
@@ -43,9 +80,13 @@ export default function HoldingsTable({
       alert('티커·수량·매수가·현재가를 올바르게 입력해 주세요.')
       return
     }
-    onAdd({ t, nm, q, b, c, currency: form.currency })
-    setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: form.currency })
+    const holding = { t, nm, q, b, c, currency: form.currency }
+    if (form.currency === 'KRW' && form.exchange) holding.exchange = form.exchange
+    onAdd(holding)
+    setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: form.currency, exchange: '' })
     setTickerStatus('idle')
+    setSearchResults([])
+    setSearchOpen(false)
   }
 
   function formatUpdatedAt(date) {
@@ -59,7 +100,7 @@ export default function HoldingsTable({
         <h2 style={{ fontFamily: "'Spline Sans Mono',monospace", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ink-dim)', margin: 0 }}>
           보유 종목
         </h2>
-        {hasUsdHoldings && (
+        {hasAutoHoldings && (
           <>
             <button
               onClick={onRefresh}
@@ -103,7 +144,7 @@ export default function HoldingsTable({
                 const p = val - cost
                 const r = cost > 0 ? p / cost * 100 : 0
                 const w = totalVal > 0 ? val / totalVal * 100 : 0
-                const isLive = hCur === 'USD' && prices[h.t] !== undefined
+                const isLive = prices[h.t] !== undefined
                 return (
                   <tr key={i}>
                     <td>
@@ -140,7 +181,10 @@ export default function HoldingsTable({
           <input
             placeholder="AAPL"
             value={form.ticker}
+            readOnly={!!form.exchange || (tickerStatus === 'found' && !!form.ticker)}
+            style={(!!form.exchange || tickerStatus === 'found') ? { opacity: 0.6 } : {}}
             onChange={e => {
+              if (form.exchange) return
               setForm(f => ({ ...f, ticker: e.target.value }))
               if (tickerStatus !== 'idle') setTickerStatus('idle')
             }}
@@ -152,21 +196,44 @@ export default function HoldingsTable({
           <div className="currency-toggle">
             <button
               className={`currency-btn ${form.currency === 'USD' ? 'active' : ''}`}
-              onClick={() => { setForm(f => ({ ...f, currency: 'USD' })); setTickerStatus('idle') }}
+              onClick={() => {
+                setForm(f => ({ ...f, currency: 'USD', exchange: '', ticker: '', name: '', cur: '' }))
+                setTickerStatus('idle')
+                setSearchOpen(false)
+                setSearchResults([])
+              }}
             >USD</button>
             <button
               className={`currency-btn ${form.currency === 'KRW' ? 'active' : ''}`}
-              onClick={() => { setForm(f => ({ ...f, currency: 'KRW' })); setTickerStatus('idle') }}
+              onClick={() => {
+                setForm(f => ({ ...f, currency: 'KRW', exchange: '', ticker: '', name: '', cur: '' }))
+                setTickerStatus('idle')
+                setSearchOpen(false)
+                setSearchResults([])
+              }}
             >KRW</button>
           </div>
         </div>
-        <div className="field nm">
-          <label>이름(선택)</label>
+        <div className="field nm" style={{ position: 'relative' }}>
+          <label>이름 검색</label>
           <input
-            placeholder="Apple Inc."
+            placeholder={isKRW ? '삼성전자' : 'Apple Inc.'}
             value={form.name}
-            onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+            autoComplete="off"
+            onChange={handleNameChange}
           />
+          {searchOpen && searchResults.length > 0 && (
+            <div className="search-dropdown">
+              {searchResults.map(item => (
+                <div key={item.symbol} className="search-dropdown-item" onClick={() => handleSelect(item)}>
+                  <span className="search-item-name">{item.name}</span>
+                  <span className="search-item-meta">
+                    {item.ticker}{item.exchange ? ` · ${item.exchange === 'KS' ? 'KOSPI' : 'KOSDAQ'}` : ''}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
         <div className="field">
           <label>수량</label>

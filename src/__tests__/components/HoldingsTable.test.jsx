@@ -2,8 +2,14 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import HoldingsTable from '../../components/HoldingsTable.jsx'
 import { fetchQuote } from '../../utils/finnhub.js'
+import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../../utils/stockSearch.js'
 
 vi.mock('../../utils/finnhub.js', () => ({ fetchQuote: vi.fn() }))
+vi.mock('../../utils/stockSearch.js', () => ({
+  fetchUsdSearch: vi.fn(),
+  fetchKrxSearch: vi.fn(),
+  fetchKrxQuote: vi.fn(),
+}))
 
 const mockHoldings = [
   { t: 'AAPL', nm: 'Apple Inc.', q: 10, b: 150, c: 190, currency: 'USD' },
@@ -129,5 +135,88 @@ describe('HoldingsTable', () => {
     expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
     fireEvent.click(screen.getByText('취소'))
     expect(screen.queryByText('AAPL 수정')).not.toBeInTheDocument()
+  })
+
+  // USD 이름 검색
+  it('USD: 이름 입력 시 fetchUsdSearch 호출', async () => {
+    fetchUsdSearch.mockResolvedValue([
+      { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
+    ])
+    render(<HoldingsTable {...defaultProps} />)
+    fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
+    await waitFor(() => expect(fetchUsdSearch).toHaveBeenCalledWith('apple'), { timeout: 500 })
+  })
+
+  it('USD: 드롭다운 선택 시 티커·이름 자동 입력', async () => {
+    fetchUsdSearch.mockResolvedValue([
+      { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
+    ])
+    fetchQuote.mockResolvedValue(195.5)
+    render(<HoldingsTable {...defaultProps} />)
+    fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
+    await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('Apple Inc.'))
+    await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('AAPL'))
+  })
+
+  it('USD: 종목 선택 후 추가 시 onAdd에 올바른 값 전달', async () => {
+    fetchUsdSearch.mockResolvedValue([
+      { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
+    ])
+    fetchQuote.mockResolvedValue(195.5)
+    const onAdd = vi.fn()
+    render(<HoldingsTable {...defaultProps} onAdd={onAdd} />)
+    fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
+    await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('Apple Inc.'))
+    await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('AAPL'))
+    fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '3' } })
+    fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '180' } })
+    fireEvent.click(screen.getByText('+ 추가'))
+    expect(onAdd).toHaveBeenCalledWith({ t: 'AAPL', nm: 'Apple Inc.', q: 3, b: 180, c: 195.5, currency: 'USD' })
+  })
+
+  // KRW 이름 검색
+  it('KRW: 이름 입력 시 fetchKrxSearch 호출', async () => {
+    fetchKrxSearch.mockResolvedValue([
+      { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
+    ])
+    render(<HoldingsTable {...defaultProps} />)
+    fireEvent.click(screen.getByText('KRW'))
+    fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
+    await waitFor(() => expect(fetchKrxSearch).toHaveBeenCalledWith('삼성'), { timeout: 500 })
+  })
+
+  it('KRW: 드롭다운 선택 시 티커·이름·거래소 자동 입력', async () => {
+    fetchKrxSearch.mockResolvedValue([
+      { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
+    ])
+    fetchKrxQuote.mockResolvedValue(329000)
+    render(<HoldingsTable {...defaultProps} />)
+    fireEvent.click(screen.getByText('KRW'))
+    fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
+    await waitFor(() => expect(screen.getByText('삼성전자')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('삼성전자'))
+    await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('005930'))
+  })
+
+  it('KRW: 종목 선택 후 추가 시 onAdd에 exchange 포함', async () => {
+    fetchKrxSearch.mockResolvedValue([
+      { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
+    ])
+    fetchKrxQuote.mockResolvedValue(329000)
+    const onAdd = vi.fn()
+    render(<HoldingsTable {...defaultProps} onAdd={onAdd} />)
+    fireEvent.click(screen.getByText('KRW'))
+    fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
+    await waitFor(() => expect(screen.getByText('삼성전자')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('삼성전자'))
+    await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('005930'))
+    fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
+    fireEvent.change(screen.getByPlaceholderText('75000'), { target: { value: '75000' } })
+    fireEvent.click(screen.getByText('+ 추가'))
+    expect(onAdd).toHaveBeenCalledWith({
+      t: '005930', nm: '삼성전자', q: 5, b: 75000, c: 329000, currency: 'KRW', exchange: 'KS',
+    })
   })
 })
