@@ -1,4 +1,5 @@
-import { useMemo } from 'react'
+import { useState, useMemo } from 'react'
+import { Routes, Route } from 'react-router-dom'
 import {
   Chart as ChartJS,
   CategoryScale, LinearScale, PointElement, LineElement,
@@ -9,9 +10,10 @@ import { useExchangeRate } from './hooks/useExchangeRate.js'
 import { useStockPrices } from './hooks/useStockPrices.js'
 import { useKrxPrices } from './hooks/useKrxPrices.js'
 import Header from './components/Header.jsx'
-import Charts from './components/Charts.jsx'
-import HoldingsTable from './components/HoldingsTable.jsx'
-import SnapshotBar from './components/SnapshotBar.jsx'
+import Sidebar from './components/Sidebar.jsx'
+import DashboardPage from './pages/DashboardPage.jsx'
+import CalendarPage from './pages/CalendarPage.jsx'
+import NewsPage from './pages/NewsPage.jsx'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler)
 
@@ -20,6 +22,7 @@ export default function App() {
   const [snaps, setSnaps] = useLocalStorage('ledger_snaps', [])
   const [displayCurrency, setDisplayCurrency] = useLocalStorage('ledger_display_currency', 'USD')
   const [exchangeRate, setExchangeRate] = useLocalStorage('ledger_exchange_rate', { rate: null, updatedAt: null })
+  const [sidebarOpen, setSidebarOpen] = useState(false)
 
   useExchangeRate(setExchangeRate)
 
@@ -92,6 +95,7 @@ export default function App() {
 
   return (
     <div className="wrap">
+      <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       <Header
         totalVal={totalVal}
         totalCost={totalCost}
@@ -100,34 +104,32 @@ export default function App() {
         displayCurrency={effectiveDisplayCurrency}
         onToggleCurrency={toggleCurrency}
         exchangeRate={exchangeRate}
+        onMenuOpen={() => setSidebarOpen(true)}
       />
-      <Charts
-        holdings={effectiveHoldings}
-        snaps={snaps}
-        totalVal={totalVal}
-        displayCurrency={effectiveDisplayCurrency}
-        toDisplay={toDisplay}
-      />
-      <HoldingsTable
-        holdings={effectiveHoldings}
-        totalVal={totalVal}
-        onAdd={addHolding}
-        onDelete={delHolding}
-        onEdit={editHolding}
-        rawHoldings={holdings}
-        displayCurrency={effectiveDisplayCurrency}
-        toDisplay={toDisplay}
-        prices={prices}
-        priceLoading={priceLoading}
-        priceError={priceError}
-        lastUpdatedAt={lastUpdatedAt}
-        onRefresh={() => { refreshUsd(); refreshKrw() }}
-      />
-      <SnapshotBar onSnapshot={takeSnapshot} onClear={clearSnaps} />
-      <footer>
-        데이터는 이 브라우저에만 저장됩니다 · 투자 판단의 근거가 아닌 기록·시각화 용도입니다<br />
-        Ledger v2 — live prices via Finnhub (US) · Yahoo Finance (KRX)
-      </footer>
+      <Routes>
+        <Route path="/" element={
+          <DashboardPage
+            effectiveHoldings={effectiveHoldings}
+            snaps={snaps}
+            totalVal={totalVal}
+            effectiveDisplayCurrency={effectiveDisplayCurrency}
+            toDisplay={toDisplay}
+            prices={prices}
+            priceLoading={priceLoading}
+            priceError={priceError}
+            lastUpdatedAt={lastUpdatedAt}
+            onRefresh={() => { refreshUsd(); refreshKrw() }}
+            onAdd={addHolding}
+            onDelete={delHolding}
+            onEdit={editHolding}
+            rawHoldings={holdings}
+            onSnapshot={takeSnapshot}
+            onClear={clearSnaps}
+          />
+        } />
+        <Route path="/calendar" element={<CalendarPage />} />
+        <Route path="/news" element={<NewsPage />} />
+      </Routes>
     </div>
   )
 }
