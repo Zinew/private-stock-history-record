@@ -425,3 +425,15 @@ footer {
   transition: color .15s;
 }
 .menu-btn:hover { color: var(--ink) }
+
+.placeholder-page {
+  padding: 60px 24px;
+  text-align: center;
+  color: var(--ink-faint);
+}
+.placeholder-page h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 28px;
+  color: var(--ink-dim);
+  margin-bottom: 12px;
+}
