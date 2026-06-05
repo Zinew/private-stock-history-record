@@ -60,7 +60,7 @@ export default function HoldingsTable({
     if (isKRW) {
       setForm(f => ({ ...f, name: item.name, ticker: item.ticker, exchange: item.exchange, cur: '' }))
       const price = await fetchKrxQuote(item.ticker, item.exchange)
-      if (price !== null) setForm(f => ({ ...f, cur: String(price) }))
+      if (price !== null) setForm(f => f.ticker !== item.ticker ? f : { ...f, cur: String(price) })
     } else {
       setForm(f => ({ ...f, name: item.name, ticker: item.ticker, cur: '' }))
       setTickerStatus('loading')
@@ -221,6 +221,7 @@ export default function HoldingsTable({
             value={form.name}
             autoComplete="off"
             onChange={handleNameChange}
+            onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
           />
           {searchOpen && searchResults.length > 0 && (
             <div className="search-dropdown">
