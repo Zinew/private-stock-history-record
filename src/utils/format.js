@@ -13,10 +13,11 @@ export const tooltipDeltaLines = (cur, prev, displayCurrency) => {
   const line = ' ' + fmtCurrency(cur, displayCurrency)
   if (prev == null) return line
   const delta = cur - prev
-  const pct = ((delta / prev) * 100).toFixed(1)
+  const deltaPct = prev === 0 ? null : ((delta / prev) * 100).toFixed(1)
   const sign = delta >= 0 ? '▲ +' : '▼ '
   const deltaStr = delta >= 0
     ? fmtCurrency(delta, displayCurrency)
     : '-' + fmtCurrency(Math.abs(delta), displayCurrency)
-  return [line, ` ${sign}${deltaStr} (${delta >= 0 ? '+' : ''}${pct}%)`]
+  const pctPart = deltaPct == null ? '' : ` (${delta >= 0 ? '+' : ''}${deltaPct}%)`
+  return [line, ` ${sign}${deltaStr}${pctPart}`]
 }

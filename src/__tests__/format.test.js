@@ -69,4 +69,11 @@ describe('tooltipDeltaLines', () => {
     const result = tooltipDeltaLines(12000, 12000, 'USD')
     expect(result).toEqual([' $12,000.00', ' ▲ +$0.00 (+0.0%)'])
   })
+  it('prev가 null일 때도 현재값만 반환', () => {
+    expect(tooltipDeltaLines(12500, null, 'USD')).toBe(' $12,500.00')
+  })
+  it('prev가 0이면 퍼센트 없이 변화량만 표시', () => {
+    const result = tooltipDeltaLines(12500, 0, 'USD')
+    expect(result).toEqual([' $12,500.00', ' ▲ +$12,500.00'])
+  })
 })
