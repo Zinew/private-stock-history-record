@@ -21,6 +21,7 @@ export async function fetchKrxSearch(query) {
 }
 
 export async function fetchKrxQuote(ticker, exchange) {
+  if (!ticker?.trim() || !exchange?.trim()) return null
   try {
     const res = await fetch(`/api/krx-quote?symbol=${encodeURIComponent(ticker + '.' + exchange)}`)
     if (!res.ok) return null

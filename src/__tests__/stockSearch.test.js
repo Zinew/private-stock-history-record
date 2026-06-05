@@ -78,6 +78,12 @@ describe('fetchKrxSearch', () => {
 describe('fetchKrxQuote', () => {
   beforeEach(() => vi.restoreAllMocks())
 
+  it('빈 ticker → null 반환 (fetch 미호출)', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    expect(await fetchKrxQuote('', 'KS')).toBeNull()
+    expect(fetch).not.toHaveBeenCalled()
+  })
+
   it('정상 응답 → price 반환, symbol 포맷 확인', async () => {
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue({
       ok: true,
