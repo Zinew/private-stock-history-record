@@ -1,33 +1,52 @@
-import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import HoldingsTable from '../../components/HoldingsTable.jsx'
+import { fetchQuote } from '../../utils/finnhub.js'
+
+vi.mock('../../utils/finnhub.js', () => ({ fetchQuote: vi.fn() }))
 
 const mockHoldings = [
   { t: 'AAPL', nm: 'Apple Inc.', q: 10, b: 150, c: 190, currency: 'USD' },
 ]
-const identity = (n) => n  // toDisplay mock: no conversion
+const identity = (n) => n
+
+const defaultProps = {
+  holdings: [],
+  totalVal: 0,
+  onAdd: vi.fn(),
+  onDelete: vi.fn(),
+  displayCurrency: 'USD',
+  toDisplay: identity,
+  prices: {},
+  priceLoading: false,
+  priceError: null,
+  lastUpdatedAt: null,
+  onRefresh: vi.fn(),
+}
 
 describe('HoldingsTable', () => {
+  beforeEach(() => vi.clearAllMocks())
+
   it('종목 없을 때 빈 안내 메시지 표시', () => {
-    render(<HoldingsTable holdings={[]} totalVal={0} onAdd={vi.fn()} onDelete={vi.fn()} displayCurrency="USD" toDisplay={identity} />)
+    render(<HoldingsTable {...defaultProps} />)
     expect(screen.getByText(/종목이 없습니다/)).toBeInTheDocument()
   })
 
   it('종목 티커 표시', () => {
-    render(<HoldingsTable holdings={mockHoldings} totalVal={1900} onAdd={vi.fn()} onDelete={vi.fn()} displayCurrency="USD" toDisplay={identity} />)
+    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} totalVal={1900} />)
     expect(screen.getByText('AAPL')).toBeInTheDocument()
   })
 
   it('삭제 버튼 클릭 시 onDelete 호출', () => {
     const onDelete = vi.fn()
-    render(<HoldingsTable holdings={mockHoldings} totalVal={1900} onAdd={vi.fn()} onDelete={onDelete} displayCurrency="USD" toDisplay={identity} />)
+    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} totalVal={1900} onDelete={onDelete} />)
     fireEvent.click(screen.getByTitle('삭제'))
     expect(onDelete).toHaveBeenCalledWith(0)
   })
 
   it('폼 입력 후 추가 버튼 클릭 시 onAdd에 currency 포함', () => {
     const onAdd = vi.fn()
-    render(<HoldingsTable holdings={[]} totalVal={0} onAdd={onAdd} onDelete={vi.fn()} displayCurrency="USD" toDisplay={identity} />)
+    render(<HoldingsTable {...defaultProps} onAdd={onAdd} />)
     fireEvent.change(screen.getByPlaceholderText('AAPL'), { target: { value: 'TSLA' } })
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
     fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '200' } })
@@ -38,7 +57,7 @@ describe('HoldingsTable', () => {
 
   it('폼 통화 KRW 선택 후 추가 시 currency: KRW', () => {
     const onAdd = vi.fn()
-    render(<HoldingsTable holdings={[]} totalVal={0} onAdd={onAdd} onDelete={vi.fn()} displayCurrency="USD" toDisplay={identity} />)
+    render(<HoldingsTable {...defaultProps} onAdd={onAdd} />)
     fireEvent.click(screen.getByText('KRW'))
     fireEvent.change(screen.getByPlaceholderText('AAPL'), { target: { value: '005930' } })
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '10' } })
@@ -49,11 +68,41 @@ describe('HoldingsTable', () => {
   })
 
   it('테이블이 table-scroll 래퍼 안에 존재한다', () => {
-    const { container } = render(
-      <HoldingsTable holdings={[]} totalVal={0} onAdd={vi.fn()} onDelete={vi.fn()} displayCurrency="USD" toDisplay={identity} />
-    )
+    const { container } = render(<HoldingsTable {...defaultProps} />)
     const wrapper = container.querySelector('.table-scroll')
     expect(wrapper).toBeInTheDocument()
     expect(wrapper.querySelector('table')).toBeInTheDocument()
+  })
+
+  it('USD 티커 blur 시 fetchQuote 호출 후 현재가 자동 입력', async () => {
+    fetchQuote.mockResolvedValueOnce(195.5)
+    render(<HoldingsTable {...defaultProps} />)
+    const tickerInput = screen.getByPlaceholderText('AAPL')
+    fireEvent.change(tickerInput, { target: { value: 'AAPL' } })
+    fireEvent.blur(tickerInput)
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText('190').value).toBe('195.5')
+    })
+    expect(fetchQuote).toHaveBeenCalledWith('AAPL')
+  })
+
+  it('USD 티커 blur 시 fetchQuote null 반환 → 현재가 비워짐', async () => {
+    fetchQuote.mockResolvedValueOnce(null)
+    render(<HoldingsTable {...defaultProps} />)
+    const tickerInput = screen.getByPlaceholderText('AAPL')
+    fireEvent.change(tickerInput, { target: { value: 'INVALID' } })
+    fireEvent.blur(tickerInput)
+    await waitFor(() => {
+      expect(screen.getByText(/티커를 찾을 수 없습니다/)).toBeInTheDocument()
+    })
+  })
+
+  it('KRW 선택 시 티커 blur에서 fetchQuote 호출하지 않음', async () => {
+    render(<HoldingsTable {...defaultProps} />)
+    fireEvent.click(screen.getByText('KRW'))
+    const tickerInput = screen.getByPlaceholderText('AAPL')
+    fireEvent.change(tickerInput, { target: { value: '005930' } })
+    fireEvent.blur(tickerInput)
+    expect(fetchQuote).not.toHaveBeenCalled()
   })
 })
