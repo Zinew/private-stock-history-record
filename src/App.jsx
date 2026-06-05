@@ -55,6 +55,10 @@ export default function App() {
     setHoldings(holdings.filter((_, idx) => idx !== i))
   }
 
+  function editHolding(i, patch) {
+    setHoldings(holdings.map((h, idx) => idx === i ? { ...h, ...patch } : h))
+  }
+
   function toggleCurrency() {
     if (!exchangeRate.rate) return
     setDisplayCurrency(prev => prev === 'USD' ? 'KRW' : 'USD')
@@ -95,6 +99,8 @@ export default function App() {
         totalVal={totalVal}
         onAdd={addHolding}
         onDelete={delHolding}
+        onEdit={editHolding}
+        rawHoldings={holdings}
         displayCurrency={effectiveDisplayCurrency}
         toDisplay={toDisplay}
         prices={prices}
