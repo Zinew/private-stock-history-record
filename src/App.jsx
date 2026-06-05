@@ -5,6 +5,7 @@ import {
 } from 'chart.js'
 import { useLocalStorage } from './hooks/useLocalStorage.js'
 import { useExchangeRate } from './hooks/useExchangeRate.js'
+import { useStockPrices } from './hooks/useStockPrices.js'
 import Header from './components/Header.jsx'
 import Charts from './components/Charts.jsx'
 import HoldingsTable from './components/HoldingsTable.jsx'
@@ -20,7 +21,14 @@ export default function App() {
 
   useExchangeRate(setExchangeRate)
 
-  // 환율 없으면 KRW 표시 불가 → USD 강제
+  const usdTickers = holdings.filter(h => h.currency === 'USD').map(h => h.t)
+  const { prices, loading: priceLoading, error: priceError, lastUpdatedAt, refresh } = useStockPrices(usdTickers)
+
+  const effectiveHoldings = holdings.map(h => ({
+    ...h,
+    c: h.currency === 'USD' ? (prices[h.t] ?? h.c) : h.c,
+  }))
+
   const effectiveDisplayCurrency = exchangeRate.rate ? displayCurrency : 'USD'
 
   function toDisplay(amount, fromCurrency) {
@@ -30,8 +38,8 @@ export default function App() {
       : amount / exchangeRate.rate
   }
 
-  const totalVal = holdings.reduce((s, h) => s + toDisplay(h.q * h.c, h.currency ?? 'USD'), 0)
-  const totalCost = holdings.reduce((s, h) => s + toDisplay(h.q * h.b, h.currency ?? 'USD'), 0)
+  const totalVal = effectiveHoldings.reduce((s, h) => s + toDisplay(h.q * h.c, h.currency ?? 'USD'), 0)
+  const totalCost = effectiveHoldings.reduce((s, h) => s + toDisplay(h.q * h.b, h.currency ?? 'USD'), 0)
   const pl = totalVal - totalCost
   const ret = totalCost > 0 ? (pl / totalCost) * 100 : 0
 
@@ -72,24 +80,29 @@ export default function App() {
         exchangeRate={exchangeRate}
       />
       <Charts
-        holdings={holdings}
+        holdings={effectiveHoldings}
         snaps={snaps}
         totalVal={totalVal}
         displayCurrency={effectiveDisplayCurrency}
         toDisplay={toDisplay}
       />
       <HoldingsTable
-        holdings={holdings}
+        holdings={effectiveHoldings}
         totalVal={totalVal}
         onAdd={addHolding}
         onDelete={delHolding}
         displayCurrency={effectiveDisplayCurrency}
         toDisplay={toDisplay}
+        prices={prices}
+        priceLoading={priceLoading}
+        priceError={priceError}
+        lastUpdatedAt={lastUpdatedAt}
+        onRefresh={refresh}
       />
       <SnapshotBar onSnapshot={takeSnapshot} onClear={clearSnaps} />
       <footer>
         데이터는 이 브라우저에만 저장됩니다 · 투자 판단의 근거가 아닌 기록·시각화 용도입니다<br />
-        Ledger v1 — manual entry edition
+        Ledger v2 — live US prices via Finnhub
       </footer>
     </div>
   )
