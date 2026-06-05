@@ -1,5 +1,5 @@
 import { Line, Doughnut } from 'react-chartjs-2'
-import { fmtCurrency } from '../utils/format.js'
+import { fmtCurrency, tooltipDeltaLines } from '../utils/format.js'
 
 const PALETTE = ['#7fd1ae','#d4b483','#e8654f','#6aa9d8','#b98fd1','#d8c46a','#5fb0a0','#d88f9e','#9ed86a','#888']
 
@@ -40,7 +40,11 @@ export default function Charts({ holdings, snaps, totalVal, displayCurrency, toD
     maintainAspectRatio: false,
     plugins: {
       legend: { display: false },
-      tooltip: { callbacks: { label: c => ' ' + fmtCurrency(c.parsed.y, displayCurrency) } },
+      tooltip: {
+        callbacks: {
+          label: c => tooltipDeltaLines(c.parsed.y, data[c.dataIndex - 1], displayCurrency),
+        },
+      },
     },
     scales: {
       x: {
