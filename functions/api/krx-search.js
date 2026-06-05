@@ -3,7 +3,7 @@ export async function onRequestGet(context) {
   const q = url.searchParams.get('q') ?? ''
   if (!q.trim()) {
     return new Response(JSON.stringify([]), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     })
   }
   try {

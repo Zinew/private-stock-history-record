@@ -1,9 +1,9 @@
 export async function onRequestGet(context) {
   const url = new URL(context.request.url)
   const symbol = url.searchParams.get('symbol') ?? ''
-  if (!symbol) {
+  if (!symbol.trim()) {
     return new Response(JSON.stringify({ price: null }), {
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     })
   }
   try {
