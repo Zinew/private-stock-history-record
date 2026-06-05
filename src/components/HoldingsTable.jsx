@@ -19,12 +19,15 @@ export default function HoldingsTable({
     setTickerStatus('loading')
     setForm(f => ({ ...f, cur: '' }))
     const price = await fetchQuote(ticker)
-    if (price !== null) {
-      setForm(f => ({ ...f, cur: String(price) }))
-      setTickerStatus('found')
-    } else {
-      setTickerStatus('error')
-    }
+    // Use functional updaters to detect if ticker changed while fetch was in-flight
+    setForm(f => {
+      if (f.ticker.trim().toUpperCase() !== ticker) return f // stale result, discard
+      return { ...f, cur: price !== null ? String(price) : '' }
+    })
+    setTickerStatus(prev => {
+      if (prev !== 'loading') return prev // user typed new ticker (reset to idle), ignore
+      return price !== null ? 'found' : 'error'
+    })
   }
 
   function handleAdd() {

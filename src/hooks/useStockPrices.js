@@ -7,6 +7,8 @@ export function useStockPrices(tickers) {
   const [error, setError] = useState(null)
   const [lastUpdatedAt, setLastUpdatedAt] = useState(null)
   const tickersRef = useRef(tickers)
+  const prevTickersRef = useRef([])
+  const hasFetchedRef = useRef(false)
 
   useEffect(() => { tickersRef.current = tickers }, [tickers])
 
@@ -34,7 +36,17 @@ export function useStockPrices(tickers) {
     })()
   }, [])
 
-  useEffect(() => { fetchAll() }, [fetchAll])
+  useEffect(() => {
+    if (!hasFetchedRef.current) {
+      hasFetchedRef.current = true
+      prevTickersRef.current = tickers
+      fetchAll()
+      return
+    }
+    const newTickers = tickers.filter(t => !prevTickersRef.current.includes(t))
+    prevTickersRef.current = tickers
+    if (newTickers.length > 0) fetchAll()
+  }, [tickers, fetchAll])
 
   return { prices, loading, error, lastUpdatedAt, refresh: fetchAll }
 }

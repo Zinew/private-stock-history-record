@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import {
   Chart as ChartJS,
   CategoryScale, LinearScale, PointElement, LineElement,
@@ -21,7 +22,10 @@ export default function App() {
 
   useExchangeRate(setExchangeRate)
 
-  const usdTickers = holdings.filter(h => h.currency === 'USD').map(h => h.t)
+  const usdTickers = useMemo(
+    () => holdings.filter(h => h.currency === 'USD').map(h => h.t),
+    [holdings]
+  )
   const { prices, loading: priceLoading, error: priceError, lastUpdatedAt, refresh } = useStockPrices(usdTickers)
 
   const effectiveHoldings = holdings.map(h => ({
