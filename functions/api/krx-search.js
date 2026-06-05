@@ -8,19 +8,22 @@ export async function onRequestGet(context) {
   }
   try {
     const res = await fetch(
-      `https://query1.finance.yahoo.com/v1/finance/search?q=${encodeURIComponent(q)}&lang=ko-KR&region=KR`,
+      `https://ac.stock.naver.com/ac?q=${encodeURIComponent(q)}&target=stock`,
       { headers: { 'User-Agent': 'Mozilla/5.0' } }
     )
     const data = await res.json()
-    const quotes = (data.quotes ?? [])
-      .filter(item => item.symbol && (item.symbol.endsWith('.KS') || item.symbol.endsWith('.KQ')))
+    const quotes = (data.items ?? [])
+      .filter(item => item.nationCode === 'KOR' && (item.typeCode === 'KOSPI' || item.typeCode === 'KOSDAQ'))
       .slice(0, 8)
-      .map(item => ({
-        symbol: item.symbol,
-        name: item.shortname ?? item.longname ?? item.symbol,
-        ticker: item.symbol.replace(/\.(KS|KQ)$/, ''),
-        exchange: item.symbol.endsWith('.KS') ? 'KS' : 'KQ',
-      }))
+      .map(item => {
+        const exchange = item.typeCode === 'KOSPI' ? 'KS' : 'KQ'
+        return {
+          symbol: `${item.code}.${exchange}`,
+          name: item.name,
+          ticker: item.code,
+          exchange,
+        }
+      })
     return new Response(JSON.stringify(quotes), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },
     })
