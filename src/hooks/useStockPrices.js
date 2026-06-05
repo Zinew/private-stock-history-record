@@ -15,10 +15,11 @@ export function useStockPrices(tickers) {
     if (list.length === 0) return
     setLoading(true)
     setError(null)
-    Promise.all(list.map(ticker => fetchQuote(ticker).then(price => [ticker, price])))
-      .then(entries => {
+    ;(async () => {
+      try {
         const result = {}
-        for (const [ticker, price] of entries) {
+        for (const ticker of list) {
+          const price = await fetchQuote(ticker)
           if (price !== null) result[ticker] = price
         }
         if (Object.keys(result).length === 0) {
@@ -27,8 +28,10 @@ export function useStockPrices(tickers) {
           setPrices(prev => ({ ...prev, ...result }))
           setLastUpdatedAt(new Date())
         }
+      } finally {
         setLoading(false)
-      })
+      }
+    })()
   }, [])
 
   useEffect(() => { fetchAll() }, [fetchAll])
