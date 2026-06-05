@@ -7,6 +7,7 @@ import {
 import { useLocalStorage } from './hooks/useLocalStorage.js'
 import { useExchangeRate } from './hooks/useExchangeRate.js'
 import { useStockPrices } from './hooks/useStockPrices.js'
+import { useKrxPrices } from './hooks/useKrxPrices.js'
 import Header from './components/Header.jsx'
 import Charts from './components/Charts.jsx'
 import HoldingsTable from './components/HoldingsTable.jsx'
@@ -26,11 +27,22 @@ export default function App() {
     () => holdings.filter(h => h.currency === 'USD').map(h => h.t),
     [holdings]
   )
-  const { prices, loading: priceLoading, error: priceError, lastUpdatedAt, refresh } = useStockPrices(usdTickers)
+  const { prices: usdPrices, loading: usdLoading, error: usdError, lastUpdatedAt: usdUpdatedAt, refresh: refreshUsd } = useStockPrices(usdTickers)
+
+  const krwHoldings = useMemo(
+    () => holdings.filter(h => h.currency === 'KRW' && h.exchange).map(h => ({ t: h.t, exchange: h.exchange })),
+    [holdings]
+  )
+  const { prices: krwPrices, loading: krwLoading, error: krwError, refresh: refreshKrw } = useKrxPrices(krwHoldings)
+
+  const prices = useMemo(() => ({ ...usdPrices, ...krwPrices }), [usdPrices, krwPrices])
+  const priceLoading = usdLoading || krwLoading
+  const priceError = usdError || krwError || null
+  const lastUpdatedAt = usdUpdatedAt
 
   const effectiveHoldings = holdings.map(h => ({
     ...h,
-    c: h.currency === 'USD' ? (prices[h.t] ?? h.c) : h.c,
+    c: prices[h.t] !== undefined ? prices[h.t] : h.c,
   }))
 
   const effectiveDisplayCurrency = exchangeRate.rate ? displayCurrency : 'USD'
@@ -47,8 +59,10 @@ export default function App() {
   const pl = totalVal - totalCost
   const ret = totalCost > 0 ? (pl / totalCost) * 100 : 0
 
-  function addHolding({ t, nm, q, b, c, currency }) {
-    setHoldings([...holdings, { t, nm, q, b, c, currency }])
+  function addHolding({ t, nm, q, b, c, currency, exchange }) {
+    const holding = { t, nm, q, b, c, currency }
+    if (exchange) holding.exchange = exchange
+    setHoldings([...holdings, holding])
   }
 
   function delHolding(i) {
@@ -107,12 +121,12 @@ export default function App() {
         priceLoading={priceLoading}
         priceError={priceError}
         lastUpdatedAt={lastUpdatedAt}
-        onRefresh={refresh}
+        onRefresh={() => { refreshUsd(); refreshKrw() }}
       />
       <SnapshotBar onSnapshot={takeSnapshot} onClear={clearSnaps} />
       <footer>
         데이터는 이 브라우저에만 저장됩니다 · 투자 판단의 근거가 아닌 기록·시각화 용도입니다<br />
-        Ledger v2 — live US prices via Finnhub
+        Ledger v2 — live prices via Finnhub (US) · Yahoo Finance (KRX)
       </footer>
     </div>
   )
