@@ -50,4 +50,17 @@ describe('useKrxPrices', () => {
     await waitFor(() => expect(result.current.loading).toBe(false))
     expect(result.current.prices['005930']).toBe(335000)
   })
+
+  it('일부 종목 실패 시 성공한 종목 가격은 반환되고 error 없음', async () => {
+    fetchKrxQuote
+      .mockResolvedValueOnce(null)
+      .mockResolvedValueOnce(329000)
+    const { result } = renderHook(() =>
+      useKrxPrices([{ t: '000000', exchange: 'KS' }, { t: '005930', exchange: 'KS' }])
+    )
+    await waitFor(() => expect(result.current.loading).toBe(false))
+    expect(result.current.error).toBeNull()
+    expect(result.current.prices['005930']).toBe(329000)
+    expect(result.current.prices['000000']).toBeUndefined()
+  })
 })
