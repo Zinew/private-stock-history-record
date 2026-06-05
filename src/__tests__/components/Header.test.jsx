@@ -10,6 +10,7 @@ const defaultProps = {
   displayCurrency: 'USD',
   onToggleCurrency: vi.fn(),
   exchangeRate: { rate: null, updatedAt: null },
+  onMenuOpen: vi.fn(),
 }
 
 describe('Header', () => {
@@ -54,5 +55,12 @@ describe('Header', () => {
     render(<Header {...defaultProps} exchangeRate={{ rate: 1380, updatedAt: new Date().toISOString() }} onToggleCurrency={onToggle} />)
     fireEvent.click(screen.getByText('KRW'))
     expect(onToggle).toHaveBeenCalledOnce()
+  })
+
+  it('☰ 버튼 클릭 시 onMenuOpen 호출', () => {
+    const onMenuOpen = vi.fn()
+    render(<Header {...defaultProps} onMenuOpen={onMenuOpen} />)
+    fireEvent.click(screen.getByLabelText('메뉴 열기'))
+    expect(onMenuOpen).toHaveBeenCalledOnce()
   })
 })

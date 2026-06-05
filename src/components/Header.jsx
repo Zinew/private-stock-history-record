@@ -8,12 +8,13 @@ function formatUpdatedAt(isoString) {
   return `${Math.floor(mins / 60)}시간 전`
 }
 
-export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, onToggleCurrency, exchangeRate }) {
+export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, onToggleCurrency, exchangeRate, onMenuOpen }) {
   const hasRate = !!exchangeRate.rate
 
   return (
     <header>
       <div className="brand">
+        <button className="menu-btn" onClick={onMenuOpen} aria-label="메뉴 열기">☰</button>
         <h1>Ledger<span className="dot">.</span></h1>
         <span className="tag">portfolio tracker · v1</span>
       </div>
