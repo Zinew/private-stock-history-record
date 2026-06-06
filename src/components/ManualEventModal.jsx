@@ -1,9 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function ManualEventModal({ holdings, onSave, onClose }) {
   const [ticker, setTicker] = useState(holdings[0]?.t ?? '')
   const [date, setDate] = useState('')
   const [type, setType] = useState('earnings')
+
+  useEffect(() => {
+    function handleKeyDown(e) {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
+  }, [onClose])
 
   const canSave = ticker && date
 
