@@ -22,15 +22,16 @@ export async function onRequestGet(context) {
     const transformed = new HTMLRewriter()
       .on('table.type5 tbody tr', {
         element(el) {
-          current = { title: '', source: '', publishedAt: '', url: '' }
+          const row = { title: '', source: '', publishedAt: '', url: '' }
+          current = row
           el.onEndTag(() => {
-            if (current?.title?.trim() && current?.url) {
+            if (row.title?.trim() && row.url) {
               articles.push({
-                title: current.title.trim(),
+                title: row.title.trim(),
                 summary: null,
-                source: current.source.trim(),
-                url: current.url,
-                publishedAt: current.publishedAt.trim(),
+                source: row.source.trim(),
+                url: row.url,
+                publishedAt: row.publishedAt.trim(),
               })
             }
             current = null
