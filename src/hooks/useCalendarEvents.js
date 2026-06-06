@@ -37,9 +37,11 @@ export function useCalendarEvents(holdings) {
     setLoading(true)
     setError(null)
 
+    let cancelled = false
     ;(async () => {
       try {
         const allEarnings = await fetchEarningsCalendar()
+        if (cancelled) return
         const holdingMap = Object.fromEntries(usdHoldings.map(h => [h.t, h]))
         const tickers = new Set(usdHoldings.map(h => h.t))
 
@@ -49,12 +51,13 @@ export function useCalendarEvents(holdings) {
 
         setEvents(sortEventsByDate(mapped))
       } catch {
-        setError('이벤트 데이터 조회에 실패했습니다')
-        setEvents([])
+        if (!cancelled) setError('이벤트 데이터 조회에 실패했습니다')
+        if (!cancelled) setEvents([])
       } finally {
-        setLoading(false)
+        if (!cancelled) setLoading(false)
       }
     })()
+    return () => { cancelled = true }
   }, [holdings])
 
   return { events, loading, error }
