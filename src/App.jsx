@@ -34,7 +34,7 @@ export default function App() {
       <Routes>
         <Route path="/" element={<DashboardPage portfolio={portfolio} />} />
         <Route path="/calendar" element={<CalendarPage portfolio={portfolio} />} />
-        <Route path="/news" element={<NewsPage />} />
+        <Route path="/news" element={<NewsPage portfolio={portfolio} />} />
       </Routes>
     </div>
   )
