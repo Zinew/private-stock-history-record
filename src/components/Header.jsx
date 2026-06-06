@@ -16,7 +16,7 @@ export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, 
       <div className="brand">
         <button className="menu-btn" onClick={onMenuOpen} aria-label="메뉴 열기">☰</button>
         <h1>Ledger<span className="dot">.</span></h1>
-        <span className="tag">portfolio tracker · v1</span>
+        <span className="tag">portfolio tracker</span>
       </div>
       <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
         {hasRate && (
