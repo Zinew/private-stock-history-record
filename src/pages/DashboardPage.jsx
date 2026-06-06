@@ -1,8 +1,10 @@
 import Charts from '../components/Charts.jsx'
 import HoldingsTable from '../components/HoldingsTable.jsx'
 import SnapshotBar from '../components/SnapshotBar.jsx'
+import { useTranslation } from 'react-i18next'
 
 export default function DashboardPage({ portfolio }) {
+  const { t } = useTranslation()
   return (
     <>
       <Charts
@@ -29,7 +31,7 @@ export default function DashboardPage({ portfolio }) {
       />
       <SnapshotBar onSnapshot={portfolio.takeSnapshot} onClear={portfolio.clearSnaps} />
       <footer>
-        데이터는 이 브라우저에만 저장됩니다 · 투자 판단의 근거가 아닌 기록·시각화 용도입니다<br />
+        {t('dashboard.disclaimer')}<br />
         Ledger v2 — live prices via Finnhub (US) · Yahoo Finance (KRX)
       </footer>
     </>

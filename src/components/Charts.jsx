@@ -1,5 +1,6 @@
 import { Line, Doughnut } from 'react-chartjs-2'
 import { fmtCurrency, tooltipDeltaLines } from '../utils/format.js'
+import { useTranslation } from 'react-i18next'
 
 const PALETTE = ['#7fd1ae','#d4b483','#e8654f','#6aa9d8','#b98fd1','#d8c46a','#5fb0a0','#d88f9e','#9ed86a','#888']
 
@@ -11,6 +12,7 @@ function getGradient(ctx, chartArea, isUp) {
 }
 
 export default function Charts({ holdings, snaps, totalVal, displayCurrency, toDisplay }) {
+  const { t } = useTranslation()
   const labels = snaps.map(s => s.label)
   const data = snaps.map(s => toDisplay(s.total, s.currency ?? 'USD'))
   const isUp = data.length < 2 || data[data.length - 1] >= data[0]
@@ -95,7 +97,7 @@ export default function Charts({ holdings, snaps, totalVal, displayCurrency, toD
     <div className="grid">
       <div className="card">
         <h2>
-          자산 추이 <span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>snapshot history</span>
+          {t('charts.trend')} <span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>snapshot history</span>
         </h2>
         <div className="chart-box">
           <Line data={lineData} options={lineOptions} />
@@ -103,7 +105,7 @@ export default function Charts({ holdings, snaps, totalVal, displayCurrency, toD
       </div>
       <div className="card">
         <h2>
-          종목 비중 <span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>by value</span>
+          {t('charts.allocation')} <span style={{ color: 'var(--ink-faint)', fontWeight: 400 }}>by value</span>
         </h2>
         <div className="chart-box">
           <Doughnut data={pieData} options={pieOptions} />
