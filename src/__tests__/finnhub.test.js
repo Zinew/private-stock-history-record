@@ -1,9 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, vi, beforeAll, beforeEach, afterEach } from 'vitest'
 import {
   fetchQuote, fetchEarnings, fetchDividends, _clearDivCache,
   fetchCompanyNews, formatPublishedAt, _clearNewsCache,
 } from '../utils/finnhub.js'
+import i18n from '../i18n.js'
 
+beforeAll(async () => { await i18n.changeLanguage('ko') })
 beforeEach(() => { _clearDivCache(); _clearNewsCache() })
 afterEach(() => vi.restoreAllMocks())
 

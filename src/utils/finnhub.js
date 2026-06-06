@@ -1,3 +1,5 @@
+import i18n from '../i18n.js'
+
 export async function fetchQuote(ticker, apiKey = import.meta.env.VITE_FINNHUB_KEY ?? '') {
   if (!apiKey) {
     console.warn('[Finnhub] VITE_FINNHUB_KEY not set — price fetch skipped')
@@ -51,7 +53,7 @@ export async function fetchDividends(ticker, from, to, apiKey = import.meta.env.
 export function formatPublishedAt(unixTs) {
   if (!unixTs) return ''
   const diffHours = Math.floor((Date.now() - unixTs * 1000) / (1000 * 60 * 60))
-  if (diffHours < 24) return `${diffHours}시간 전`
+  if (diffHours < 24) return i18n.t('common.hoursAgo', { count: diffHours })
   const d = new Date(unixTs * 1000)
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 }
