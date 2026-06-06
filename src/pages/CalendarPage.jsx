@@ -20,11 +20,11 @@ export default function CalendarPage({ portfolio }) {
   const sortedManual = [...manualEvents].sort((a, b) => a.date.localeCompare(b.date))
 
   function addManualEvent(ev) {
-    setManualEvents([...manualEvents, ev])
+    setManualEvents([...manualEvents, { ...ev, id: Date.now() }])
   }
 
-  function deleteManualEvent(index) {
-    setManualEvents(manualEvents.filter((_, i) => i !== index))
+  function deleteManualEvent(id) {
+    setManualEvents(manualEvents.filter(e => e.id !== id))
   }
 
   const usdHoldings = holdings.filter(h => (h.currency ?? 'USD') === 'USD')
@@ -92,10 +92,10 @@ export default function CalendarPage({ portfolio }) {
 
       {sortedManual.length > 0 && (
         <div className="calendar-list">
-          {sortedManual.map((ev, i) => {
+          {sortedManual.map(ev => {
             const holding = holdings.find(h => h.t === ev.ticker)
             return (
-              <div key={i} className="calendar-card">
+              <div key={ev.id ?? ev.date + ev.ticker} className="calendar-card">
                 <span className={`calendar-badge ${ev.type}`}>
                   {ev.type === 'earnings' ? '실적' : '배당'}
                 </span>
@@ -110,7 +110,7 @@ export default function CalendarPage({ portfolio }) {
                 </div>
                 <button
                   className="calendar-card-delete"
-                  onClick={() => deleteManualEvent(manualEvents.indexOf(ev))}
+                  onClick={() => deleteManualEvent(ev.id)}
                   title="삭제"
                 >
                   ✕
