@@ -1,5 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { I18nextProvider } from 'react-i18next'
+import i18n from '../../i18n.js'
 import HoldingsTable from '../../components/HoldingsTable.jsx'
 import { fetchQuote } from '../../utils/finnhub.js'
 import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../../utils/stockSearch.js'
@@ -32,29 +34,37 @@ const defaultProps = {
   onRefresh: vi.fn(),
 }
 
+function renderHoldingsTable(props = {}) {
+  return render(
+    <I18nextProvider i18n={i18n}>
+      <HoldingsTable {...defaultProps} {...props} />
+    </I18nextProvider>
+  )
+}
+
 describe('HoldingsTable', () => {
   beforeEach(() => vi.clearAllMocks())
 
   it('종목 없을 때 빈 안내 메시지 표시', () => {
-    render(<HoldingsTable {...defaultProps} />)
+    renderHoldingsTable()
     expect(screen.getByText(/종목이 없습니다/)).toBeInTheDocument()
   })
 
   it('종목 티커 표시', () => {
-    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} totalVal={1900} />)
+    renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900 })
     expect(screen.getByText('AAPL')).toBeInTheDocument()
   })
 
   it('삭제 버튼 클릭 시 onDelete 호출', () => {
     const onDelete = vi.fn()
-    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} totalVal={1900} onDelete={onDelete} />)
+    renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900, onDelete })
     fireEvent.click(screen.getByTitle('삭제'))
     expect(onDelete).toHaveBeenCalledWith(0)
   })
 
   it('폼 입력 후 추가 버튼 클릭 시 onAdd에 currency 포함', () => {
     const onAdd = vi.fn()
-    render(<HoldingsTable {...defaultProps} onAdd={onAdd} />)
+    renderHoldingsTable({ onAdd })
     fireEvent.change(screen.getByPlaceholderText('AAPL'), { target: { value: 'TSLA' } })
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
     fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '200' } })
@@ -65,7 +75,7 @@ describe('HoldingsTable', () => {
 
   it('폼 통화 KRW 선택 후 추가 시 currency: KRW', () => {
     const onAdd = vi.fn()
-    render(<HoldingsTable {...defaultProps} onAdd={onAdd} />)
+    renderHoldingsTable({ onAdd })
     fireEvent.click(screen.getByText('KRW'))
     fireEvent.change(screen.getByPlaceholderText('AAPL'), { target: { value: '005930' } })
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '10' } })
@@ -76,7 +86,7 @@ describe('HoldingsTable', () => {
   })
 
   it('테이블이 table-scroll 래퍼 안에 존재한다', () => {
-    const { container } = render(<HoldingsTable {...defaultProps} />)
+    const { container } = renderHoldingsTable()
     const wrapper = container.querySelector('.table-scroll')
     expect(wrapper).toBeInTheDocument()
     expect(wrapper.querySelector('table')).toBeInTheDocument()
@@ -84,7 +94,7 @@ describe('HoldingsTable', () => {
 
   it('USD 티커 blur 시 fetchQuote 호출 후 현재가 자동 입력', async () => {
     fetchQuote.mockResolvedValueOnce(195.5)
-    render(<HoldingsTable {...defaultProps} />)
+    renderHoldingsTable()
     const tickerInput = screen.getByPlaceholderText('AAPL')
     fireEvent.change(tickerInput, { target: { value: 'AAPL' } })
     fireEvent.blur(tickerInput)
@@ -96,7 +106,7 @@ describe('HoldingsTable', () => {
 
   it('USD 티커 blur 시 fetchQuote null 반환 → 현재가 비워짐', async () => {
     fetchQuote.mockResolvedValueOnce(null)
-    render(<HoldingsTable {...defaultProps} />)
+    renderHoldingsTable()
     const tickerInput = screen.getByPlaceholderText('AAPL')
     fireEvent.change(tickerInput, { target: { value: 'INVALID' } })
     fireEvent.blur(tickerInput)
@@ -106,7 +116,7 @@ describe('HoldingsTable', () => {
   })
 
   it('KRW 선택 시 티커 blur에서 fetchQuote 호출하지 않음', async () => {
-    render(<HoldingsTable {...defaultProps} />)
+    renderHoldingsTable()
     fireEvent.click(screen.getByText('KRW'))
     const tickerInput = screen.getByPlaceholderText('AAPL')
     fireEvent.change(tickerInput, { target: { value: '005930' } })
@@ -115,14 +125,14 @@ describe('HoldingsTable', () => {
   })
 
   it('✎ 버튼 클릭 시 EditModal 표시', () => {
-    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} rawHoldings={mockHoldings} totalVal={1900} />)
+    renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900 })
     fireEvent.click(screen.getByTitle('수정'))
     expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
   })
 
   it('EditModal 저장 시 onEdit 올바른 인덱스·patch로 호출', () => {
     const onEdit = vi.fn()
-    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} rawHoldings={mockHoldings} totalVal={1900} onEdit={onEdit} />)
+    renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900, onEdit })
     fireEvent.click(screen.getByTitle('수정'))
     fireEvent.change(screen.getByDisplayValue('10'), { target: { value: '15' } })
     fireEvent.click(screen.getByText('저장'))
@@ -130,7 +140,7 @@ describe('HoldingsTable', () => {
   })
 
   it('EditModal 취소 시 모달 사라짐', () => {
-    render(<HoldingsTable {...defaultProps} holdings={mockHoldings} rawHoldings={mockHoldings} totalVal={1900} />)
+    renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900 })
     fireEvent.click(screen.getByTitle('수정'))
     expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
     fireEvent.click(screen.getByText('취소'))
@@ -142,7 +152,7 @@ describe('HoldingsTable', () => {
     fetchUsdSearch.mockResolvedValue([
       { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
     ])
-    render(<HoldingsTable {...defaultProps} />)
+    renderHoldingsTable()
     fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
     await waitFor(() => expect(fetchUsdSearch).toHaveBeenCalledWith('apple'), { timeout: 500 })
   })
@@ -152,7 +162,7 @@ describe('HoldingsTable', () => {
       { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
     ])
     fetchQuote.mockResolvedValue(195.5)
-    render(<HoldingsTable {...defaultProps} />)
+    renderHoldingsTable()
     fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
     await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
     fireEvent.click(screen.getByText('Apple Inc.'))
@@ -165,7 +175,7 @@ describe('HoldingsTable', () => {
     ])
     fetchQuote.mockResolvedValue(195.5)
     const onAdd = vi.fn()
-    render(<HoldingsTable {...defaultProps} onAdd={onAdd} />)
+    renderHoldingsTable({ onAdd })
     fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
     await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
     fireEvent.click(screen.getByText('Apple Inc.'))
@@ -181,7 +191,7 @@ describe('HoldingsTable', () => {
     fetchKrxSearch.mockResolvedValue([
       { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
     ])
-    render(<HoldingsTable {...defaultProps} />)
+    renderHoldingsTable()
     fireEvent.click(screen.getByText('KRW'))
     fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
     await waitFor(() => expect(fetchKrxSearch).toHaveBeenCalledWith('삼성'), { timeout: 500 })
@@ -192,7 +202,7 @@ describe('HoldingsTable', () => {
       { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
     ])
     fetchKrxQuote.mockResolvedValue(329000)
-    render(<HoldingsTable {...defaultProps} />)
+    renderHoldingsTable()
     fireEvent.click(screen.getByText('KRW'))
     fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
     await waitFor(() => expect(screen.getByText('삼성전자')).toBeInTheDocument())
@@ -206,7 +216,7 @@ describe('HoldingsTable', () => {
     ])
     fetchKrxQuote.mockResolvedValue(329000)
     const onAdd = vi.fn()
-    render(<HoldingsTable {...defaultProps} onAdd={onAdd} />)
+    renderHoldingsTable({ onAdd })
     fireEvent.click(screen.getByText('KRW'))
     fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
     await waitFor(() => expect(screen.getByText('삼성전자')).toBeInTheDocument())

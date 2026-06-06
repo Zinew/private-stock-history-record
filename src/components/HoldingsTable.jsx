@@ -2,6 +2,7 @@ import { useState } from 'react'
 import EditModal from './EditModal.jsx'
 import AddHoldingForm from './AddHoldingForm.jsx'
 import { fmtCurrency, pct } from '../utils/format.js'
+import { useTranslation } from 'react-i18next'
 
 export default function HoldingsTable({
   holdings, totalVal, onAdd, onDelete, displayCurrency, toDisplay,
@@ -9,6 +10,7 @@ export default function HoldingsTable({
   rawHoldings = [], onEdit = () => {},
 }) {
   const [editingIndex, setEditingIndex] = useState(null)
+  const { t } = useTranslation()
 
   const hasAutoHoldings = holdings.some(h =>
     (h.currency ?? 'USD') === 'USD' || (h.currency === 'KRW' && h.exchange)
@@ -24,21 +26,21 @@ export default function HoldingsTable({
     <div className="holdings">
       <div className="holdings-header">
         <h2 className="holdings-title">
-          보유 종목
+          {t('holdings.title')}
         </h2>
         {hasAutoHoldings && (
           <>
             <button
               onClick={onRefresh}
               disabled={priceLoading}
-              title="주가 새로고침"
+              title={t('holdings.refresh')}
               className="refresh-btn"
             >
               ↻
             </button>
             {lastUpdatedAt && (
               <span className="refresh-time">
-                {formatUpdatedAt(lastUpdatedAt)} 기준
+                {formatUpdatedAt(lastUpdatedAt)} {t('holdings.asOf')}
               </span>
             )}
           </>
@@ -55,13 +57,13 @@ export default function HoldingsTable({
         <table>
           <thead>
             <tr>
-              <th>종목</th><th>수량</th><th>매수가</th><th>현재가</th>
-              <th>평가액 ({dispSym})</th><th>손익 ({dispSym})</th><th>수익률</th><th>비중</th><th></th>
+              <th>{t('holdings.ticker')}</th><th>{t('holdings.qty')}</th><th>{t('holdings.avgCost')}</th><th>{t('holdings.currentPrice')}</th>
+              <th>{t('holdings.value')} ({dispSym})</th><th>{t('holdings.pnl')} ({dispSym})</th><th>{t('holdings.returnRate')}</th><th>{t('holdings.weight')}</th><th></th>
             </tr>
           </thead>
           <tbody>
             {holdings.length === 0 ? (
-              <tr><td colSpan={9} className="empty">아직 종목이 없습니다. 아래에서 첫 종목을 추가해 보세요.</td></tr>
+              <tr><td colSpan={9} className="empty">{t('holdings.empty')}</td></tr>
             ) : (
               holdings.map((h, i) => {
                 const hCur = h.currency ?? 'USD'
@@ -90,8 +92,8 @@ export default function HoldingsTable({
                     <td className={r >= 0 ? 'pos' : 'neg'}>{pct(r)}</td>
                     <td>{w.toFixed(1)}%</td>
                     <td>
-                      <button className="edit" onClick={() => setEditingIndex(i)} title="수정">✎</button>
-                      <button className="del" onClick={() => onDelete(i)} title="삭제">✕</button>
+                      <button className="edit" onClick={() => setEditingIndex(i)} title={t('holdings.edit')}>✎</button>
+                      <button className="del" onClick={() => onDelete(i)} title={t('holdings.delete')}>✕</button>
                     </td>
                   </tr>
                 )
