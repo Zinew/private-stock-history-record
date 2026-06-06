@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { fetchCompanyNews } from '../utils/finnhub.js'
 import { fetchNaverNews } from '../utils/naverNews.js'
+import i18n from '../i18n.js'
 
 export function useStockNews(ticker, currency) {
   const [articles, setArticles] = useState([])
@@ -26,7 +27,7 @@ export function useStockNews(ticker, currency) {
         }
         if (!cancelled) setArticles(result)
       } catch {
-        if (!cancelled) setError('뉴스를 불러올 수 없습니다')
+        if (!cancelled) setError(i18n.t('news.error'))
       } finally {
         if (!cancelled) setLoading(false)
       }
