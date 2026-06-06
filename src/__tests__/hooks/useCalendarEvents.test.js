@@ -2,8 +2,7 @@
 import { describe, it, expect } from 'vitest'
 import {
   filterUsdHoldings,
-  mapEarningsToEvents,
-  mapDividendsToEvents,
+  mapToEarningsEvent,
   sortEventsByDate,
 } from '../../hooks/useCalendarEvents.js'
 
@@ -27,46 +26,41 @@ describe('filterUsdHoldings', () => {
   })
 })
 
-describe('mapEarningsToEvents', () => {
-  it('maps earnings to event objects with correct shape', () => {
-    const h = { t: 'AAPL', nm: 'Apple Inc.', currency: 'USD' }
-    const earnings = [{ date: '2026-06-10', epsEstimate: 1.58 }]
-    expect(mapEarningsToEvents(h, earnings)).toEqual([
-      { date: '2026-06-10', type: 'earnings', ticker: 'AAPL', name: 'Apple Inc.', epsEstimate: 1.58, amount: null },
-    ])
+describe('mapToEarningsEvent', () => {
+  it('maps Alpha Vantage entry to event object with correct shape', () => {
+    const holding = { t: 'AAPL', nm: 'Apple Inc.', currency: 'USD' }
+    const entry = { symbol: 'AAPL', reportDate: '2026-07-30', estimate: 1.9 }
+    expect(mapToEarningsEvent(holding, entry)).toEqual({
+      date: '2026-07-30',
+      type: 'earnings',
+      ticker: 'AAPL',
+      name: 'Apple Inc.',
+      epsEstimate: 1.9,
+      amount: null,
+    })
   })
 
-  it('uses ticker as name when nm is absent', () => {
-    const h = { t: 'AAPL', currency: 'USD' }
-    const earnings = [{ date: '2026-06-10', epsEstimate: null }]
-    expect(mapEarningsToEvents(h, earnings)[0].name).toBe('AAPL')
-  })
-})
-
-describe('mapDividendsToEvents', () => {
-  it('maps dividends to event objects with correct shape', () => {
-    const h = { t: 'MSFT', nm: 'Microsoft', currency: 'USD' }
-    const dividends = [{ exDividendDate: '2026-06-15', amount: 0.75 }]
-    expect(mapDividendsToEvents(h, dividends)).toEqual([
-      { date: '2026-06-15', type: 'dividend', ticker: 'MSFT', name: 'Microsoft', epsEstimate: null, amount: 0.75 },
-    ])
+  it('uses symbol as name when holding has no nm', () => {
+    const holding = { t: 'AAPL', currency: 'USD' }
+    const entry = { symbol: 'AAPL', reportDate: '2026-07-30', estimate: null }
+    expect(mapToEarningsEvent(holding, entry).name).toBe('AAPL')
   })
 })
 
 describe('sortEventsByDate', () => {
   it('sorts events by date ascending', () => {
     const events = [
-      { date: '2026-07-01', type: 'earnings', ticker: 'AAPL', name: 'Apple', epsEstimate: null, amount: null },
-      { date: '2026-06-15', type: 'dividend', ticker: 'AAPL', name: 'Apple', epsEstimate: null, amount: 0.5 },
+      { date: '2026-08-01', type: 'earnings', ticker: 'MSFT', name: 'Microsoft', epsEstimate: null, amount: null },
+      { date: '2026-07-30', type: 'earnings', ticker: 'AAPL', name: 'Apple', epsEstimate: 1.9, amount: null },
     ]
     const sorted = sortEventsByDate(events)
-    expect(sorted[0].date).toBe('2026-06-15')
-    expect(sorted[1].date).toBe('2026-07-01')
+    expect(sorted[0].date).toBe('2026-07-30')
+    expect(sorted[1].date).toBe('2026-08-01')
   })
 
   it('filters out events without a date', () => {
     const events = [
-      { date: '2026-06-15', type: 'dividend' },
+      { date: '2026-07-30', type: 'earnings' },
       { date: null, type: 'earnings' },
     ]
     expect(sortEventsByDate(events)).toHaveLength(1)

@@ -1,36 +1,19 @@
 import { useState, useEffect } from 'react'
-import { fetchEarnings, fetchDividends } from '../utils/finnhub.js'
-
-function dateStr(d) {
-  return d.toISOString().slice(0, 10)
-}
+import { fetchEarningsCalendar } from '../utils/alphavantage.js'
 
 export function filterUsdHoldings(holdings) {
   return holdings.filter(h => (h.currency ?? 'USD') === 'USD')
 }
 
-export function mapEarningsToEvents(h, earnings) {
-  const name = h.nm || h.t
-  return earnings.map(e => ({
-    date: e.date,
+export function mapToEarningsEvent(holding, entry) {
+  return {
+    date: entry.reportDate,
     type: 'earnings',
-    ticker: h.t,
-    name,
-    epsEstimate: e.epsEstimate ?? null,
+    ticker: entry.symbol,
+    name: holding?.nm || entry.symbol,
+    epsEstimate: entry.estimate,
     amount: null,
-  }))
-}
-
-export function mapDividendsToEvents(h, dividends) {
-  const name = h.nm || h.t
-  return dividends.map(d => ({
-    date: d.exDividendDate,
-    type: 'dividend',
-    ticker: h.t,
-    name,
-    epsEstimate: null,
-    amount: d.amount ?? null,
-  }))
+  }
 }
 
 export function sortEventsByDate(events) {
@@ -54,26 +37,17 @@ export function useCalendarEvents(holdings) {
     setLoading(true)
     setError(null)
 
-    const from = dateStr(new Date())
-    const toDate = new Date()
-    toDate.setDate(toDate.getDate() + 90)
-    const to = dateStr(toDate)
-
     ;(async () => {
       try {
-        const perHolding = await Promise.all(
-          usdHoldings.map(async h => {
-            const [earnings, dividends] = await Promise.all([
-              fetchEarnings(h.t, from, to),
-              fetchDividends(h.t, from, to),
-            ])
-            return [
-              ...mapEarningsToEvents(h, earnings),
-              ...mapDividendsToEvents(h, dividends),
-            ]
-          })
-        )
-        setEvents(sortEventsByDate(perHolding.flat()))
+        const allEarnings = await fetchEarningsCalendar()
+        const holdingMap = Object.fromEntries(usdHoldings.map(h => [h.t, h]))
+        const tickers = new Set(usdHoldings.map(h => h.t))
+
+        const mapped = allEarnings
+          .filter(e => tickers.has(e.symbol))
+          .map(e => mapToEarningsEvent(holdingMap[e.symbol], e))
+
+        setEvents(sortEventsByDate(mapped))
       } catch {
         setError('이벤트 데이터 조회에 실패했습니다')
         setEvents([])
