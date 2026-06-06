@@ -1,7 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { fetchQuote, fetchEarnings, fetchDividends, _clearDivCache } from '../utils/finnhub.js'
+import {
+  fetchQuote, fetchEarnings, fetchDividends, _clearDivCache,
+  fetchCompanyNews, formatPublishedAt, _clearNewsCache,
+} from '../utils/finnhub.js'
 
-beforeEach(() => _clearDivCache())
+beforeEach(() => { _clearDivCache(); _clearNewsCache() })
 afterEach(() => vi.restoreAllMocks())
 
 describe('fetchQuote', () => {
@@ -78,5 +81,52 @@ describe('fetchDividends', () => {
 
   it('returns empty array when apiKey is empty string', async () => {
     expect(await fetchDividends('MSFT', '2026-06-06', '2026-09-04', '')).toEqual([])
+  })
+})
+
+describe('formatPublishedAt', () => {
+  it('returns "N시간 전" for timestamps within 24 hours', () => {
+    const twoHoursAgo = Math.floor((Date.now() - 2 * 60 * 60 * 1000) / 1000)
+    expect(formatPublishedAt(twoHoursAgo)).toBe('2시간 전')
+  })
+
+  it('returns "YYYY-MM-DD" for timestamps older than 24 hours', () => {
+    const ts = Math.floor(new Date('2026-06-01T10:00:00Z').getTime() / 1000)
+    expect(formatPublishedAt(ts)).toBe('2026-06-01')
+  })
+})
+
+describe('fetchCompanyNews', () => {
+  it('maps Finnhub response to article shape and slices to 10', async () => {
+    const fakeItems = Array.from({ length: 12 }, (_, i) => ({
+      headline: `Title ${i}`,
+      summary: `Summary ${i}`,
+      source: 'Reuters',
+      url: `https://example.com/${i}`,
+      datetime: Math.floor((Date.now() - i * 60 * 60 * 1000) / 1000),
+    }))
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      json: () => Promise.resolve(fakeItems),
+    })
+    const result = await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', 'test-key')
+    expect(result).toHaveLength(10)
+    expect(result[0]).toMatchObject({ title: 'Title 0', source: 'Reuters', url: 'https://example.com/0' })
+    expect(typeof result[0].publishedAt).toBe('string')
+  })
+
+  it('returns empty array when response is not an array', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      json: () => Promise.resolve({ error: 'not found' }),
+    })
+    expect(await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', 'test-key')).toEqual([])
+  })
+
+  it('returns empty array when apiKey is empty string', async () => {
+    expect(await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', '')).toEqual([])
+  })
+
+  it('returns empty array when fetch throws', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('network'))
+    expect(await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', 'test-key')).toEqual([])
   })
 })

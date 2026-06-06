@@ -47,3 +47,39 @@ export async function fetchDividends(ticker, from, to, apiKey = import.meta.env.
     return _divCache[key]?.data ?? []
   }
 }
+
+export function formatPublishedAt(unixTs) {
+  const diffHours = Math.floor((Date.now() - unixTs * 1000) / (1000 * 60 * 60))
+  if (diffHours < 24) return `${diffHours}시간 전`
+  const d = new Date(unixTs * 1000)
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+const _newsCache = {}
+const NEWS_CACHE_TTL = 60 * 60 * 1000
+export function _clearNewsCache() { Object.keys(_newsCache).forEach(k => delete _newsCache[k]) }
+
+export async function fetchCompanyNews(ticker, from, to, apiKey = import.meta.env.VITE_FINNHUB_KEY ?? '') {
+  if (!apiKey) return []
+  const key = `${ticker}:${from}:${to}`
+  if (_newsCache[key] && Date.now() - _newsCache[key].time < NEWS_CACHE_TTL) return _newsCache[key].data
+  try {
+    const res = await fetch(
+      `https://finnhub.io/api/v1/company-news?symbol=${encodeURIComponent(ticker)}&from=${from}&to=${to}&token=${apiKey}`
+    )
+    const data = await res.json()
+    const result = Array.isArray(data)
+      ? data.slice(0, 10).map(item => ({
+          title: item.headline,
+          summary: item.summary || null,
+          source: item.source,
+          url: item.url,
+          publishedAt: formatPublishedAt(item.datetime),
+        }))
+      : []
+    _newsCache[key] = { data: result, time: Date.now() }
+    return result
+  } catch {
+    return _newsCache[key]?.data ?? []
+  }
+}
