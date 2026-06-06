@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { fetchQuote } from '../utils/finnhub.js'
+import { fetchQuote, fetchEarnings, fetchDividends } from '../utils/finnhub.js'
 
 afterEach(() => vi.restoreAllMocks())
 
@@ -25,5 +25,57 @@ describe('fetchQuote', () => {
 
   it('returns null when apiKey is empty string', async () => {
     expect(await fetchQuote('AAPL', '')).toBeNull()
+  })
+})
+
+describe('fetchEarnings', () => {
+  it('returns earningsCalendar array when API succeeds', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      json: () => Promise.resolve({ earningsCalendar: [{ date: '2026-06-10', epsEstimate: 1.58, symbol: 'AAPL' }] }),
+    })
+    const result = await fetchEarnings('AAPL', '2026-06-06', '2026-09-04', 'test-key')
+    expect(result).toEqual([{ date: '2026-06-10', epsEstimate: 1.58, symbol: 'AAPL' }])
+  })
+
+  it('returns empty array when earningsCalendar is missing from response', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      json: () => Promise.resolve({}),
+    })
+    expect(await fetchEarnings('AAPL', '2026-06-06', '2026-09-04', 'test-key')).toEqual([])
+  })
+
+  it('returns empty array when fetch throws', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('network'))
+    expect(await fetchEarnings('AAPL', '2026-06-06', '2026-09-04', 'test-key')).toEqual([])
+  })
+
+  it('returns empty array when apiKey is empty string', async () => {
+    expect(await fetchEarnings('AAPL', '2026-06-06', '2026-09-04', '')).toEqual([])
+  })
+})
+
+describe('fetchDividends', () => {
+  it('returns dividend array when API succeeds', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      json: () => Promise.resolve([{ exDividendDate: '2026-06-15', amount: 0.75, symbol: 'MSFT' }]),
+    })
+    const result = await fetchDividends('MSFT', '2026-06-06', '2026-09-04', 'test-key')
+    expect(result).toEqual([{ exDividendDate: '2026-06-15', amount: 0.75, symbol: 'MSFT' }])
+  })
+
+  it('returns empty array when response is not an array', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
+      json: () => Promise.resolve({ error: 'not found' }),
+    })
+    expect(await fetchDividends('MSFT', '2026-06-06', '2026-09-04', 'test-key')).toEqual([])
+  })
+
+  it('returns empty array when fetch throws', async () => {
+    vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('network'))
+    expect(await fetchDividends('MSFT', '2026-06-06', '2026-09-04', 'test-key')).toEqual([])
+  })
+
+  it('returns empty array when apiKey is empty string', async () => {
+    expect(await fetchDividends('MSFT', '2026-06-06', '2026-09-04', '')).toEqual([])
   })
 })
