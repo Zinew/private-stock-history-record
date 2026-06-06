@@ -1,8 +1,10 @@
 import { useState, useRef } from 'react'
+import { useTranslation } from 'react-i18next'
 import { fetchQuote } from '../utils/finnhub.js'
 import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../utils/stockSearch.js'
 
 export default function AddHoldingForm({ onAdd }) {
+  const { t } = useTranslation()
   const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
   const [tickerStatus, setTickerStatus] = useState('idle')
   const [searchResults, setSearchResults] = useState([])
@@ -59,16 +61,16 @@ export default function AddHoldingForm({ onAdd }) {
   }
 
   function handleAdd() {
-    const t = form.ticker.trim().toUpperCase()
+    const t_val = form.ticker.trim().toUpperCase()
     const nm = form.name.trim()
     const q = parseFloat(form.qty)
     const b = parseFloat(form.buy)
     const c = parseFloat(form.cur)
-    if (!t || !(q > 0) || !(b >= 0) || !(c >= 0)) {
-      alert('티커·수량·매수가·현재가를 올바르게 입력해 주세요.')
+    if (!t_val || !(q > 0) || !(b >= 0) || !(c >= 0)) {
+      alert(t('addHolding.validationError'))
       return
     }
-    const holding = { t, nm, q, b, c, currency: form.currency }
+    const holding = { t: t_val, nm, q, b, c, currency: form.currency }
     if (form.currency === 'KRW' && form.exchange) holding.exchange = form.exchange
     onAdd(holding)
     setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: form.currency, exchange: '' })
@@ -80,7 +82,7 @@ export default function AddHoldingForm({ onAdd }) {
   return (
     <div className="addbar">
       <div className="field tk">
-        <label>티커</label>
+        <label>{t('addHolding.ticker')}</label>
         <input
           placeholder="AAPL"
           value={form.ticker}
@@ -95,7 +97,7 @@ export default function AddHoldingForm({ onAdd }) {
         />
       </div>
       <div className="field">
-        <label>통화</label>
+        <label>{t('addHolding.currency')}</label>
         <div className="currency-toggle">
           <button
             className={`currency-btn ${form.currency === 'USD' ? 'active' : ''}`}
@@ -118,9 +120,9 @@ export default function AddHoldingForm({ onAdd }) {
         </div>
       </div>
       <div className="field nm">
-        <label>이름 검색</label>
+        <label>{t('addHolding.searchName')}</label>
         <input
-          placeholder={isKRW ? '삼성전자' : 'Apple Inc.'}
+          placeholder={isKRW ? t('addHolding.searchPlaceholderKRW') : 'Apple Inc.'}
           value={form.name}
           autoComplete="off"
           onChange={handleNameChange}
@@ -140,7 +142,7 @@ export default function AddHoldingForm({ onAdd }) {
         )}
       </div>
       <div className="field">
-        <label>수량</label>
+        <label>{t('addHolding.qty')}</label>
         <input
           type="number" step="any" placeholder="10"
           value={form.qty}
@@ -148,7 +150,7 @@ export default function AddHoldingForm({ onAdd }) {
         />
       </div>
       <div className="field">
-        <label>매수단가</label>
+        <label>{t('addHolding.avgCost')}</label>
         <input
           type="number" step="any"
           placeholder={isKRW ? '75000' : '150'}
@@ -157,7 +159,7 @@ export default function AddHoldingForm({ onAdd }) {
         />
       </div>
       <div className="field">
-        <label>현재가{tickerStatus === 'loading' ? ' 조회 중…' : ''}</label>
+        <label>{t('addHolding.currentPrice')}{tickerStatus === 'loading' ? ` ${t('addHolding.loading')}` : ''}</label>
         <input
           type="number" step="any"
           placeholder={isKRW ? '82000' : '190'}
@@ -171,11 +173,11 @@ export default function AddHoldingForm({ onAdd }) {
         />
         {tickerStatus === 'error' && (
           <span className="ticker-error">
-            티커를 찾을 수 없습니다
+            {t('addHolding.notFound')}
           </span>
         )}
       </div>
-      <button className="btn" onClick={handleAdd}>+ 추가</button>
+      <button className="btn" onClick={handleAdd}>{t('addHolding.addButton')}</button>
     </div>
   )
 }
