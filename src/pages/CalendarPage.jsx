@@ -20,10 +20,11 @@ export default function CalendarPage({ portfolio }) {
   const sortedManual = [...manualEvents].sort((a, b) => a.date.localeCompare(b.date))
 
   function addManualEvent(ev) {
-    setManualEvents([...manualEvents, { ...ev, id: Date.now() }])
+    setManualEvents([...manualEvents, { ...ev, id: crypto.randomUUID() }])
   }
 
   function deleteManualEvent(id) {
+    if (id == null) return
     setManualEvents(manualEvents.filter(e => e.id !== id))
   }
 
