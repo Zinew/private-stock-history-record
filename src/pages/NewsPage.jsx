@@ -1,8 +1,10 @@
 import { useStockNews } from '../hooks/useStockNews.js'
+import { useTranslation } from 'react-i18next'
 
 function StockNewsSection({ holding }) {
   const currency = holding.currency ?? 'USD'
   const { articles, loading, error } = useStockNews(holding.t, currency)
+  const { t } = useTranslation()
 
   return (
     <div className="news-section">
@@ -16,11 +18,11 @@ function StockNewsSection({ holding }) {
         </span>
       </div>
 
-      {loading && <p className="news-empty">조회 중…</p>}
+      {loading && <p className="news-empty">{t('news.loading')}</p>}
       {error && <p className="news-error">⚠ {error}</p>}
 
       {!loading && !error && articles.length === 0 && (
-        <p className="news-empty">최근 뉴스가 없습니다.</p>
+        <p className="news-empty">{t('news.empty')}</p>
       )}
 
       {!loading && !error && articles.length > 0 && (
@@ -51,19 +53,20 @@ function StockNewsSection({ holding }) {
 
 export default function NewsPage({ portfolio }) {
   const holdings = portfolio?.holdings ?? []
+  const { t } = useTranslation()
 
   if (holdings.length === 0) {
     return (
       <div className="holdings">
-        <h2 className="news-heading">뉴스</h2>
-        <p className="news-empty">보유 종목을 추가하면 관련 뉴스가 표시됩니다.</p>
+        <h2 className="news-heading">{t('news.title')}</h2>
+        <p className="news-empty">{t('news.noHoldings')}</p>
       </div>
     )
   }
 
   return (
     <div className="holdings">
-      <h2 className="news-heading">뉴스</h2>
+      <h2 className="news-heading">{t('news.title')}</h2>
       {holdings.map(h => (
         <StockNewsSection key={h.t} holding={h} />
       ))}
