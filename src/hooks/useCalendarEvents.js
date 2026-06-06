@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { fetchEarningsCalendar } from '../utils/alphavantage.js'
 import { fetchDividends } from '../utils/finnhub.js'
+import i18n from '../i18n.js'
 
 export function filterUsdHoldings(holdings) {
   return holdings.filter(h => (h.currency ?? 'USD') === 'USD')
@@ -76,7 +77,7 @@ export function useCalendarEvents(holdings) {
 
         setEvents(sortEventsByDate([...earningsEvents, ...dividendEvents]))
       } catch {
-        if (!cancelled) setError('이벤트 데이터 조회에 실패했습니다')
+        if (!cancelled) setError(i18n.t('calendar.error'))
         if (!cancelled) setEvents([])
       } finally {
         if (!cancelled) setLoading(false)

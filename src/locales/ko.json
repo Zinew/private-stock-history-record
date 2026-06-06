@@ -32,7 +32,10 @@
     "weight": "비중",
     "empty": "아직 종목이 없습니다. 아래에서 첫 종목을 추가해 보세요.",
     "edit": "수정",
-    "delete": "삭제"
+    "delete": "삭제",
+    "priceError": "주가 조회에 실패했습니다",
+    "krxPriceError": "KRX 주가 조회에 실패했습니다",
+    "addFirst": "먼저 종목을 추가해 주세요."
   },
   "addHolding": {
     "ticker": "티커",
@@ -79,7 +82,9 @@
     "manualEvents": "내가 추가한 이벤트",
     "addButton": "+ 추가",
     "noManualEvents": "직접 추가한 이벤트가 없습니다.",
-    "delete": "삭제"
+    "delete": "삭제",
+    "error": "이벤트 데이터 조회에 실패했습니다",
+    "perShare": "/ 주"
   },
   "news": {
     "title": "뉴스",

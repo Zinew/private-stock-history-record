@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { fetchKrxQuote } from '../utils/stockSearch.js'
+import i18n from '../i18n.js'
 
 export function useKrxPrices(krwHoldings) {
   const [prices, setPrices] = useState({})
@@ -25,7 +26,7 @@ export function useKrxPrices(krwHoldings) {
           if (price !== null) result[t] = price
         }
         if (Object.keys(result).length === 0) {
-          setError('KRX 주가 조회에 실패했습니다')
+          setError(i18n.t('holdings.krxPriceError'))
         } else {
           setPrices(prev => ({ ...prev, ...result }))
           setLastUpdatedAt(new Date())

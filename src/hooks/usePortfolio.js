@@ -3,6 +3,7 @@ import { useLocalStorage } from './useLocalStorage.js'
 import { useExchangeRate } from './useExchangeRate.js'
 import { useStockPrices } from './useStockPrices.js'
 import { useKrxPrices } from './useKrxPrices.js'
+import i18n from '../i18n.js'
 
 export function usePortfolio() {
   const [holdings, setHoldings] = useLocalStorage('ledger_holdings', [])
@@ -67,7 +68,7 @@ export function usePortfolio() {
   }
 
   function takeSnapshot() {
-    if (holdings.length === 0) { alert('먼저 종목을 추가해 주세요.'); return }
+    if (holdings.length === 0) { alert(i18n.t('holdings.addFirst')); return }
     const d = new Date()
     const label = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
     const next = [...snaps, { label, total: totalVal, currency: displayCurrency }]

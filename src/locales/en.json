@@ -32,7 +32,10 @@
     "weight": "Weight",
     "empty": "No holdings yet. Add your first below.",
     "edit": "Edit",
-    "delete": "Delete"
+    "delete": "Delete",
+    "priceError": "Failed to fetch prices",
+    "krxPriceError": "Failed to fetch KRX prices",
+    "addFirst": "Please add a holding first."
   },
   "addHolding": {
     "ticker": "Ticker",
@@ -79,7 +82,9 @@
     "manualEvents": "My Events",
     "addButton": "+ Add",
     "noManualEvents": "No manually added events.",
-    "delete": "Delete"
+    "delete": "Delete",
+    "error": "Failed to load events",
+    "perShare": "/ share"
   },
   "news": {
     "title": "News",

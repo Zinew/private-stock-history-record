@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react'
 import { fetchQuote } from '../utils/finnhub.js'
+import i18n from '../i18n.js'
 
 export function useStockPrices(tickers) {
   const [prices, setPrices] = useState({})
@@ -25,7 +26,7 @@ export function useStockPrices(tickers) {
           if (price !== null) result[ticker] = price
         }
         if (Object.keys(result).length === 0) {
-          setError('주가 조회에 실패했습니다')
+          setError(i18n.t('holdings.priceError'))
         } else {
           setPrices(prev => ({ ...prev, ...result }))
           setLastUpdatedAt(new Date())

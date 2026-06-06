@@ -64,7 +64,7 @@ export default function CalendarPage({ portfolio }) {
                       <div className="calendar-card-detail">{t('calendar.epsEstimate')}${ev.epsEstimate}</div>
                     )}
                     {ev.type === 'dividend' && ev.amount !== null && (
-                      <div className="calendar-card-detail">${ev.amount} / 주</div>
+                      <div className="calendar-card-detail">${ev.amount} {t('calendar.perShare')}</div>
                     )}
                   </div>
                 </div>
