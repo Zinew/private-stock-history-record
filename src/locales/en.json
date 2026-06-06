@@ -1,0 +1,104 @@
+{
+  "common": {
+    "minutesAgo": "{{count}} min ago",
+    "hoursAgo": "{{count}} hrs ago",
+    "loading": "Loading…"
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "calendar": "Calendar",
+    "news": "News",
+    "closeMenu": "Close menu",
+    "openMenu": "Open menu"
+  },
+  "header": {
+    "totalValue": "Total Value",
+    "totalCost": "Total Cost",
+    "unrealizedPnl": "Unrealized P&L",
+    "returnRate": "Return",
+    "justUpdated": "Just updated"
+  },
+  "holdings": {
+    "title": "Holdings",
+    "refresh": "Refresh prices",
+    "asOf": "as of",
+    "ticker": "Ticker",
+    "qty": "Qty",
+    "avgCost": "Avg Cost",
+    "currentPrice": "Price",
+    "value": "Value",
+    "pnl": "P&L",
+    "returnRate": "Return",
+    "weight": "Weight",
+    "empty": "No holdings yet. Add your first below.",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "addHolding": {
+    "ticker": "Ticker",
+    "currency": "Currency",
+    "searchName": "Search name",
+    "searchPlaceholderKRW": "Samsung Electronics",
+    "qty": "Qty",
+    "avgCost": "Avg Cost",
+    "currentPrice": "Current Price",
+    "loading": "Loading…",
+    "notFound": "Ticker not found",
+    "addButton": "+ Add",
+    "validationError": "Please enter a valid ticker, qty, cost, and price."
+  },
+  "editModal": {
+    "title": "Edit",
+    "name": "Name (optional)",
+    "qty": "Qty",
+    "avgCost": "Avg Cost",
+    "currentPrice": "Current Price",
+    "apiAuto": "API auto",
+    "save": "Save",
+    "cancel": "Cancel",
+    "validationError": "Please enter valid qty, cost, and price."
+  },
+  "manualEventModal": {
+    "title": "Add Event",
+    "ticker": "Ticker",
+    "date": "Date",
+    "eventType": "Event Type",
+    "earnings": "Earnings",
+    "dividend": "Dividend",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "calendar": {
+    "title": "Earnings & Events",
+    "autoEvents": "Auto-fetched Events",
+    "loading": "Loading…",
+    "noAutoEvents": "No events in the next 90 days.",
+    "earnings": "Earnings",
+    "dividend": "Dividend",
+    "epsEstimate": "Est. EPS: ",
+    "manualEvents": "My Events",
+    "addButton": "+ Add",
+    "noManualEvents": "No manually added events.",
+    "delete": "Delete"
+  },
+  "news": {
+    "title": "News",
+    "loading": "Loading…",
+    "empty": "No recent news.",
+    "noHoldings": "Add holdings to see related news.",
+    "error": "Failed to load news"
+  },
+  "charts": {
+    "trend": "Portfolio Trend",
+    "allocation": "Allocation"
+  },
+  "snapshot": {
+    "record": "📸 Record today's value",
+    "reset": "Reset trend",
+    "desc1": "Each click adds the current total value as a data point on the trend chart.",
+    "desc2": "Click over a few days to see your portfolio rise and fall."
+  },
+  "dashboard": {
+    "disclaimer": "Data is stored in this browser only · For tracking and visualization, not investment advice"
+  }
+}
