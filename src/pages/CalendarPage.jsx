@@ -6,8 +6,6 @@ import ManualEventModal from '../components/ManualEventModal.jsx'
 export default function CalendarPage({ portfolio }) {
   const holdings = portfolio?.holdings ?? []
   const { events, loading, error } = useCalendarEvents(holdings)
-  const hasKrw = holdings.some(h => h.currency === 'KRW')
-
   const [manualEvents, setManualEvents] = useLocalStorage('ledger_manual_events', [])
   const [showModal, setShowModal] = useState(false)
 
@@ -27,8 +25,6 @@ export default function CalendarPage({ portfolio }) {
     if (id == null) return
     setManualEvents(manualEvents.filter(e => e.id !== id))
   }
-
-  const usdHoldings = holdings.filter(h => (h.currency ?? 'USD') === 'USD')
 
   return (
     <div className="holdings">
@@ -80,7 +76,7 @@ export default function CalendarPage({ portfolio }) {
       {/* 수동 입력 섹션 */}
       <div className="calendar-section-header">
         <span className="calendar-section-label">내가 추가한 이벤트</span>
-        {usdHoldings.length > 0 && (
+        {holdings.length > 0 && (
           <button className="calendar-add-btn" onClick={() => setShowModal(true)}>
             + 추가
           </button>
@@ -122,13 +118,9 @@ export default function CalendarPage({ portfolio }) {
         </div>
       )}
 
-      {hasKrw && (
-        <p className="calendar-note">* 한국 종목 이벤트는 추후 지원 예정입니다.</p>
-      )}
-
       {showModal && (
         <ManualEventModal
-          holdings={usdHoldings}
+          holdings={holdings}
           onSave={addManualEvent}
           onClose={() => setShowModal(false)}
         />
