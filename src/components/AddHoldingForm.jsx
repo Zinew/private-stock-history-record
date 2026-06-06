@@ -117,7 +117,7 @@ export default function AddHoldingForm({ onAdd }) {
           >KRW</button>
         </div>
       </div>
-      <div className="field nm" style={{ position: 'relative' }}>
+      <div className="field nm">
         <label>이름 검색</label>
         <input
           placeholder={isKRW ? '삼성전자' : 'Apple Inc.'}
@@ -170,7 +170,7 @@ export default function AddHoldingForm({ onAdd }) {
           }}
         />
         {tickerStatus === 'error' && (
-          <span style={{ color: '#e8654f', fontSize: 10, display: 'block', marginTop: 2 }}>
+          <span className="ticker-error">
             티커를 찾을 수 없습니다
           </span>
         )}

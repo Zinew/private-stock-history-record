@@ -32,7 +32,7 @@ export default function EditModal({ holding, onSave, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <h3 style={{ fontFamily: "'Spline Sans Mono',monospace", fontSize: 13, letterSpacing: 1, marginBottom: 20 }}>
+        <h3 className="modal-title">
           {holding.t} 수정
         </h3>
         <div className="modal-field">
@@ -50,7 +50,7 @@ export default function EditModal({ holding, onSave, onClose }) {
         <div className="modal-field">
           <label>
             현재가
-            {!isKRW && <span style={{ color: 'var(--ink-faint)', fontSize: 10, marginLeft: 6 }}>API 자동</span>}
+            {!isKRW && <span className="auto-label">API 자동</span>}
           </label>
           <input
             type="number" step="any"

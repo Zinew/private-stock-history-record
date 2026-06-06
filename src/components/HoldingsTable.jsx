@@ -22,8 +22,8 @@ export default function HoldingsTable({
 
   return (
     <div className="holdings">
-      <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 14 }}>
-        <h2 style={{ fontFamily: "'Spline Sans Mono',monospace", fontSize: 11, letterSpacing: 2, textTransform: 'uppercase', color: 'var(--ink-dim)', margin: 0 }}>
+      <div className="holdings-header">
+        <h2 className="holdings-title">
           보유 종목
         </h2>
         {hasAutoHoldings && (
@@ -32,12 +32,12 @@ export default function HoldingsTable({
               onClick={onRefresh}
               disabled={priceLoading}
               title="주가 새로고침"
-              style={{ background: 'none', border: '1px solid var(--ink-dim)', borderRadius: 4, color: 'var(--ink-dim)', cursor: priceLoading ? 'default' : 'pointer', fontSize: 12, padding: '2px 8px', opacity: priceLoading ? 0.5 : 1 }}
+              className="refresh-btn"
             >
               ↻
             </button>
             {lastUpdatedAt && (
-              <span style={{ fontFamily: "'Spline Sans Mono',monospace", fontSize: 10, color: 'var(--ink-faint)' }}>
+              <span className="refresh-time">
                 {formatUpdatedAt(lastUpdatedAt)} 기준
               </span>
             )}
@@ -46,7 +46,7 @@ export default function HoldingsTable({
       </div>
 
       {priceError && (
-        <div style={{ background: 'rgba(232,101,79,.12)', border: '1px solid rgba(232,101,79,.3)', borderRadius: 6, color: '#e8654f', fontSize: 12, marginBottom: 12, padding: '6px 12px' }}>
+        <div className="price-error">
           ⚠ {priceError}
         </div>
       )}
@@ -82,7 +82,7 @@ export default function HoldingsTable({
                     <td>{h.q.toLocaleString()}</td>
                     <td>{fmtCurrency(h.b, hCur)}</td>
                     <td>
-                      {isLive && <span style={{ color: '#3fbf8f', fontSize: 9, marginRight: 3 }}>●</span>}
+                      {isLive && <span className="live-dot">●</span>}
                       {fmtCurrency(h.c, hCur)}
                     </td>
                     <td>{fmtCurrency(val, displayCurrency)}</td>

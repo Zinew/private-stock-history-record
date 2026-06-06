@@ -18,7 +18,7 @@ export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, 
         <h1>Ledger<span className="dot">.</span></h1>
         <span className="tag">portfolio tracker</span>
       </div>
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+      <div className="header-right">
         {hasRate && (
           <div className="rate-bar">
             <div className="currency-toggle">
