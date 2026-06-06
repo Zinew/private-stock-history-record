@@ -1,13 +1,15 @@
 import { Link, useLocation } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 
 const NAV_ITEMS = [
-  { path: '/', label: '대시보드', icon: '📊' },
-  { path: '/calendar', label: '캘린더', icon: '📅' },
-  { path: '/news', label: '뉴스', icon: '📰' },
+  { path: '/', key: 'sidebar.dashboard', icon: '📊' },
+  { path: '/calendar', key: 'sidebar.calendar', icon: '📅' },
+  { path: '/news', key: 'sidebar.news', icon: '📰' },
 ]
 
 export default function Sidebar({ isOpen, onClose }) {
   const { pathname } = useLocation()
+  const { t, i18n } = useTranslation()
 
   return (
     <>
@@ -18,10 +20,10 @@ export default function Sidebar({ isOpen, onClose }) {
       <div className={`sidebar${isOpen ? ' open' : ''}`}>
         <div className="sidebar-header">
           <span className="sidebar-logo">LEDGER.</span>
-          <button className="sidebar-close" onClick={onClose} aria-label="메뉴 닫기">✕</button>
+          <button className="sidebar-close" onClick={onClose} aria-label={t('sidebar.closeMenu')}>✕</button>
         </div>
         <nav className="sidebar-nav">
-          {NAV_ITEMS.map(({ path, label, icon }) => (
+          {NAV_ITEMS.map(({ path, key, icon }) => (
             <Link
               key={path}
               to={path}
@@ -29,10 +31,20 @@ export default function Sidebar({ isOpen, onClose }) {
               onClick={onClose}
             >
               <span className="nav-icon">{icon}</span>
-              <span>{label}</span>
+              <span>{t(key)}</span>
             </Link>
           ))}
         </nav>
+        <div className="sidebar-lang">
+          <button
+            className={`lang-btn${i18n.language === 'ko' ? ' active' : ''}`}
+            onClick={() => i18n.changeLanguage('ko')}
+          >KO</button>
+          <button
+            className={`lang-btn${i18n.language === 'en' ? ' active' : ''}`}
+            onClick={() => i18n.changeLanguage('en')}
+          >EN</button>
+        </div>
         <div className="sidebar-footer">Ledger v2</div>
       </div>
     </>

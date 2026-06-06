@@ -1,13 +1,17 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MemoryRouter } from 'react-router-dom'
+import { I18nextProvider } from 'react-i18next'
+import i18n from '../../i18n.js'
 import Sidebar from '../../components/Sidebar.jsx'
 
 function renderSidebar(props, initialPath = '/') {
   return render(
-    <MemoryRouter initialEntries={[initialPath]}>
-      <Sidebar {...props} />
-    </MemoryRouter>
+    <I18nextProvider i18n={i18n}>
+      <MemoryRouter initialEntries={[initialPath]}>
+        <Sidebar {...props} />
+      </MemoryRouter>
+    </I18nextProvider>
   )
 }
 
