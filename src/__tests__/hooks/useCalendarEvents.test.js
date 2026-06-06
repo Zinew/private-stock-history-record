@@ -3,6 +3,7 @@ import { describe, it, expect } from 'vitest'
 import {
   filterUsdHoldings,
   mapToEarningsEvent,
+  mapToDividendEvent,
   sortEventsByDate,
 } from '../../hooks/useCalendarEvents.js'
 
@@ -44,6 +45,27 @@ describe('mapToEarningsEvent', () => {
     const holding = { t: 'AAPL', currency: 'USD' }
     const entry = { symbol: 'AAPL', reportDate: '2026-07-30', estimate: null }
     expect(mapToEarningsEvent(holding, entry).name).toBe('AAPL')
+  })
+})
+
+describe('mapToDividendEvent', () => {
+  it('maps Finnhub dividend entry to event object', () => {
+    const holding = { t: 'AAPL', nm: 'Apple Inc.', currency: 'USD' }
+    const entry = { symbol: 'AAPL', exDate: '2026-08-09', amount: 0.25 }
+    expect(mapToDividendEvent(holding, entry)).toEqual({
+      date: '2026-08-09',
+      type: 'dividend',
+      ticker: 'AAPL',
+      name: 'Apple Inc.',
+      epsEstimate: null,
+      amount: 0.25,
+    })
+  })
+
+  it('falls back to holding.t when entry.symbol is missing', () => {
+    const holding = { t: 'MSFT', nm: 'Microsoft', currency: 'USD' }
+    const entry = { exDate: '2026-08-15', amount: 0.83 }
+    expect(mapToDividendEvent(holding, entry).ticker).toBe('MSFT')
   })
 })
 

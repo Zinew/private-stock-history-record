@@ -1,6 +1,7 @@
-import { describe, it, expect, vi, afterEach } from 'vitest'
-import { fetchQuote, fetchEarnings, fetchDividends } from '../utils/finnhub.js'
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
+import { fetchQuote, fetchEarnings, fetchDividends, _clearDivCache } from '../utils/finnhub.js'
 
+beforeEach(() => _clearDivCache())
 afterEach(() => vi.restoreAllMocks())
 
 describe('fetchQuote', () => {

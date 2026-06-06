@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { fetchEarningsCalendar } from '../utils/alphavantage.js'
+import { fetchDividends } from '../utils/finnhub.js'
 
 export function filterUsdHoldings(holdings) {
   return holdings.filter(h => (h.currency ?? 'USD') === 'USD')
@@ -13,6 +14,17 @@ export function mapToEarningsEvent(holding, entry) {
     name: holding?.nm || entry.symbol,
     epsEstimate: entry.estimate,
     amount: null,
+  }
+}
+
+export function mapToDividendEvent(holding, entry) {
+  return {
+    date: entry.exDate,
+    type: 'dividend',
+    ticker: entry.symbol ?? holding.t,
+    name: holding?.nm || entry.symbol || holding.t,
+    epsEstimate: null,
+    amount: entry.amount ?? null,
   }
 }
 
@@ -40,16 +52,29 @@ export function useCalendarEvents(holdings) {
     let cancelled = false
     ;(async () => {
       try {
-        const allEarnings = await fetchEarningsCalendar()
+        const today = new Date().toISOString().slice(0, 10)
+        const to = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
+
+        const [allEarnings, ...divArrays] = await Promise.all([
+          fetchEarningsCalendar(),
+          ...usdHoldings.map(h => fetchDividends(h.t, today, to)),
+        ])
         if (cancelled) return
+
         const holdingMap = Object.fromEntries(usdHoldings.map(h => [h.t, h]))
         const tickers = new Set(usdHoldings.map(h => h.t))
 
-        const mapped = allEarnings
+        const earningsEvents = allEarnings
           .filter(e => tickers.has(e.symbol))
           .map(e => mapToEarningsEvent(holdingMap[e.symbol], e))
 
-        setEvents(sortEventsByDate(mapped))
+        const dividendEvents = usdHoldings.flatMap((h, i) =>
+          divArrays[i]
+            .filter(d => d.exDate && d.exDate >= today)
+            .map(d => mapToDividendEvent(h, d))
+        )
+
+        setEvents(sortEventsByDate([...earningsEvents, ...dividendEvents]))
       } catch {
         if (!cancelled) setError('이벤트 데이터 조회에 실패했습니다')
         if (!cancelled) setEvents([])
