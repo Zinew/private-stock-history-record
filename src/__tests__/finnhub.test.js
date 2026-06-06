@@ -129,4 +129,18 @@ describe('fetchCompanyNews', () => {
     vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('network'))
     expect(await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', 'test-key')).toEqual([])
   })
+
+  it('returns cached data on network error when cache exists', async () => {
+    const oldTimestamp = Math.floor((Date.now() - 25 * 60 * 60 * 1000) / 1000)
+    const fakeItems = [{ headline: 'Old news', summary: null, source: 'Reuters', url: 'https://example.com/0', datetime: oldTimestamp }]
+    vi.spyOn(global, 'fetch').mockResolvedValueOnce({ json: () => Promise.resolve(fakeItems) })
+    await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', 'test-key')
+    vi.useFakeTimers()
+    vi.advanceTimersByTime(61 * 60 * 1000)
+    vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('network'))
+    const result = await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', 'test-key')
+    vi.useRealTimers()
+    expect(result).toHaveLength(1)
+    expect(result[0].title).toBe('Old news')
+  })
 })
