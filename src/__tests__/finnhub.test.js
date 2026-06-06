@@ -136,10 +136,14 @@ describe('fetchCompanyNews', () => {
     vi.spyOn(global, 'fetch').mockResolvedValueOnce({ json: () => Promise.resolve(fakeItems) })
     await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', 'test-key')
     vi.useFakeTimers()
-    vi.advanceTimersByTime(61 * 60 * 1000)
-    vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('network'))
-    const result = await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', 'test-key')
-    vi.useRealTimers()
+    let result
+    try {
+      vi.advanceTimersByTime(61 * 60 * 1000)
+      vi.spyOn(global, 'fetch').mockRejectedValueOnce(new Error('network'))
+      result = await fetchCompanyNews('AAPL', '2026-05-07', '2026-06-06', 'test-key')
+    } finally {
+      vi.useRealTimers()
+    }
     expect(result).toHaveLength(1)
     expect(result[0].title).toBe('Old news')
   })

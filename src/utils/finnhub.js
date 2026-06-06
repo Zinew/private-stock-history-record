@@ -49,6 +49,7 @@ export async function fetchDividends(ticker, from, to, apiKey = import.meta.env.
 }
 
 export function formatPublishedAt(unixTs) {
+  if (!unixTs) return ''
   const diffHours = Math.floor((Date.now() - unixTs * 1000) / (1000 * 60 * 60))
   if (diffHours < 24) return `${diffHours}시간 전`
   const d = new Date(unixTs * 1000)
