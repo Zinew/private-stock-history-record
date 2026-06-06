@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function EditModal({ holding, onSave, onClose }) {
   const [form, setForm] = useState({
@@ -7,6 +8,7 @@ export default function EditModal({ holding, onSave, onClose }) {
     b:  String(holding.b),
     c:  String(holding.c),
   })
+  const { t } = useTranslation()
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -21,7 +23,7 @@ export default function EditModal({ holding, onSave, onClose }) {
     const b = parseFloat(form.b)
     const c = parseFloat(form.c)
     if (!(q > 0) || !(b >= 0) || !(c >= 0)) {
-      alert('수량·매수가·현재가를 올바르게 입력해 주세요.')
+      alert(t('editModal.validationError'))
       return
     }
     onSave({ nm: form.nm.trim(), q, b, c })
@@ -33,24 +35,24 @@ export default function EditModal({ holding, onSave, onClose }) {
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
         <h3 className="modal-title">
-          {holding.t} 수정
+          {holding.t} {t('editModal.title')}
         </h3>
         <div className="modal-field">
-          <label>이름(선택)</label>
+          <label>{t('editModal.name')}</label>
           <input value={form.nm} onChange={e => setForm(f => ({ ...f, nm: e.target.value }))} />
         </div>
         <div className="modal-field">
-          <label>수량</label>
+          <label>{t('editModal.qty')}</label>
           <input type="number" step="any" value={form.q} onChange={e => setForm(f => ({ ...f, q: e.target.value }))} />
         </div>
         <div className="modal-field">
-          <label>매수단가</label>
+          <label>{t('editModal.avgCost')}</label>
           <input type="number" step="any" value={form.b} onChange={e => setForm(f => ({ ...f, b: e.target.value }))} />
         </div>
         <div className="modal-field">
           <label>
-            현재가
-            {!isKRW && <span className="auto-label">API 자동</span>}
+            {t('editModal.currentPrice')}
+            {!isKRW && <span className="auto-label">{t('editModal.apiAuto')}</span>}
           </label>
           <input
             type="number" step="any"
@@ -61,8 +63,8 @@ export default function EditModal({ holding, onSave, onClose }) {
           />
         </div>
         <div className="modal-actions">
-          <button className="btn" onClick={handleSave}>저장</button>
-          <button className="btn ghost" onClick={onClose}>취소</button>
+          <button className="btn" onClick={handleSave}>{t('editModal.save')}</button>
+          <button className="btn ghost" onClick={onClose}>{t('editModal.cancel')}</button>
         </div>
       </div>
     </div>

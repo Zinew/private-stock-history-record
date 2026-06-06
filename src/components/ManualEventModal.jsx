@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
 
 export default function ManualEventModal({ holdings, onSave, onClose }) {
   const [ticker, setTicker] = useState(holdings[0]?.t ?? '')
   const [date, setDate] = useState('')
   const [type, setType] = useState('earnings')
+  const { t } = useTranslation()
 
   useEffect(() => {
     function handleKeyDown(e) {
@@ -24,10 +26,10 @@ export default function ManualEventModal({ holdings, onSave, onClose }) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-title">이벤트 직접 추가</div>
+        <div className="modal-title">{t('manualEventModal.title')}</div>
 
         <div className="modal-field">
-          <label>종목</label>
+          <label>{t('manualEventModal.ticker')}</label>
           <select
             value={ticker}
             onChange={e => setTicker(e.target.value)}
@@ -42,7 +44,7 @@ export default function ManualEventModal({ holdings, onSave, onClose }) {
         </div>
 
         <div className="modal-field">
-          <label>날짜</label>
+          <label>{t('manualEventModal.date')}</label>
           <input
             type="date"
             value={date}
@@ -51,29 +53,29 @@ export default function ManualEventModal({ holdings, onSave, onClose }) {
         </div>
 
         <div className="modal-field">
-          <label>이벤트 종류</label>
+          <label>{t('manualEventModal.eventType')}</label>
           <div className="type-toggle">
             <button
               className={`type-btn${type === 'earnings' ? ' active earnings' : ''}`}
               onClick={() => setType('earnings')}
             >
-              실적발표
+              {t('manualEventModal.earnings')}
             </button>
             <button
               className={`type-btn${type === 'dividend' ? ' active dividend' : ''}`}
               onClick={() => setType('dividend')}
             >
-              배당금
+              {t('manualEventModal.dividend')}
             </button>
           </div>
         </div>
 
         <div className="modal-actions">
           <button className="btn" onClick={handleSave} disabled={!canSave}>
-            저장
+            {t('manualEventModal.save')}
           </button>
           <button className="btn ghost" onClick={onClose}>
-            취소
+            {t('manualEventModal.cancel')}
           </button>
         </div>
       </div>
