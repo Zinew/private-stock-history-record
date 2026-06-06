@@ -1,6 +1,6 @@
 let _cache = null
 let _cacheTime = 0
-const CACHE_TTL_MS = 6 * 60 * 60 * 1000 // 6 hours
+const CACHE_TTL_MS = 6 * 60 * 60 * 1000
 
 export async function fetchEarningsCalendar(apiKey = import.meta.env.VITE_ALPHAVANTAGE_KEY ?? '') {
   if (!apiKey) return []
