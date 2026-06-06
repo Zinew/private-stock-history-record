@@ -1,20 +1,22 @@
 import { fmtCurrency, pct } from '../utils/format.js'
-
-function formatUpdatedAt(isoString) {
-  if (!isoString) return ''
-  const mins = Math.floor((Date.now() - new Date(isoString).getTime()) / 60000)
-  if (mins < 1) return '방금 업데이트'
-  if (mins < 60) return `${mins}분 전`
-  return `${Math.floor(mins / 60)}시간 전`
-}
+import { useTranslation } from 'react-i18next'
 
 export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, onToggleCurrency, exchangeRate, onMenuOpen }) {
+  const { t } = useTranslation()
   const hasRate = !!exchangeRate.rate
+
+  function formatUpdatedAt(isoString) {
+    if (!isoString) return ''
+    const mins = Math.floor((Date.now() - new Date(isoString).getTime()) / 60000)
+    if (mins < 1) return t('header.justUpdated')
+    if (mins < 60) return t('common.minutesAgo', { count: mins })
+    return t('common.hoursAgo', { count: Math.floor(mins / 60) })
+  }
 
   return (
     <header>
       <div className="brand">
-        <button className="menu-btn" onClick={onMenuOpen} aria-label="메뉴 열기">☰</button>
+        <button className="menu-btn" onClick={onMenuOpen} aria-label={t('sidebar.openMenu')}>☰</button>
         <h1>Ledger<span className="dot">.</span></h1>
         <span className="tag">portfolio tracker</span>
       </div>
@@ -38,21 +40,21 @@ export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, 
         )}
         <div className="summary">
           <div className="sum-item">
-            <div className="label">총 평가액</div>
+            <div className="label">{t('header.totalValue')}</div>
             <div className="val">{fmtCurrency(totalVal, displayCurrency)}</div>
           </div>
           <div className="sum-item">
-            <div className="label">총 매입액</div>
+            <div className="label">{t('header.totalCost')}</div>
             <div className="val">{fmtCurrency(totalCost, displayCurrency)}</div>
           </div>
           <div className="sum-item">
-            <div className="label">평가손익</div>
+            <div className="label">{t('header.unrealizedPnl')}</div>
             <div className={`val ${pl >= 0 ? 'pos' : 'neg'}`}>
               {pl >= 0 ? '+' : ''}{fmtCurrency(pl, displayCurrency)}
             </div>
           </div>
           <div className="sum-item">
-            <div className="label">수익률</div>
+            <div className="label">{t('header.returnRate')}</div>
             <div className={`val ${ret >= 0 ? 'pos' : 'neg'}`}>{pct(ret)}</div>
           </div>
         </div>
