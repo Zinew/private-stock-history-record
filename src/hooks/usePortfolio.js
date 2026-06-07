@@ -3,15 +3,33 @@ import { useLocalStorage } from './useLocalStorage.js'
 import { useExchangeRate } from './useExchangeRate.js'
 import { useStockPrices } from './useStockPrices.js'
 import { useKrxPrices } from './useKrxPrices.js'
+import { migrateHoldingsToTransactions, deriveHoldings, deriveRealizedGains } from '../utils/transactions.js'
 import i18n from '../i18n.js'
 
+function runMigrationIfNeeded() {
+  if (localStorage.getItem('ledger_migration_v1')) return
+  localStorage.setItem('ledger_migration_v1', '1')
+  const rawHoldings = localStorage.getItem('ledger_holdings')
+  if (!rawHoldings) return
+  const holdings = JSON.parse(rawHoldings)
+  if (!holdings.length) return
+  const migrated = migrateHoldingsToTransactions(holdings)
+  localStorage.setItem('ledger_transactions', JSON.stringify(migrated))
+  localStorage.removeItem('ledger_holdings')
+}
+
+runMigrationIfNeeded()
+
 export function usePortfolio() {
-  const [holdings, setHoldings] = useLocalStorage('ledger_holdings', [])
+  const [transactions, setTransactions] = useLocalStorage('ledger_transactions', [])
   const [snaps, setSnaps] = useLocalStorage('ledger_snaps', [])
   const [displayCurrencyRaw, setDisplayCurrency] = useLocalStorage('ledger_display_currency', 'USD')
   const [exchangeRate, setExchangeRate] = useLocalStorage('ledger_exchange_rate', { rate: null, updatedAt: null })
 
   useExchangeRate(setExchangeRate)
+
+  const holdings = useMemo(() => deriveHoldings(transactions), [transactions])
+  const realizedGains = useMemo(() => deriveRealizedGains(transactions), [transactions])
 
   const usdTickers = useMemo(
     () => holdings.filter(h => h.currency === 'USD').map(h => h.t),
@@ -33,7 +51,7 @@ export function usePortfolio() {
 
   const effectiveHoldings = holdings.map(h => ({
     ...h,
-    c: prices[h.t] !== undefined ? prices[h.t] : h.c,
+    c: prices[h.t] ?? 0,
   }))
 
   function toDisplay(amount, fromCurrency) {
@@ -48,18 +66,41 @@ export function usePortfolio() {
   const pl = totalVal - totalCost
   const ret = totalCost > 0 ? (pl / totalCost) * 100 : 0
 
-  function addHolding({ t, nm, q, b, c, currency, exchange }) {
-    const holding = { t, nm, q, b, c, currency }
-    if (exchange) holding.exchange = exchange
-    setHoldings([...holdings, holding])
+  const totalRealizedGain = useMemo(
+    () => realizedGains.reduce((s, g) => s + toDisplay(g.gain, g.currency), 0),
+    [realizedGains, displayCurrency, exchangeRate.rate]
+  )
+
+  function addTransaction({ type, ticker, name, currency, exchange, date, qty, price }) {
+    const tx = {
+      id: crypto.randomUUID(),
+      type,
+      ticker: ticker.toUpperCase(),
+      name,
+      currency,
+      date: date || null,
+      qty,
+      price,
+    }
+    if (exchange) tx.exchange = exchange
+    setTransactions([...transactions, tx])
+  }
+
+  function deleteTransaction(id) {
+    setTransactions(transactions.filter(tx => tx.id !== id))
   }
 
   function delHolding(i) {
-    setHoldings(holdings.filter((_, idx) => idx !== i))
+    const ticker = holdings[i].t
+    setTransactions(transactions.filter(tx => tx.ticker !== ticker))
   }
 
   function editHolding(i, patch) {
-    setHoldings(holdings.map((h, idx) => idx === i ? { ...h, ...patch } : h))
+    if (!patch.nm) return
+    const ticker = holdings[i].t
+    setTransactions(transactions.map(tx =>
+      tx.ticker === ticker ? { ...tx, name: patch.nm } : tx
+    ))
   }
 
   function toggleCurrency() {
@@ -90,6 +131,7 @@ export function usePortfolio() {
   }
 
   return {
+    transactions,
     holdings,
     effectiveHoldings,
     snaps,
@@ -99,13 +141,16 @@ export function usePortfolio() {
     totalCost,
     pl,
     ret,
+    realizedGains,
+    totalRealizedGain,
     toDisplay,
     prices,
     priceLoading,
     priceError,
     lastUpdatedAt,
     onRefresh: () => { refreshUsd(); refreshKrw() },
-    addHolding,
+    addTransaction,
+    deleteTransaction,
     delHolding,
     editHolding,
     toggleCurrency,
