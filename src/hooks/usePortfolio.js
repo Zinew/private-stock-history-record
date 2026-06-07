@@ -11,11 +11,15 @@ function runMigrationIfNeeded() {
   localStorage.setItem('ledger_migration_v1', '1')
   const rawHoldings = localStorage.getItem('ledger_holdings')
   if (!rawHoldings) return
-  const holdings = JSON.parse(rawHoldings)
-  if (!holdings.length) return
-  const migrated = migrateHoldingsToTransactions(holdings)
-  localStorage.setItem('ledger_transactions', JSON.stringify(migrated))
-  localStorage.removeItem('ledger_holdings')
+  try {
+    const holdings = JSON.parse(rawHoldings)
+    if (!holdings.length) return
+    const migrated = migrateHoldingsToTransactions(holdings)
+    localStorage.setItem('ledger_transactions', JSON.stringify(migrated))
+    localStorage.removeItem('ledger_holdings')
+  } catch {
+    localStorage.removeItem('ledger_holdings')
+  }
 }
 
 runMigrationIfNeeded()
@@ -49,10 +53,10 @@ export function usePortfolio() {
 
   const displayCurrency = exchangeRate.rate ? displayCurrencyRaw : 'USD'
 
-  const effectiveHoldings = holdings.map(h => ({
-    ...h,
-    c: prices[h.t] ?? 0,
-  }))
+  const effectiveHoldings = useMemo(
+    () => holdings.map(h => ({ ...h, c: prices[h.t] ?? h.b ?? 0 })),
+    [holdings, prices]
+  )
 
   function toDisplay(amount, fromCurrency) {
     if (!exchangeRate.rate || fromCurrency === displayCurrency) return amount
