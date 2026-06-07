@@ -20,3 +20,6 @@ Thumbs.db
 
 # Superpowers brainstorm files
 .superpowers/
+
+# Wrangler local secrets
+.dev.vars
