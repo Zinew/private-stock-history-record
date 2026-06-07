@@ -13,6 +13,8 @@ export default function DashboardPage({ portfolio }) {
         totalVal={portfolio.totalVal}
         displayCurrency={portfolio.displayCurrency}
         toDisplay={portfolio.toDisplay}
+        onDeleteSnap={portfolio.deleteSnap}
+        onRestoreSnap={portfolio.restoreSnap}
       />
       <HoldingsTable
         holdings={portfolio.effectiveHoldings}

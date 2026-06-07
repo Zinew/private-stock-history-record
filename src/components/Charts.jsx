@@ -1,3 +1,4 @@
+import { useState, useRef, useEffect } from 'react'
 import { Line, Doughnut } from 'react-chartjs-2'
 import { fmtCurrency, tooltipDeltaLines } from '../utils/format.js'
 import { useTranslation } from 'react-i18next'
@@ -11,12 +12,50 @@ function getGradient(ctx, chartArea, isUp) {
   return gradient
 }
 
-export default function Charts({ holdings, snaps, totalVal, displayCurrency, toDisplay }) {
+export default function Charts({ holdings, snaps, totalVal, displayCurrency, toDisplay, onDeleteSnap, onRestoreSnap }) {
   const { t } = useTranslation()
+  const [popup, setPopup] = useState(null)
+  const [undoState, setUndoState] = useState(null)
+  const undoTimerRef = useRef(null)
+
+  useEffect(() => {
+    return () => { if (undoTimerRef.current) clearTimeout(undoTimerRef.current) }
+  }, [])
+
   const labels = snaps.map(s => s.label)
   const data = snaps.map(s => toDisplay(s.total, s.currency ?? 'USD'))
   const isUp = data.length < 2 || data[data.length - 1] >= data[0]
   const lineColor = isUp ? '#3fbf8f' : '#e8654f'
+
+  function handleChartClick(event, elements, chart) {
+    if (!elements.length) { setPopup(null); return }
+    const el = elements[0]
+    const meta = chart.getDatasetMeta(0)
+    const point = meta.data[el.index]
+    setPopup({
+      index: el.index,
+      x: point.x,
+      y: point.y,
+      label: snaps[el.index].label,
+      value: fmtCurrency(data[el.index], displayCurrency),
+    })
+  }
+
+  function handleDelete() {
+    const snap = snaps[popup.index]
+    const idx = popup.index
+    onDeleteSnap(idx)
+    setPopup(null)
+    if (undoTimerRef.current) clearTimeout(undoTimerRef.current)
+    setUndoState({ snap, index: idx })
+    undoTimerRef.current = setTimeout(() => setUndoState(null), 5000)
+  }
+
+  function handleUndo() {
+    clearTimeout(undoTimerRef.current)
+    onRestoreSnap(undoState.snap, undoState.index)
+    setUndoState(null)
+  }
 
   const lineData = {
     labels,
@@ -40,6 +79,7 @@ export default function Charts({ holdings, snaps, totalVal, displayCurrency, toD
   const lineOptions = {
     responsive: true,
     maintainAspectRatio: false,
+    onClick: handleChartClick,
     plugins: {
       legend: { display: false },
       tooltip: {
@@ -101,6 +141,24 @@ export default function Charts({ holdings, snaps, totalVal, displayCurrency, toD
         </h2>
         <div className="chart-box">
           <Line data={lineData} options={lineOptions} />
+          {popup && (
+            <div
+              className="snap-popup"
+              style={{ left: popup.x, top: popup.y }}
+            >
+              <div className="snap-popup-info">{popup.label} · {popup.value}</div>
+              <div className="snap-popup-actions">
+                <button onClick={() => setPopup(null)}>{t('charts.cancelDelete')}</button>
+                <button className="snap-popup-delete" onClick={handleDelete}>{t('charts.deleteSnap')}</button>
+              </div>
+            </div>
+          )}
+          {undoState && (
+            <div className="snap-undo-toast">
+              <span>{t('charts.snapDeleted')}</span>
+              <button onClick={handleUndo}>{t('charts.undoDelete')}</button>
+            </div>
+          )}
         </div>
       </div>
       <div className="card">
