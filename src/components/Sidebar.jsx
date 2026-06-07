@@ -7,6 +7,12 @@ const NAV_ITEMS = [
   { path: '/news', key: 'sidebar.news', icon: '📰' },
 ]
 
+const SUB_NAV_ITEMS = [
+  { path: '/about', key: 'sidebar.about', icon: 'ℹ️' },
+  { path: '/privacy', key: 'sidebar.privacy', icon: '🔒' },
+  { path: '/help', key: 'sidebar.help', icon: '❓' },
+]
+
 export default function Sidebar({ isOpen, onClose }) {
   const { pathname } = useLocation()
   const { t, i18n } = useTranslation()
@@ -35,6 +41,19 @@ export default function Sidebar({ isOpen, onClose }) {
             </Link>
           ))}
         </nav>
+        <div className="sidebar-sub-nav">
+          {SUB_NAV_ITEMS.map(({ path, key, icon }) => (
+            <Link
+              key={path}
+              to={path}
+              className={`nav-sub-item${pathname === path ? ' active' : ''}`}
+              onClick={onClose}
+            >
+              <span>{icon}</span>
+              <span>{t(key)}</span>
+            </Link>
+          ))}
+        </div>
         <div className="sidebar-lang">
           <button
             className={`lang-btn${i18n.language === 'ko' ? ' active' : ''}`}
