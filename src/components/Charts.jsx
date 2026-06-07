@@ -22,6 +22,8 @@ export default function Charts({ holdings, snaps, totalVal, displayCurrency, toD
     return () => { if (undoTimerRef.current) clearTimeout(undoTimerRef.current) }
   }, [])
 
+  useEffect(() => { setPopup(null) }, [snaps])
+
   const labels = snaps.map(s => s.label)
   const data = snaps.map(s => toDisplay(s.total, s.currency ?? 'USD'))
   const isUp = data.length < 2 || data[data.length - 1] >= data[0]
