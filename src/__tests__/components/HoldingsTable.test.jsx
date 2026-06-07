@@ -147,9 +147,9 @@ describe('HoldingsTable', () => {
     const onEdit = vi.fn()
     renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900, onEdit })
     fireEvent.click(screen.getByTitle('수정'))
-    fireEvent.change(screen.getByDisplayValue('10'), { target: { value: '15' } })
+    fireEvent.change(screen.getByDisplayValue('Apple Inc.'), { target: { value: 'Apple Inc. Updated' } })
     fireEvent.click(screen.getByText('저장'))
-    expect(onEdit).toHaveBeenCalledWith(0, { nm: 'Apple Inc.', q: 15, b: 150, c: 190 })
+    expect(onEdit).toHaveBeenCalledWith(0, { nm: 'Apple Inc. Updated' })
   })
 
   it('EditModal 취소 시 모달 사라짐', () => {
