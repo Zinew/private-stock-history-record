@@ -3,6 +3,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { I18nextProvider } from 'react-i18next'
 import i18n from '../../i18n.js'
 import HoldingsTable from '../../components/HoldingsTable.jsx'
+import AddHoldingForm from '../../components/AddHoldingForm.jsx'
 import { fetchQuote } from '../../utils/finnhub.js'
 import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../../utils/stockSearch.js'
 
@@ -62,27 +63,39 @@ describe('HoldingsTable', () => {
     expect(onDelete).toHaveBeenCalledWith(0)
   })
 
-  it('폼 입력 후 추가 버튼 클릭 시 onAdd에 currency 포함', () => {
-    const onAdd = vi.fn()
-    renderHoldingsTable({ onAdd })
+  it('폼 입력 후 추가 버튼 클릭 시 onAddTransaction에 currency 포함', () => {
+    const onAddTransaction = vi.fn()
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AddHoldingForm onAddTransaction={onAddTransaction} />
+      </I18nextProvider>
+    )
     fireEvent.change(screen.getByPlaceholderText('AAPL'), { target: { value: 'TSLA' } })
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
     fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '200' } })
     fireEvent.change(screen.getByPlaceholderText('190'), { target: { value: '250' } })
     fireEvent.click(screen.getByText('+ 추가'))
-    expect(onAdd).toHaveBeenCalledWith({ t: 'TSLA', nm: '', q: 5, b: 200, c: 250, currency: 'USD' })
+    expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'buy', ticker: 'TSLA', qty: 5, price: 200, currency: 'USD',
+    }))
   })
 
   it('폼 통화 KRW 선택 후 추가 시 currency: KRW', () => {
-    const onAdd = vi.fn()
-    renderHoldingsTable({ onAdd })
+    const onAddTransaction = vi.fn()
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AddHoldingForm onAddTransaction={onAddTransaction} />
+      </I18nextProvider>
+    )
     fireEvent.click(screen.getByText('KRW'))
     fireEvent.change(screen.getByPlaceholderText('AAPL'), { target: { value: '005930' } })
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '10' } })
     fireEvent.change(screen.getByPlaceholderText('75000'), { target: { value: '75000' } })
     fireEvent.change(screen.getByPlaceholderText('82000'), { target: { value: '82000' } })
     fireEvent.click(screen.getByText('+ 추가'))
-    expect(onAdd).toHaveBeenCalledWith({ t: '005930', nm: '', q: 10, b: 75000, c: 82000, currency: 'KRW' })
+    expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'buy', ticker: '005930', qty: 10, price: 75000, currency: 'KRW',
+    }))
   })
 
   it('테이블이 table-scroll 래퍼 안에 존재한다', () => {
@@ -169,13 +182,17 @@ describe('HoldingsTable', () => {
     await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('AAPL'))
   })
 
-  it('USD: 종목 선택 후 추가 시 onAdd에 올바른 값 전달', async () => {
+  it('USD: 종목 선택 후 추가 시 onAddTransaction에 올바른 값 전달', async () => {
     fetchUsdSearch.mockResolvedValue([
       { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
     ])
     fetchQuote.mockResolvedValue(195.5)
-    const onAdd = vi.fn()
-    renderHoldingsTable({ onAdd })
+    const onAddTransaction = vi.fn()
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AddHoldingForm onAddTransaction={onAddTransaction} />
+      </I18nextProvider>
+    )
     fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
     await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
     fireEvent.click(screen.getByText('Apple Inc.'))
@@ -183,7 +200,9 @@ describe('HoldingsTable', () => {
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '3' } })
     fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '180' } })
     fireEvent.click(screen.getByText('+ 추가'))
-    expect(onAdd).toHaveBeenCalledWith({ t: 'AAPL', nm: 'Apple Inc.', q: 3, b: 180, c: 195.5, currency: 'USD' })
+    expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'buy', ticker: 'AAPL', name: 'Apple Inc.', qty: 3, price: 180, currency: 'USD',
+    }))
   })
 
   // KRW 이름 검색
@@ -210,13 +229,17 @@ describe('HoldingsTable', () => {
     await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('005930'))
   })
 
-  it('KRW: 종목 선택 후 추가 시 onAdd에 exchange 포함', async () => {
+  it('KRW: 종목 선택 후 추가 시 onAddTransaction에 exchange 포함', async () => {
     fetchKrxSearch.mockResolvedValue([
       { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
     ])
     fetchKrxQuote.mockResolvedValue(329000)
-    const onAdd = vi.fn()
-    renderHoldingsTable({ onAdd })
+    const onAddTransaction = vi.fn()
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AddHoldingForm onAddTransaction={onAddTransaction} />
+      </I18nextProvider>
+    )
     fireEvent.click(screen.getByText('KRW'))
     fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
     await waitFor(() => expect(screen.getByText('삼성전자')).toBeInTheDocument())
@@ -225,8 +248,8 @@ describe('HoldingsTable', () => {
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
     fireEvent.change(screen.getByPlaceholderText('75000'), { target: { value: '75000' } })
     fireEvent.click(screen.getByText('+ 추가'))
-    expect(onAdd).toHaveBeenCalledWith({
-      t: '005930', nm: '삼성전자', q: 5, b: 75000, c: 329000, currency: 'KRW', exchange: 'KS',
-    })
+    expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'buy', ticker: '005930', name: '삼성전자', qty: 5, price: 75000, currency: 'KRW', exchange: 'KS',
+    }))
   })
 })
