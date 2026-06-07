@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchQuote } from '../utils/finnhub.js'
 import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../utils/stockSearch.js'
@@ -17,6 +17,10 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
   const [searchResults, setSearchResults] = useState([])
   const [searchOpen, setSearchOpen] = useState(false)
   const debounceRef = useRef(null)
+
+  useEffect(() => {
+    return () => clearTimeout(debounceRef.current)
+  }, [])
 
   // 매도 전용
   const [sellTicker, setSellTicker] = useState('')
@@ -80,6 +84,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
       alert(t('addHolding.validationError'))
       return
     }
+    clearTimeout(debounceRef.current)
     onAddTransaction({
       type: 'buy',
       ticker,
@@ -137,11 +142,25 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
         <div className="currency-toggle">
           <button
             className={`currency-btn ${type === 'buy' ? 'active' : ''}`}
-            onClick={() => { setType('buy'); setSellError('') }}
+            onClick={() => {
+              setType('buy')
+              setSellError('')
+              setSellTicker('')
+              setSellQty('')
+              setSellPrice('')
+            }}
           >{t('tx.buy')}</button>
           <button
             className={`currency-btn ${type === 'sell' ? 'active sell-btn' : ''}`}
-            onClick={() => { setType('sell'); setSellError('') }}
+            onClick={() => {
+              setType('sell')
+              setSellError('')
+              setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: form.currency, exchange: '' })
+              setTickerStatus('idle')
+              setSearchResults([])
+              setSearchOpen(false)
+              clearTimeout(debounceRef.current)
+            }}
           >{t('tx.sell')}</button>
         </div>
       </div>

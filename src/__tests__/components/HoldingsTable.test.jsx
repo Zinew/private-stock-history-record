@@ -252,4 +252,62 @@ describe('HoldingsTable', () => {
       type: 'buy', ticker: '005930', name: '삼성전자', qty: 5, price: 75000, currency: 'KRW', exchange: 'KS',
     }))
   })
+
+  it('calls onAddTransaction with sell payload', async () => {
+    const holdings = [{ t: 'AAPL', nm: 'Apple', q: 10, b: 150, currency: 'USD' }]
+    const onAddTransaction = vi.fn()
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AddHoldingForm onAddTransaction={onAddTransaction} holdings={holdings} />
+      </I18nextProvider>
+    )
+
+    // Switch to sell mode
+    fireEvent.click(screen.getByText(/매도/i))
+
+    // Select ticker from the combobox (select element)
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'AAPL' } })
+
+    // Fill qty and price
+    const inputs = screen.getAllByRole('spinbutton')
+    fireEvent.change(inputs[0], { target: { value: '5' } })
+    fireEvent.change(inputs[1], { target: { value: '200' } })
+
+    // Submit via the sell submit button (the btn inside sell mode)
+    const buttons = screen.getAllByRole('button')
+    const sellSubmitBtn = buttons[buttons.length - 1]
+    fireEvent.click(sellSubmitBtn)
+
+    expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'sell',
+      ticker: 'AAPL',
+      qty: 5,
+      price: 200,
+    }))
+  })
+
+  it('shows sellExceedsHolding error when sell qty > holding qty', () => {
+    const holdings = [{ t: 'AAPL', nm: 'Apple', q: 10, b: 150, currency: 'USD' }]
+    const onAddTransaction = vi.fn()
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AddHoldingForm onAddTransaction={onAddTransaction} holdings={holdings} />
+      </I18nextProvider>
+    )
+
+    fireEvent.click(screen.getByText(/매도/i))
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: 'AAPL' } })
+    const inputs = screen.getAllByRole('spinbutton')
+    fireEvent.change(inputs[0], { target: { value: '99' } })  // exceeds holding of 10
+    fireEvent.change(inputs[1], { target: { value: '200' } })
+
+    // Find sell submit button (last button in the form when in sell mode)
+    const buttons = screen.getAllByRole('button')
+    const sellSubmitBtn = buttons[buttons.length - 1]
+    fireEvent.click(sellSubmitBtn)
+
+    expect(onAddTransaction).not.toHaveBeenCalled()
+    // error message should appear
+    expect(screen.getByText(/초과|Exceeds/i)).toBeTruthy()
+  })
 })
