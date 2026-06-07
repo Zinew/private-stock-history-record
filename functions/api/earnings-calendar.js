@@ -14,6 +14,7 @@ export async function onRequestGet(context) {
     const res = await fetch(
       `https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&horizon=3month&apikey=${apiKey}`
     )
+    if (!res.ok) return new Response('[]', { headers })
     const csv = await res.text()
     const lines = csv.trim().split('\n')
     if (lines.length < 2 || lines[1].startsWith('I,n,f')) return new Response('[]', { headers })
