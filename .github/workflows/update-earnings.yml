@@ -2,7 +2,7 @@ name: Update Earnings Calendar
 
 on:
   schedule:
-    - cron: '0 1 * * *'  # 매일 01:00 UTC (한국 오전 10시)
+    - cron: '0 21,3,9,15 * * *'  # 한국 시간 06:00 / 12:00 / 18:00 / 00:00 (6시간 간격)
   workflow_dispatch:
 
 jobs:
