@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
 import { fetchEarningsCalendar } from '../utils/alphavantage.js'
-import { fetchDividends } from '../utils/finnhub.js'
 import i18n from '../i18n.js'
 
 export function filterUsdHoldings(holdings) {
@@ -54,28 +53,17 @@ export function useCalendarEvents(holdings) {
     ;(async () => {
       try {
         const today = new Date().toISOString().slice(0, 10)
-        const to = new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toISOString().slice(0, 10)
-
-        const [allEarnings, ...divArrays] = await Promise.all([
-          fetchEarningsCalendar(),
-          ...usdHoldings.map(h => fetchDividends(h.t, today, to)),
-        ])
+        const allEarnings = await fetchEarningsCalendar()
         if (cancelled) return
 
         const holdingMap = Object.fromEntries(usdHoldings.map(h => [h.t, h]))
         const tickers = new Set(usdHoldings.map(h => h.t))
 
         const earningsEvents = allEarnings
-          .filter(e => tickers.has(e.symbol))
+          .filter(e => tickers.has(e.symbol) && e.reportDate >= today)
           .map(e => mapToEarningsEvent(holdingMap[e.symbol], e))
 
-        const dividendEvents = usdHoldings.flatMap((h, i) =>
-          divArrays[i]
-            .filter(d => d.exDate && d.exDate >= today)
-            .map(d => mapToDividendEvent(h, d))
-        )
-
-        setEvents(sortEventsByDate([...earningsEvents, ...dividendEvents]))
+        setEvents(sortEventsByDate(earningsEvents))
       } catch {
         if (!cancelled) setError(i18n.t('calendar.error'))
         if (!cancelled) setEvents([])

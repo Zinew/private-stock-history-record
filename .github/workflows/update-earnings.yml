@@ -1,0 +1,52 @@
+name: Update Earnings Calendar
+
+on:
+  schedule:
+    - cron: '0 1 * * *'  # 매일 01:00 UTC (한국 오전 10시)
+  workflow_dispatch:
+
+jobs:
+  update-earnings:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Fetch Alpha Vantage earnings calendar CSV
+        run: |
+          curl -f -s \
+            "https://www.alphavantage.co/query?function=EARNINGS_CALENDAR&horizon=3month&apikey=${{ secrets.ALPHAVANTAGE_KEY }}" \
+            -o earnings.csv
+          head -1 earnings.csv | grep -q "^symbol" || { echo "API error: $(head -1 earnings.csv)"; exit 1; }
+
+      - name: Parse CSV to JSON
+        run: |
+          node -e "
+          const fs = require('fs')
+          const lines = fs.readFileSync('earnings.csv', 'utf8').trim().split('\n')
+          const result = lines.slice(1).map(line => {
+            const parts = line.split(',')
+            return {
+              symbol: parts[0]?.trim(),
+              reportDate: parts[2]?.trim(),
+              estimate: parts[4] ? parseFloat(parts[4]) : null,
+            }
+          }).filter(e => e.symbol && e.reportDate)
+          fs.writeFileSync('earnings.json', JSON.stringify(result))
+          console.log('Parsed', result.length, 'entries')
+          "
+
+      - name: Store in Cloudflare KV
+        run: |
+          RESPONSE=$(curl -s -X PUT \
+            "https://api.cloudflare.com/client/v4/accounts/${{ secrets.CLOUDFLARE_ACCOUNT_ID }}/storage/kv/namespaces/6f473c32528c47bb9f2682c108c1ea5d/values/earnings_calendar?expiration_ttl=108000" \
+            -H "Authorization: Bearer ${{ secrets.CLOUDFLARE_API_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            --data-binary @earnings.json)
+          echo "$RESPONSE"
+          echo "$RESPONSE" | python3 -c "
+          import json, sys
+          d = json.load(sys.stdin)
+          if not d.get('success'):
+              print('KV write failed:', d)
+              sys.exit(1)
+          print('KV updated successfully')
+          "
