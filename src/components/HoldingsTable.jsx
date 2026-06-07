@@ -103,7 +103,7 @@ export default function HoldingsTable({
         </table>
       </div>
 
-      <AddHoldingForm onAdd={onAdd} />
+      <AddHoldingForm onAddTransaction={onAdd} holdings={rawHoldings} />
       {editingIndex !== null && (
         <EditModal
           holding={rawHoldings[editingIndex]}

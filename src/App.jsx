@@ -30,6 +30,8 @@ export default function App() {
         onToggleCurrency={portfolio.toggleCurrency}
         exchangeRate={portfolio.exchangeRate}
         onMenuOpen={() => setSidebarOpen(true)}
+        totalRealizedGain={portfolio.totalRealizedGain}
+        hasRealizedGains={portfolio.realizedGains.length > 0}
       />
       <Routes>
         <Route path="/" element={<DashboardPage portfolio={portfolio} />} />

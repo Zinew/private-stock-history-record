@@ -1,6 +1,8 @@
 import Charts from '../components/Charts.jsx'
 import HoldingsTable from '../components/HoldingsTable.jsx'
 import SnapshotBar from '../components/SnapshotBar.jsx'
+import TransactionHistory from '../components/TransactionHistory.jsx'
+import BackupBar from '../components/BackupBar.jsx'
 import { useTranslation } from 'react-i18next'
 
 export default function DashboardPage({ portfolio }) {
@@ -27,11 +29,16 @@ export default function DashboardPage({ portfolio }) {
         priceError={portfolio.priceError}
         lastUpdatedAt={portfolio.lastUpdatedAt}
         onRefresh={portfolio.onRefresh}
-        onAdd={portfolio.addHolding}
+        onAdd={portfolio.addTransaction}
         onDelete={portfolio.delHolding}
         onEdit={portfolio.editHolding}
       />
       <SnapshotBar onSnapshot={portfolio.takeSnapshot} onClear={portfolio.clearSnaps} />
+      <TransactionHistory
+        transactions={portfolio.transactions}
+        onDelete={portfolio.deleteTransaction}
+      />
+      <BackupBar />
       <footer>
         {t('dashboard.disclaimer')}<br />
         Ledger v2 — live prices via Finnhub (US) · Yahoo Finance (KRX)
