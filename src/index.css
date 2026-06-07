@@ -899,3 +899,105 @@ footer {
 
 /* BackupBar */
 .backup-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 0; }
+
+/* ── Static pages (About / Privacy / Help / 404) ── */
+.static-page {
+  max-width: 680px;
+  margin: 40px auto;
+  padding: 0 24px 60px;
+}
+.static-page h1 {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+.static-page .static-tagline {
+  font-size: 14px;
+  color: var(--ink-dim);
+  margin-bottom: 36px;
+}
+.static-page h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin: 32px 0 8px;
+}
+.static-page p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.static-page ul {
+  margin: 0 0 8px;
+  padding-left: 20px;
+}
+.static-page ul li {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink);
+}
+.static-faq-item { margin-bottom: 16px }
+.static-faq-q {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+.static-faq-a {
+  font-size: 14px;
+  color: var(--ink-dim);
+  line-height: 1.7;
+}
+
+/* ── 404 page ── */
+.not-found-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  gap: 12px;
+  text-align: center;
+  padding: 0 24px;
+}
+.not-found-page h1 {
+  font-size: 20px;
+  color: var(--ink);
+}
+.not-found-page p {
+  font-size: 14px;
+  color: var(--ink-dim);
+}
+.not-found-page a {
+  margin-top: 8px;
+  padding: 10px 20px;
+  background: var(--accent);
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 14px;
+}
+.not-found-page a:hover { opacity: 0.85 }
+
+/* ── Sidebar sub-nav ── */
+.sidebar-sub-nav {
+  padding: 8px 10px;
+  border-top: 1px solid var(--line);
+}
+.nav-sub-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  color: var(--ink-faint);
+  text-decoration: none;
+  font-size: 12px;
+  transition: background .15s, color .15s;
+}
+.nav-sub-item:hover { background: var(--panel-2); color: var(--ink-dim) }
+.nav-sub-item.active { color: var(--ink-dim) }
