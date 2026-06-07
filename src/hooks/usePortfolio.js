@@ -79,6 +79,16 @@ export function usePortfolio() {
     if (window.confirm('추이 기록을 모두 지울까요?')) setSnaps([])
   }
 
+  function deleteSnap(index) {
+    setSnaps(snaps.filter((_, i) => i !== index))
+  }
+
+  function restoreSnap(snap, index) {
+    const next = [...snaps]
+    next.splice(index, 0, snap)
+    setSnaps(next)
+  }
+
   return {
     holdings,
     effectiveHoldings,
@@ -101,5 +111,7 @@ export function usePortfolio() {
     toggleCurrency,
     takeSnapshot,
     clearSnaps,
+    deleteSnap,
+    restoreSnap,
   }
 }
