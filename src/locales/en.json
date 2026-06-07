@@ -95,7 +95,11 @@
   },
   "charts": {
     "trend": "Portfolio Trend",
-    "allocation": "Allocation"
+    "allocation": "Allocation",
+    "deleteSnap": "Delete",
+    "cancelDelete": "Cancel",
+    "snapDeleted": "Snapshot deleted",
+    "undoDelete": "Undo"
   },
   "snapshot": {
     "record": "📸 Record today's value",

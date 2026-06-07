@@ -95,7 +95,11 @@
   },
   "charts": {
     "trend": "자산 추이",
-    "allocation": "종목 비중"
+    "allocation": "종목 비중",
+    "deleteSnap": "삭제",
+    "cancelDelete": "취소",
+    "snapDeleted": "스냅샷 삭제됨",
+    "undoDelete": "되돌리기"
   },
   "snapshot": {
     "record": "📸 오늘 자산 기록하기",
