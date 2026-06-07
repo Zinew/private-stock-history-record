@@ -884,3 +884,14 @@ footer {
   font-size: 11px;
   font-family: inherit;
 }
+
+/* Transaction History */
+.tx-section { margin-top: 20px; }
+.tx-type-badge { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+.tx-type-badge.buy { background: rgba(63,191,143,.15); color: #3fbf8f; }
+.tx-type-badge.sell { background: rgba(232,101,79,.15); color: #e8654f; }
+.tx-unknown-date { color: var(--ink-faint); font-style: italic; }
+
+/* AddHoldingForm sell mode */
+.currency-btn.sell-btn.active { background: rgba(232,101,79,.15); color: #e8654f; border-color: #e8654f; }
+.addbar select { background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px; width: 100%; }
