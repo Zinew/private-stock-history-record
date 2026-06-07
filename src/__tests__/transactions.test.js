@@ -72,6 +72,17 @@ describe('deriveHoldings', () => {
     const result = deriveHoldings(txs)
     expect(result).toHaveLength(2)
   })
+
+  it('handles multiple migrated holdings (null dates) without non-deterministic ordering', () => {
+    const txs = [
+      { id: '1', type: 'buy', ticker: 'AAPL', name: 'Apple', currency: 'USD', date: null, qty: 5, price: 100 },
+      { id: '2', type: 'buy', ticker: 'AAPL', name: 'Apple', currency: 'USD', date: null, qty: 5, price: 200 },
+    ]
+    const result = deriveHoldings(txs)
+    expect(result).toHaveLength(1)
+    expect(result[0].q).toBe(10)
+    expect(result[0].b).toBeCloseTo(150, 5)
+  })
 })
 
 describe('deriveRealizedGains', () => {

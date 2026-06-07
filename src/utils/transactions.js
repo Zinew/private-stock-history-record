@@ -1,3 +1,12 @@
+function sortByDate(transactions) {
+  return [...transactions].sort((a, b) => {
+    if (!a.date && !b.date) return 0
+    if (!a.date) return -1
+    if (!b.date) return 1
+    return a.date.localeCompare(b.date)
+  })
+}
+
 export function migrateHoldingsToTransactions(holdings) {
   return holdings.map(h => {
     const tx = {
@@ -17,11 +26,7 @@ export function migrateHoldingsToTransactions(holdings) {
 
 export function deriveHoldings(transactions) {
   const map = {}
-  const sorted = [...transactions].sort((a, b) => {
-    if (!a.date) return -1
-    if (!b.date) return 1
-    return a.date.localeCompare(b.date)
-  })
+  const sorted = sortByDate(transactions)
   for (const tx of sorted) {
     if (!map[tx.ticker]) {
       map[tx.ticker] = { ticker: tx.ticker, name: tx.name, currency: tx.currency, exchange: tx.exchange ?? null, qty: 0, totalCost: 0 }
@@ -41,7 +46,7 @@ export function deriveHoldings(transactions) {
       t: h.ticker,
       nm: h.name,
       q: h.qty,
-      b: h.qty > 0 ? h.totalCost / h.qty : 0,
+      b: h.totalCost / h.qty,
       currency: h.currency,
       ...(h.exchange ? { exchange: h.exchange } : {}),
     }))
@@ -50,11 +55,7 @@ export function deriveHoldings(transactions) {
 export function deriveRealizedGains(transactions) {
   const avgCosts = {}
   const realized = []
-  const sorted = [...transactions].sort((a, b) => {
-    if (!a.date) return -1
-    if (!b.date) return 1
-    return a.date.localeCompare(b.date)
-  })
+  const sorted = sortByDate(transactions)
   for (const tx of sorted) {
     if (!avgCosts[tx.ticker]) avgCosts[tx.ticker] = { qty: 0, totalCost: 0 }
     if (tx.type === 'buy') {
