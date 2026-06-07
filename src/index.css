@@ -183,6 +183,7 @@ tr:last-child td { border-bottom: none }
 }
 .field.tk input { width: 88px; text-transform: uppercase }
 .field.nm input { width: 150px }
+.field input[type="date"] { width: 130px }
 .field input:focus { outline: none; border-color: var(--accent) }
 .btn {
   background: var(--accent);
