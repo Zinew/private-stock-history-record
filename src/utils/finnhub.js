@@ -1,16 +1,10 @@
 import i18n from '../i18n.js'
 
-export async function fetchQuote(ticker, apiKey = import.meta.env.VITE_FINNHUB_KEY ?? '') {
-  if (!apiKey) {
-    console.warn('[Finnhub] VITE_FINNHUB_KEY not set — price fetch skipped')
-    return null
-  }
+export async function fetchQuote(ticker) {
   try {
-    const res = await fetch(
-      `https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(ticker)}&token=${apiKey}`
-    )
+    const res = await fetch(`/api/finnhub-quote?symbol=${encodeURIComponent(ticker)}`)
     const data = await res.json()
-    return data.c > 0 ? data.c : null
+    return data.price ?? null
   } catch {
     return null
   }
@@ -62,22 +56,21 @@ const _newsCache = {}
 const NEWS_CACHE_TTL = 60 * 60 * 1000
 export function _clearNewsCache() { Object.keys(_newsCache).forEach(k => delete _newsCache[k]) }
 
-export async function fetchCompanyNews(ticker, from, to, apiKey = import.meta.env.VITE_FINNHUB_KEY ?? '') {
-  if (!apiKey) return []
+export async function fetchCompanyNews(ticker, from, to) {
   const key = `${ticker}:${from}:${to}`
   if (_newsCache[key] && Date.now() - _newsCache[key].time < NEWS_CACHE_TTL) return _newsCache[key].data
   try {
     const res = await fetch(
-      `https://finnhub.io/api/v1/company-news?symbol=${encodeURIComponent(ticker)}&from=${from}&to=${to}&token=${apiKey}`
+      `/api/company-news?symbol=${encodeURIComponent(ticker)}&from=${from}&to=${to}`
     )
     const data = await res.json()
     const result = Array.isArray(data)
       ? data.slice(0, 10).map(item => ({
-          title: item.headline,
-          summary: item.summary || null,
+          title: item.title,
+          summary: item.summary,
           source: item.source,
           url: item.url,
-          publishedAt: formatPublishedAt(item.datetime),
+          publishedAt: formatPublishedAt(item.publishedAtUnix),
         }))
       : []
     _newsCache[key] = { data: result, time: Date.now() }
