@@ -9,7 +9,10 @@
     "calendar": "Calendar",
     "news": "News",
     "closeMenu": "Close menu",
-    "openMenu": "Open menu"
+    "openMenu": "Open menu",
+    "about": "About",
+    "privacy": "Privacy Policy",
+    "help": "Help"
   },
   "header": {
     "totalValue": "Total Value",
@@ -131,5 +134,56 @@
     "importConfirm": "This will replace all current data. Continue?",
     "importSuccess": "Data restored successfully",
     "importError": "Not a valid backup file"
+  },
+  "about": {
+    "title": "About Ledger",
+    "tagline": "A portfolio tracker that manages domestic and international stocks in real time — on one screen.",
+    "featuresTitle": "Key Features",
+    "feature1": "Real-time prices for US (USD) and Korean (KRW) stocks simultaneously",
+    "feature2": "Automatic average cost and realized gain calculation from transaction history",
+    "feature3": "Automatic earnings calendar (upcoming 90 days)",
+    "feature4": "Personalized news feed for your holdings",
+    "feature5": "All data stays in your browser — nothing is sent to a server",
+    "whyTitle": "Why We Built This",
+    "whyBody": "No existing app handled both Korean and international stocks accurately in one place, so we built our own. Privacy-first: everything runs in your browser.",
+    "dataTitle": "Data Sources",
+    "dataBody": "US prices: Finnhub · Earnings calendar: Alpha Vantage · Korean prices & news: Naver Finance"
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "lastUpdated": "Last updated: June 2026",
+    "noCollectionTitle": "Personal Data Collected",
+    "noCollectionBody": "Ledger does not collect any personal information — no names, emails, or payment details.",
+    "localDataTitle": "Browser-Local Storage",
+    "localDataBody": "Your holdings, transaction history, and snapshots are stored only in your browser's localStorage. This data never leaves your device and is never sent to any server.",
+    "apisTitle": "Third-Party Services",
+    "apisBody": "Ledger uses Finnhub, Alpha Vantage, and Naver Finance APIs to fetch real-time prices and news. Ticker symbols you hold may be transmitted to these services. Please refer to their respective privacy policies.",
+    "cookiesTitle": "Cookies",
+    "cookiesBody": "Ledger does not use cookies. Only your language preference (Korean/English) is saved in localStorage.",
+    "contactTitle": "Contact",
+    "contactBody": "For privacy-related questions, please reach out via GitHub Issues."
+  },
+  "help": {
+    "title": "Help",
+    "gettingStartedTitle": "Getting Started",
+    "gettingStartedBody": "Go to the Dashboard and enter a buy transaction in the form. Search by company name to auto-fill the current price.",
+    "sellTitle": "Recording a Sale",
+    "sellBody": "Switch to the 'Sell' tab in the transaction form, select a holding, and enter the quantity and sale price. Realized gain is calculated automatically.",
+    "calendarTitle": "Calendar",
+    "calendarBody": "The Calendar page automatically shows upcoming earnings dates for your USD holdings. You can also add events manually.",
+    "backupTitle": "Backup & Restore",
+    "backupBody": "Use the 'Export' button at the bottom of the Dashboard to save a JSON file. If your browser data is cleared, use 'Import' to restore it.",
+    "faqTitle": "FAQ",
+    "faq1Q": "My data disappeared.",
+    "faq1A": "Browser cache clearing can delete localStorage data. We recommend exporting a backup regularly.",
+    "faq2Q": "Are Korean stock prices updated after market close?",
+    "faq2A": "Korean prices are fetched in real time during market hours only. After close, the last traded price is shown.",
+    "faq3Q": "Can I use Ledger on multiple devices?",
+    "faq3A": "Each device stores data independently for now. Cross-device sync is planned for a future update."
+  },
+  "notFound": {
+    "title": "Page Not Found",
+    "body": "The page you requested doesn't exist or has been moved.",
+    "goHome": "Go to Dashboard"
   }
 }
