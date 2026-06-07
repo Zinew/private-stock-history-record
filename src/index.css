@@ -895,3 +895,6 @@ footer {
 /* AddHoldingForm sell mode */
 .currency-btn.sell-btn.active { background: rgba(232,101,79,.15); color: #e8654f; border-color: #e8654f; }
 .addbar select { background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px; width: 100%; }
+
+/* BackupBar */
+.backup-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 0; }
