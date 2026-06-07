@@ -1,7 +1,7 @@
 import { fmtCurrency, pct } from '../utils/format.js'
 import { useTranslation } from 'react-i18next'
 
-export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, onToggleCurrency, exchangeRate, onMenuOpen }) {
+export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, onToggleCurrency, exchangeRate, onMenuOpen, totalRealizedGain, hasRealizedGains }) {
   const { t } = useTranslation()
   const hasRate = !!exchangeRate.rate
 
@@ -57,6 +57,14 @@ export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, 
             <div className="label">{t('header.returnRate')}</div>
             <div className={`val ${ret >= 0 ? 'pos' : 'neg'}`}>{pct(ret)}</div>
           </div>
+          {hasRealizedGains && (
+            <div className="sum-item">
+              <div className="label">{t('header.realizedGain')}</div>
+              <div className={`val ${totalRealizedGain >= 0 ? 'pos' : 'neg'}`}>
+                {totalRealizedGain >= 0 ? '+' : ''}{fmtCurrency(totalRealizedGain, displayCurrency)}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </header>
