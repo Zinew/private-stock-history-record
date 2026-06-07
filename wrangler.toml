@@ -4,5 +4,5 @@ compatibility_date = "2024-09-23"
 
 [[kv_namespaces]]
 binding = "LEDGER_CACHE"
-id = "00000000000000000000000000000001"
-preview_id = "00000000000000000000000000000001"
+id = "6f473c32528c47bb9f2682c108c1ea5d"
+preview_id = "6f473c32528c47bb9f2682c108c1ea5d"
