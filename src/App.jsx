@@ -14,6 +14,7 @@ import NewsPage from './pages/NewsPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import PrivacyPage from './pages/PrivacyPage.jsx'
+import HelpPage from './pages/HelpPage.jsx'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler)
 
@@ -42,6 +43,7 @@ export default function App() {
         <Route path="/news" element={<NewsPage portfolio={portfolio} />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/help" element={<HelpPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>
