@@ -12,6 +12,7 @@ import DashboardPage from './pages/DashboardPage.jsx'
 import CalendarPage from './pages/CalendarPage.jsx'
 import NewsPage from './pages/NewsPage.jsx'
 import NotFoundPage from './pages/NotFoundPage.jsx'
+import AboutPage from './pages/AboutPage.jsx'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler)
 
@@ -38,6 +39,7 @@ export default function App() {
         <Route path="/" element={<DashboardPage portfolio={portfolio} />} />
         <Route path="/calendar" element={<CalendarPage portfolio={portfolio} />} />
         <Route path="/news" element={<NewsPage portfolio={portfolio} />} />
+        <Route path="/about" element={<AboutPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>
