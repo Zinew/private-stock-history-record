@@ -16,7 +16,8 @@
     "totalCost": "Total Cost",
     "unrealizedPnl": "Unrealized P&L",
     "returnRate": "Return",
-    "justUpdated": "Just updated"
+    "justUpdated": "Just updated",
+    "realizedGain": "Realized Gain"
   },
   "holdings": {
     "title": "Holdings",
@@ -101,6 +102,20 @@
     "snapDeleted": "Snapshot deleted",
     "undoDelete": "Undo"
   },
+  "tx": {
+    "buy": "Buy",
+    "sell": "Sell",
+    "date": "Date",
+    "qty": "Qty",
+    "price": "Price",
+    "amount": "Amount",
+    "history": "Transaction History",
+    "empty": "No transactions yet",
+    "unknownDate": "Unknown date",
+    "sellExceedsHolding": "Exceeds held quantity",
+    "noHoldingsToSell": "No holdings to sell",
+    "type": "Type"
+  },
   "snapshot": {
     "record": "📸 Record today's value",
     "reset": "Reset trend",
@@ -109,5 +124,12 @@
   },
   "dashboard": {
     "disclaimer": "Data is stored in this browser only · For tracking and visualization, not investment advice"
+  },
+  "backup": {
+    "export": "Export",
+    "import": "Import",
+    "importConfirm": "This will replace all current data. Continue?",
+    "importSuccess": "Data restored successfully",
+    "importError": "Not a valid backup file"
   }
 }

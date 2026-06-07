@@ -16,7 +16,8 @@
     "totalCost": "총 매입액",
     "unrealizedPnl": "평가손익",
     "returnRate": "수익률",
-    "justUpdated": "방금 업데이트"
+    "justUpdated": "방금 업데이트",
+    "realizedGain": "실현손익"
   },
   "holdings": {
     "title": "보유 종목",
@@ -101,6 +102,20 @@
     "snapDeleted": "스냅샷 삭제됨",
     "undoDelete": "되돌리기"
   },
+  "tx": {
+    "buy": "매수",
+    "sell": "매도",
+    "date": "날짜",
+    "qty": "수량",
+    "price": "단가",
+    "amount": "금액",
+    "history": "거래 이력",
+    "empty": "거래 이력이 없습니다",
+    "unknownDate": "날짜 미상",
+    "sellExceedsHolding": "보유 수량을 초과했습니다",
+    "noHoldingsToSell": "매도할 보유 종목이 없습니다",
+    "type": "구분"
+  },
   "snapshot": {
     "record": "📸 오늘 자산 기록하기",
     "reset": "추이 초기화",
@@ -109,5 +124,12 @@
   },
   "dashboard": {
     "disclaimer": "데이터는 이 브라우저에만 저장됩니다 · 투자 판단의 근거가 아닌 기록·시각화 용도입니다"
+  },
+  "backup": {
+    "export": "내보내기",
+    "import": "불러오기",
+    "importConfirm": "현재 데이터가 모두 교체됩니다. 계속하시겠습니까?",
+    "importSuccess": "데이터가 복원되었습니다",
+    "importError": "올바른 백업 파일이 아닙니다"
   }
 }
