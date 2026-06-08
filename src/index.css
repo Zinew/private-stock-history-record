@@ -39,7 +39,7 @@ header {
   gap: 16px;
 }
 
-.brand { display: flex; align-items: baseline; gap: 12px }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-shrink: 0 }
 .brand h1 { font-family: 'Fraunces', serif; font-weight: 600; font-size: 34px; letter-spacing: -.5px }
 .brand .dot { color: var(--gold) }
 .brand span.tag {
@@ -51,7 +51,7 @@ header {
   padding-bottom: 6px;
 }
 
-.summary { display: flex; gap: 36px; flex-wrap: wrap }
+.summary { display: flex; gap: 24px; flex-wrap: wrap }
 .sum-item .label {
   font-family: 'Spline Sans Mono', monospace;
   font-size: 10px;
@@ -59,12 +59,14 @@ header {
   text-transform: uppercase;
   color: var(--ink-faint);
   margin-bottom: 4px;
+  white-space: nowrap;
 }
 .sum-item .val {
   font-family: 'Fraunces', serif;
-  font-size: 26px;
+  font-size: 22px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .pos { color: var(--gain) }
 .neg { color: var(--loss) }
@@ -549,6 +551,8 @@ footer {
   flex-direction: column;
   align-items: flex-end;
   gap: 8px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* ── CalendarPage ── */
