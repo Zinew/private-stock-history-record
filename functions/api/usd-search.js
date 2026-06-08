@@ -15,7 +15,7 @@ export async function onRequestGet(context) {
     const quotes = (data.quotes ?? [])
       .filter(item =>
         item.symbol &&
-        item.quoteType === 'EQUITY' &&
+        (item.quoteType === 'EQUITY' || item.quoteType === 'ETF') &&
         !item.symbol.endsWith('.KS') &&
         !item.symbol.endsWith('.KQ') &&
         !item.symbol.includes('.')
