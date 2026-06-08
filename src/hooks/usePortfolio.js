@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useRef } from 'react'
+import { useMemo, useEffect, useRef, useCallback } from 'react'
 import { useLocalStorage } from './useLocalStorage.js'
 import { useExchangeRate } from './useExchangeRate.js'
 import { useStockPrices } from './useStockPrices.js'
