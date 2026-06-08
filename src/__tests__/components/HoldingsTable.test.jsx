@@ -14,6 +14,8 @@ vi.mock('../../utils/stockSearch.js', () => ({
   fetchKrxQuote: vi.fn(),
 }))
 
+const SEARCH_PLACEHOLDER = '삼성전자 · Apple · AAPL · 005930'
+
 const mockHoldings = [
   { t: 'AAPL', nm: 'Apple Inc.', q: 10, b: 150, c: 190, currency: 'USD' },
 ]
@@ -63,78 +65,11 @@ describe('HoldingsTable', () => {
     expect(onDelete).toHaveBeenCalledWith(0)
   })
 
-  it('폼 입력 후 추가 버튼 클릭 시 onAddTransaction에 currency 포함', () => {
-    const onAddTransaction = vi.fn()
-    render(
-      <I18nextProvider i18n={i18n}>
-        <AddHoldingForm onAddTransaction={onAddTransaction} />
-      </I18nextProvider>
-    )
-    fireEvent.change(screen.getByPlaceholderText('AAPL'), { target: { value: 'TSLA' } })
-    fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
-    fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '200' } })
-    fireEvent.change(screen.getByPlaceholderText('190'), { target: { value: '250' } })
-    fireEvent.click(screen.getByText('+ 추가'))
-    expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
-      type: 'buy', ticker: 'TSLA', qty: 5, price: 200, currency: 'USD',
-    }))
-  })
-
-  it('폼 통화 KRW 선택 후 추가 시 currency: KRW', () => {
-    const onAddTransaction = vi.fn()
-    render(
-      <I18nextProvider i18n={i18n}>
-        <AddHoldingForm onAddTransaction={onAddTransaction} />
-      </I18nextProvider>
-    )
-    fireEvent.click(screen.getByText('KRW'))
-    fireEvent.change(screen.getByPlaceholderText('AAPL'), { target: { value: '005930' } })
-    fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '10' } })
-    fireEvent.change(screen.getByPlaceholderText('75000'), { target: { value: '75000' } })
-    fireEvent.change(screen.getByPlaceholderText('82000'), { target: { value: '82000' } })
-    fireEvent.click(screen.getByText('+ 추가'))
-    expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
-      type: 'buy', ticker: '005930', qty: 10, price: 75000, currency: 'KRW',
-    }))
-  })
-
   it('테이블이 table-scroll 래퍼 안에 존재한다', () => {
     const { container } = renderHoldingsTable()
     const wrapper = container.querySelector('.table-scroll')
     expect(wrapper).toBeInTheDocument()
     expect(wrapper.querySelector('table')).toBeInTheDocument()
-  })
-
-  it('USD 티커 blur 시 fetchQuote 호출 후 현재가 자동 입력', async () => {
-    fetchQuote.mockResolvedValueOnce(195.5)
-    renderHoldingsTable()
-    const tickerInput = screen.getByPlaceholderText('AAPL')
-    fireEvent.change(tickerInput, { target: { value: 'AAPL' } })
-    fireEvent.blur(tickerInput)
-    await waitFor(() => {
-      expect(screen.getByPlaceholderText('190').value).toBe('195.5')
-    })
-    expect(fetchQuote).toHaveBeenCalledWith('AAPL')
-  })
-
-  it('USD 티커 blur 시 fetchQuote null 반환 → 현재가 비워짐', async () => {
-    fetchQuote.mockResolvedValueOnce(null)
-    renderHoldingsTable()
-    const tickerInput = screen.getByPlaceholderText('AAPL')
-    fireEvent.change(tickerInput, { target: { value: 'INVALID' } })
-    fireEvent.blur(tickerInput)
-    await waitFor(() => {
-      expect(screen.getByText(/티커를 찾을 수 없습니다/)).toBeInTheDocument()
-    })
-  })
-
-  it('KRW 선택 시 티커 blur에서 fetchQuote 호출하지 않음', async () => {
-    renderHoldingsTable()
-    fireEvent.click(screen.getByText('KRW'))
-    const tickerInput = screen.getByPlaceholderText('AAPL')
-    fireEvent.change(tickerInput, { target: { value: '005930' } })
-    fireEvent.blur(tickerInput)
-    expect(fetchQuote).not.toHaveBeenCalled()
   })
 
   it('✎ 버튼 클릭 시 EditModal 표시', () => {
@@ -160,32 +95,116 @@ describe('HoldingsTable', () => {
     expect(screen.queryByText('AAPL 수정')).not.toBeInTheDocument()
   })
 
-  // USD 이름 검색
-  it('USD: 이름 입력 시 fetchUsdSearch 호출', async () => {
-    fetchUsdSearch.mockResolvedValue([
-      { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
+  // ── 종목 추가 폼 ──────────────────────────────────────────────────────────
+
+  it('USD 종목 검색 후 추가 시 onAddTransaction에 currency 포함', async () => {
+    fetchUsdSearch.mockResolvedValue([{ symbol: 'TSLA', name: 'Tesla Inc.', ticker: 'TSLA' }])
+    fetchKrxSearch.mockResolvedValue([])
+    fetchQuote.mockResolvedValue(250)
+    const onAddTransaction = vi.fn()
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AddHoldingForm onAddTransaction={onAddTransaction} />
+      </I18nextProvider>
+    )
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: 'tesla' } })
+    await waitFor(() => expect(screen.getByText('Tesla Inc.')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('Tesla Inc.'))
+    await waitFor(() => expect(screen.getByPlaceholderText('190').value).toBe('250'))
+    fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
+    fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '200' } })
+    fireEvent.click(screen.getByText('+ 추가'))
+    expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'buy', ticker: 'TSLA', qty: 5, price: 200, currency: 'USD',
+    }))
+  })
+
+  it('KRW 종목 검색 후 추가 시 currency: KRW 자동 결정', async () => {
+    fetchKrxSearch.mockResolvedValue([
+      { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
     ])
+    fetchUsdSearch.mockResolvedValue([])
+    fetchKrxQuote.mockResolvedValue(75000)
+    const onAddTransaction = vi.fn()
+    render(
+      <I18nextProvider i18n={i18n}>
+        <AddHoldingForm onAddTransaction={onAddTransaction} />
+      </I18nextProvider>
+    )
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: '삼성' } })
+    await waitFor(() => expect(screen.getByText('삼성전자')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('삼성전자'))
+    await waitFor(() => expect(screen.getByPlaceholderText('190').value).toBe('75000'))
+    fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '10' } })
+    fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '75000' } })
+    fireEvent.click(screen.getByText('+ 추가'))
+    expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
+      type: 'buy', ticker: '005930', qty: 10, price: 75000, currency: 'KRW',
+    }))
+  })
+
+  it('USD 종목 선택 시 fetchQuote 호출되어 현재가 자동 입력', async () => {
+    fetchUsdSearch.mockResolvedValue([{ symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' }])
+    fetchKrxSearch.mockResolvedValue([])
+    fetchQuote.mockResolvedValue(195.5)
     renderHoldingsTable()
-    fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: 'apple' } })
+    await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('Apple Inc.'))
+    await waitFor(() => expect(screen.getByPlaceholderText('190').value).toBe('195.5'))
+    expect(fetchQuote).toHaveBeenCalledWith('AAPL')
+  })
+
+  it('USD 종목 선택 후 fetchQuote null 반환 시 현재가 비워짐', async () => {
+    fetchUsdSearch.mockResolvedValue([{ symbol: 'INVALID', name: 'Invalid Stock', ticker: 'INVALID' }])
+    fetchKrxSearch.mockResolvedValue([])
+    fetchQuote.mockResolvedValue(null)
+    renderHoldingsTable()
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: 'invalid' } })
+    await waitFor(() => expect(screen.getByText('Invalid Stock')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('Invalid Stock'))
+    await waitFor(() => expect(fetchQuote).toHaveBeenCalled())
+    expect(screen.getByPlaceholderText('190').value).toBe('')
+  })
+
+  it('KRW 종목 선택 시 fetchKrxQuote 사용, fetchQuote 호출하지 않음', async () => {
+    fetchKrxSearch.mockResolvedValue([
+      { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
+    ])
+    fetchUsdSearch.mockResolvedValue([])
+    fetchKrxQuote.mockResolvedValue(75000)
+    renderHoldingsTable()
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: '삼성' } })
+    await waitFor(() => expect(screen.getByText('삼성전자')).toBeInTheDocument())
+    fireEvent.click(screen.getByText('삼성전자'))
+    await waitFor(() => expect(fetchKrxQuote).toHaveBeenCalledWith('005930', 'KS'))
+    expect(fetchQuote).not.toHaveBeenCalled()
+  })
+
+  it('USD: 이름 입력 시 fetchUsdSearch 호출', async () => {
+    fetchUsdSearch.mockResolvedValue([{ symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' }])
+    fetchKrxSearch.mockResolvedValue([])
+    renderHoldingsTable()
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: 'apple' } })
     await waitFor(() => expect(fetchUsdSearch).toHaveBeenCalledWith('apple'), { timeout: 500 })
   })
 
-  it('USD: 드롭다운 선택 시 티커·이름 자동 입력', async () => {
-    fetchUsdSearch.mockResolvedValue([
-      { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
-    ])
+  it('USD: 드롭다운 선택 시 이름 자동 입력', async () => {
+    fetchUsdSearch.mockResolvedValue([{ symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' }])
+    fetchKrxSearch.mockResolvedValue([])
     fetchQuote.mockResolvedValue(195.5)
     renderHoldingsTable()
-    fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: 'apple' } })
     await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
     fireEvent.click(screen.getByText('Apple Inc.'))
-    await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('AAPL'))
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(SEARCH_PLACEHOLDER).value).toBe('Apple Inc.')
+    })
   })
 
   it('USD: 종목 선택 후 추가 시 onAddTransaction에 올바른 값 전달', async () => {
-    fetchUsdSearch.mockResolvedValue([
-      { symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' },
-    ])
+    fetchUsdSearch.mockResolvedValue([{ symbol: 'AAPL', name: 'Apple Inc.', ticker: 'AAPL' }])
+    fetchKrxSearch.mockResolvedValue([])
     fetchQuote.mockResolvedValue(195.5)
     const onAddTransaction = vi.fn()
     render(
@@ -193,10 +212,10 @@ describe('HoldingsTable', () => {
         <AddHoldingForm onAddTransaction={onAddTransaction} />
       </I18nextProvider>
     )
-    fireEvent.change(screen.getByPlaceholderText('Apple Inc.'), { target: { value: 'apple' } })
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: 'apple' } })
     await waitFor(() => expect(screen.getByText('Apple Inc.')).toBeInTheDocument())
     fireEvent.click(screen.getByText('Apple Inc.'))
-    await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('AAPL'))
+    await waitFor(() => expect(screen.getByPlaceholderText('190').value).toBe('195.5'))
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '3' } })
     fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '180' } })
     fireEvent.click(screen.getByText('+ 추가'))
@@ -205,34 +224,36 @@ describe('HoldingsTable', () => {
     }))
   })
 
-  // KRW 이름 검색
   it('KRW: 이름 입력 시 fetchKrxSearch 호출', async () => {
     fetchKrxSearch.mockResolvedValue([
       { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
     ])
+    fetchUsdSearch.mockResolvedValue([])
     renderHoldingsTable()
-    fireEvent.click(screen.getByText('KRW'))
-    fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: '삼성' } })
     await waitFor(() => expect(fetchKrxSearch).toHaveBeenCalledWith('삼성'), { timeout: 500 })
   })
 
-  it('KRW: 드롭다운 선택 시 티커·이름·거래소 자동 입력', async () => {
+  it('KRW: 드롭다운 선택 시 이름 자동 입력', async () => {
     fetchKrxSearch.mockResolvedValue([
       { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
     ])
+    fetchUsdSearch.mockResolvedValue([])
     fetchKrxQuote.mockResolvedValue(329000)
     renderHoldingsTable()
-    fireEvent.click(screen.getByText('KRW'))
-    fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: '삼성' } })
     await waitFor(() => expect(screen.getByText('삼성전자')).toBeInTheDocument())
     fireEvent.click(screen.getByText('삼성전자'))
-    await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('005930'))
+    await waitFor(() => {
+      expect(screen.getByPlaceholderText(SEARCH_PLACEHOLDER).value).toBe('삼성전자')
+    })
   })
 
   it('KRW: 종목 선택 후 추가 시 onAddTransaction에 exchange 포함', async () => {
     fetchKrxSearch.mockResolvedValue([
       { symbol: '005930.KS', name: '삼성전자', ticker: '005930', exchange: 'KS' },
     ])
+    fetchUsdSearch.mockResolvedValue([])
     fetchKrxQuote.mockResolvedValue(329000)
     const onAddTransaction = vi.fn()
     render(
@@ -240,13 +261,12 @@ describe('HoldingsTable', () => {
         <AddHoldingForm onAddTransaction={onAddTransaction} />
       </I18nextProvider>
     )
-    fireEvent.click(screen.getByText('KRW'))
-    fireEvent.change(screen.getByPlaceholderText('삼성전자'), { target: { value: '삼성' } })
+    fireEvent.change(screen.getByPlaceholderText(SEARCH_PLACEHOLDER), { target: { value: '삼성' } })
     await waitFor(() => expect(screen.getByText('삼성전자')).toBeInTheDocument())
     fireEvent.click(screen.getByText('삼성전자'))
-    await waitFor(() => expect(screen.getByPlaceholderText('AAPL').value).toBe('005930'))
+    await waitFor(() => expect(fetchKrxQuote).toHaveBeenCalled())
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
-    fireEvent.change(screen.getByPlaceholderText('75000'), { target: { value: '75000' } })
+    fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '75000' } })
     fireEvent.click(screen.getByText('+ 추가'))
     expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
       type: 'buy', ticker: '005930', name: '삼성전자', qty: 5, price: 75000, currency: 'KRW', exchange: 'KS',
@@ -261,28 +281,16 @@ describe('HoldingsTable', () => {
         <AddHoldingForm onAddTransaction={onAddTransaction} holdings={holdings} />
       </I18nextProvider>
     )
-
-    // Switch to sell mode
     fireEvent.click(screen.getByText(/매도/i))
-
-    // Select ticker from the combobox (select element)
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'AAPL' } })
-
-    // Fill qty and price
     const inputs = screen.getAllByRole('spinbutton')
     fireEvent.change(inputs[0], { target: { value: '5' } })
     fireEvent.change(inputs[1], { target: { value: '200' } })
-
-    // Submit via the sell submit button (the btn inside sell mode)
     const buttons = screen.getAllByRole('button')
     const sellSubmitBtn = buttons[buttons.length - 1]
     fireEvent.click(sellSubmitBtn)
-
     expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
-      type: 'sell',
-      ticker: 'AAPL',
-      qty: 5,
-      price: 200,
+      type: 'sell', ticker: 'AAPL', qty: 5, price: 200,
     }))
   })
 
@@ -294,20 +302,15 @@ describe('HoldingsTable', () => {
         <AddHoldingForm onAddTransaction={onAddTransaction} holdings={holdings} />
       </I18nextProvider>
     )
-
     fireEvent.click(screen.getByText(/매도/i))
     fireEvent.change(screen.getByRole('combobox'), { target: { value: 'AAPL' } })
     const inputs = screen.getAllByRole('spinbutton')
-    fireEvent.change(inputs[0], { target: { value: '99' } })  // exceeds holding of 10
+    fireEvent.change(inputs[0], { target: { value: '99' } })
     fireEvent.change(inputs[1], { target: { value: '200' } })
-
-    // Find sell submit button (last button in the form when in sell mode)
     const buttons = screen.getAllByRole('button')
     const sellSubmitBtn = buttons[buttons.length - 1]
     fireEvent.click(sellSubmitBtn)
-
     expect(onAddTransaction).not.toHaveBeenCalled()
-    // error message should appear
     expect(screen.getByText(/초과|Exceeds/i)).toBeTruthy()
   })
 })

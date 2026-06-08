@@ -517,6 +517,13 @@ footer {
   position: relative;
 }
 
+.market-badge {
+  margin-left: 8px;
+  font-size: 10px;
+  color: var(--accent);
+  font-family: 'Spline Sans Mono', monospace;
+  opacity: 0.85;
+}
 .ticker-error {
   color: #e8654f;
   font-size: 10px;
