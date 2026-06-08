@@ -9,6 +9,18 @@ export const fmtKRW = n =>
 export const fmtCurrency = (n, currency) =>
   currency === 'KRW' ? fmtKRW(n) : fmt(n)
 
+export function pctArrow(n) {
+  if (!isFinite(n) || n === 0) return pct(n)
+  const abs = Math.abs(n).toFixed(2)
+  return n > 0 ? `▲ ${abs}%` : `▼ ${abs}%`
+}
+
+export function fmtArrow(n, currency) {
+  if (!isFinite(n) || n === 0) return fmtCurrency(n, currency)
+  const abs = fmtCurrency(Math.abs(n), currency)
+  return n > 0 ? `▲ ${abs}` : `▼ ${abs}`
+}
+
 export const tooltipDeltaLines = (cur, prev, displayCurrency) => {
   const line = ' ' + fmtCurrency(cur, displayCurrency)
   if (prev == null) return line
