@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 function StockNewsSection({ holding }) {
   const currency = holding.currency ?? 'USD'
-  const { articles, loading, error } = useStockNews(holding.t, currency, holding.nm)
+  const { articles, loading, error, retry } = useStockNews(holding.t, currency, holding.nm)
   const { t } = useTranslation()
 
   return (
@@ -19,7 +19,12 @@ function StockNewsSection({ holding }) {
       </div>
 
       {loading && <p className="news-empty">{t('news.loading')}</p>}
-      {error && <p className="news-error">⚠ {error}</p>}
+      {error && (
+        <p className="news-error">
+          ⚠ {error}
+          <button className="btn-retry" onClick={retry}>↺ {t('common.retry')}</button>
+        </p>
+      )}
 
       {!loading && !error && articles.length === 0 && (
         <p className="news-empty">{t('news.empty')}</p>

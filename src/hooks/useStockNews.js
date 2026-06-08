@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fetchCompanyNews } from '../utils/finnhub.js'
 import { fetchNaverNews } from '../utils/naverNews.js'
 import i18n from '../i18n.js'
@@ -7,6 +7,8 @@ export function useStockNews(ticker, currency, name) {
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [retryCount, setRetryCount] = useState(0)
+  const retry = useCallback(() => setRetryCount(c => c + 1), [])
 
   useEffect(() => {
     let cancelled = false
@@ -34,7 +36,7 @@ export function useStockNews(ticker, currency, name) {
     })()
 
     return () => { cancelled = true }
-  }, [ticker, currency])
+  }, [ticker, currency, retryCount])
 
-  return { articles, loading, error }
+  return { articles, loading, error, retry }
 }
