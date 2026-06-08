@@ -171,10 +171,10 @@ tr:last-child td { border-bottom: none }
   text-transform: uppercase;
   color: var(--ink-faint);
 }
-.field input {
-  background: var(--panel-2);
-  border: 1px solid var(--line);
-  border-radius: 8px;
+.field input, .field select {
+  background: rgba(39, 48, 44, 0.4);
+  border: 1px solid rgba(127, 209, 174, 0.15);
+  border-radius: 10px;
   color: var(--ink);
   padding: 9px 11px;
   font-family: 'Spline Sans Mono', monospace;
@@ -184,7 +184,11 @@ tr:last-child td { border-bottom: none }
 .field.tk input { width: 88px; text-transform: uppercase }
 .field.nm input { width: 150px }
 .field input[type="date"] { width: 130px }
-.field input:focus { outline: none; border-color: var(--accent) }
+.field input:focus, .field select:focus {
+  outline: none;
+  border-color: rgba(127, 209, 174, 0.5);
+  box-shadow: 0 0 0 3px rgba(127, 209, 174, 0.1), inset 0 1px 0 rgba(255,255,255,0.03);
+}
 .btn {
   background: var(--accent);
   color: #0c0e0d;
@@ -285,9 +289,21 @@ footer {
   color: var(--ink-faint);
   margin-bottom: 4px;
 }
-.modal-field input {
+.modal-field input, .modal-field select {
   width: 100%;
   box-sizing: border-box;
+  background: rgba(39, 48, 44, 0.4);
+  border: 1px solid rgba(127, 209, 174, 0.15);
+  border-radius: 10px;
+  color: var(--ink);
+  padding: 9px 11px;
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 13px;
+}
+.modal-field input:focus, .modal-field select:focus {
+  outline: none;
+  border-color: rgba(127, 209, 174, 0.5);
+  box-shadow: 0 0 0 3px rgba(127, 209, 174, 0.1), inset 0 1px 0 rgba(255,255,255,0.03);
 }
 .modal-actions {
   display: flex;
@@ -895,7 +911,8 @@ footer {
 
 /* AddHoldingForm sell mode */
 .currency-btn.sell-btn.active { background: rgba(232,101,79,.15); color: #e8654f; border-color: #e8654f; }
-.addbar select { background: var(--surface); color: var(--ink); border: 1px solid var(--border); border-radius: 4px; padding: 6px 8px; font-family: inherit; font-size: 13px; width: 100%; }
+.addbar select { background: rgba(39, 48, 44, 0.4); color: var(--ink); border: 1px solid rgba(127, 209, 174, 0.15); border-radius: 10px; padding: 6px 8px; font-family: inherit; font-size: 13px; width: 100%; }
+.addbar select:focus { outline: none; border-color: rgba(127, 209, 174, 0.5); box-shadow: 0 0 0 3px rgba(127, 209, 174, 0.1); }
 
 /* BackupBar */
 .backup-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 0; }
@@ -1001,3 +1018,24 @@ footer {
 }
 .nav-sub-item:hover { background: var(--panel-2); color: var(--ink-dim) }
 .nav-sub-item.active { color: var(--ink-dim) }
+
+/* Empty state onboarding */
+.empty-state { text-align: center; padding: 48px 20px; }
+.empty-state-icon { font-size: 36px; display: block; margin-bottom: 14px; }
+.empty-state-title { font-size: 15px; color: var(--ink); margin-bottom: 8px; }
+.empty-state-desc { font-size: 13px; color: var(--ink-dim); line-height: 1.6; margin-bottom: 20px; }
+.empty-state-cta { margin: 0 auto; }
+
+/* API error retry button */
+.btn-retry {
+  background: transparent;
+  border: 1px solid #e8654f;
+  color: #e8654f;
+  border-radius: 6px;
+  padding: 2px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  margin-left: 10px;
+  vertical-align: middle;
+}
+.btn-retry:hover { background: rgba(232, 101, 79, 0.1); }
