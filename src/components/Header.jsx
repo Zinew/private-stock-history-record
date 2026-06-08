@@ -1,4 +1,4 @@
-import { fmtCurrency, pct } from '../utils/format.js'
+import { fmtCurrency, pctArrow, fmtArrow } from '../utils/format.js'
 import { useTranslation } from 'react-i18next'
 
 export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, onToggleCurrency, exchangeRate, onMenuOpen, totalRealizedGain, hasRealizedGains }) {
@@ -50,18 +50,18 @@ export default function Header({ totalVal, totalCost, pl, ret, displayCurrency, 
           <div className="sum-item">
             <div className="label">{t('header.unrealizedPnl')}</div>
             <div className={`val ${pl >= 0 ? 'pos' : 'neg'}`}>
-              {pl >= 0 ? '+' : ''}{fmtCurrency(pl, displayCurrency)}
+              {fmtArrow(pl, displayCurrency)}
             </div>
           </div>
           <div className="sum-item">
             <div className="label">{t('header.returnRate')}</div>
-            <div className={`val ${ret >= 0 ? 'pos' : 'neg'}`}>{pct(ret)}</div>
+            <div className={`val ${ret >= 0 ? 'pos' : 'neg'}`}>{pctArrow(ret)}</div>
           </div>
           {hasRealizedGains && (
             <div className="sum-item">
               <div className="label">{t('header.realizedGain')}</div>
               <div className={`val ${totalRealizedGain >= 0 ? 'pos' : 'neg'}`}>
-                {totalRealizedGain >= 0 ? '+' : ''}{fmtCurrency(totalRealizedGain, displayCurrency)}
+                {fmtArrow(totalRealizedGain, displayCurrency)}
               </div>
             </div>
           )}
