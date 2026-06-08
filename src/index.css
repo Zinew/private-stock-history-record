@@ -26,7 +26,7 @@ body {
   padding: 32px 24px 80px;
 }
 
-.wrap { max-width: 1120px; margin: 0 auto }
+.wrap { max-width: 1120px; margin: 0 auto; overflow-x: hidden }
 
 header {
   display: flex;
@@ -78,6 +78,8 @@ header {
   border: 1px solid var(--line);
   border-radius: 14px;
   padding: 22px;
+  min-width: 0;
+  overflow: hidden;
 }
 .card h2 {
   font-family: 'Spline Sans Mono', monospace;
@@ -90,7 +92,7 @@ header {
   align-items: center;
   justify-content: space-between;
 }
-.chart-box { position: relative; height: 240px }
+.chart-box { position: relative; height: 240px; width: 100% }
 
 .holdings {
   background: var(--panel);
