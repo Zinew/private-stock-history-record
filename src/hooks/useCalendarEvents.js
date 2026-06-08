@@ -50,6 +50,7 @@ export function useCalendarEvents(holdings) {
 
     setLoading(true)
     setError(null)
+    setEvents([])
 
     let cancelled = false
     ;(async () => {

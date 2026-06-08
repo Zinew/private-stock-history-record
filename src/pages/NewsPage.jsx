@@ -20,10 +20,10 @@ function StockNewsSection({ holding }) {
 
       {loading && <p className="news-empty">{t('news.loading')}</p>}
       {error && (
-        <p className="news-error">
+        <div className="news-error">
           ⚠ {error}
           <button className="btn-retry" onClick={retry}>↺ {t('common.retry')}</button>
-        </p>
+        </div>
       )}
 
       {!loading && !error && articles.length === 0 && (
