@@ -138,7 +138,7 @@ export function usePortfolio() {
       upsertTodaySnap(totalVal, displayCurrency)
       snapAfterTx.current = false
     }
-  }, [totalVal])
+  }, [totalVal, holdings.length, displayCurrency])
 
   function toggleCurrency() {
     if (!exchangeRate.rate) return
