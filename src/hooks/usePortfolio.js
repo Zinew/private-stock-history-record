@@ -109,7 +109,7 @@ export function usePortfolio() {
     ))
   }
 
-  function upsertTodaySnap(total, currency) {
+  const upsertTodaySnap = useCallback((total, currency) => {
     if (holdings.length === 0 || !(total > 0)) return
     const today = new Date().toISOString().slice(0, 10)
     const d = new Date()
@@ -124,21 +124,21 @@ export function usePortfolio() {
       const next = [...prev, { label, total, currency, date: today }]
       return next.length > 60 ? next.slice(-60) : next
     })
-  }
+  }, [holdings.length])
 
   useEffect(() => {
     if (prevPriceLoading.current && !priceLoading && holdings.length > 0 && totalVal > 0) {
       upsertTodaySnap(totalVal, displayCurrency)
     }
     prevPriceLoading.current = priceLoading
-  }, [priceLoading, totalVal, holdings.length, displayCurrency])
+  }, [priceLoading, totalVal, holdings.length, displayCurrency, upsertTodaySnap])
 
   useEffect(() => {
     if (snapAfterTx.current && holdings.length > 0 && totalVal > 0) {
       upsertTodaySnap(totalVal, displayCurrency)
       snapAfterTx.current = false
     }
-  }, [totalVal, holdings.length, displayCurrency])
+  }, [totalVal, holdings.length, displayCurrency, upsertTodaySnap])
 
   function toggleCurrency() {
     if (!exchangeRate.rate) return

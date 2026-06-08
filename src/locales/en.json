@@ -119,12 +119,6 @@
     "noHoldingsToSell": "No holdings to sell",
     "type": "Type"
   },
-  "snapshot": {
-    "record": "📸 Record today's value",
-    "reset": "Reset trend",
-    "desc1": "Each click adds the current total value as a data point on the trend chart.",
-    "desc2": "Click over a few days to see your portfolio rise and fall."
-  },
   "dashboard": {
     "disclaimer": "Data is stored in this browser only · For tracking and visualization, not investment advice"
   },
