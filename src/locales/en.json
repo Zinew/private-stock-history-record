@@ -2,7 +2,8 @@
   "common": {
     "minutesAgo": "{{count}} min ago",
     "hoursAgo": "{{count}} hrs ago",
-    "loading": "Loading…"
+    "loading": "Loading…",
+    "retry": "Retry"
   },
   "sidebar": {
     "dashboard": "Dashboard",
@@ -39,7 +40,9 @@
     "delete": "Delete",
     "priceError": "Failed to fetch prices",
     "krxPriceError": "Failed to fetch KRX prices",
-    "addFirst": "Please add a holding first."
+    "addFirst": "Add your first holding",
+    "emptyTitle": "Start your portfolio",
+    "emptyDesc": "Add a holding to track live prices and returns."
   },
   "addHolding": {
     "ticker": "Ticker",
