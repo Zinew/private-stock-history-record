@@ -96,6 +96,12 @@ export function usePortfolio() {
     setTransactions(transactions.filter(tx => tx.id !== id))
   }
 
+  function editTransaction(id, patch) {
+    setTransactions(transactions.map(tx =>
+      tx.id === id ? { ...tx, ...patch } : tx
+    ))
+  }
+
   function delHolding(i) {
     const ticker = holdings[i].t
     setTransactions(transactions.filter(tx => tx.ticker !== ticker))
@@ -180,6 +186,7 @@ export function usePortfolio() {
     onRefresh: () => { refreshUsd(); refreshKrw() },
     addTransaction,
     deleteTransaction,
+    editTransaction,
     delHolding,
     editHolding,
     toggleCurrency,

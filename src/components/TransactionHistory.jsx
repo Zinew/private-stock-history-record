@@ -1,8 +1,11 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fmtCurrency } from '../utils/format.js'
+import TransactionEditModal from './TransactionEditModal.jsx'
 
-export default function TransactionHistory({ transactions, onDelete }) {
+export default function TransactionHistory({ transactions, onDelete, onEdit }) {
   const { t } = useTranslation()
+  const [editingTx, setEditingTx] = useState(null)
 
   const sorted = [...transactions].sort((a, b) => {
     if (!a.date) return 1
@@ -48,6 +51,7 @@ export default function TransactionHistory({ transactions, onDelete }) {
                   <td>{fmtCurrency(tx.price, tx.currency)}</td>
                   <td>{fmtCurrency(tx.qty * tx.price, tx.currency)}</td>
                   <td>
+                    <button className="edit" onClick={() => setEditingTx(tx)} title={t('tx.edit')}>✎</button>
                     <button className="del" onClick={() => onDelete(tx.id)} title={t('holdings.delete')}>✕</button>
                   </td>
                 </tr>
@@ -56,6 +60,14 @@ export default function TransactionHistory({ transactions, onDelete }) {
           </tbody>
         </table>
       </div>
+
+      {editingTx && (
+        <TransactionEditModal
+          transaction={editingTx}
+          onSave={patch => { onEdit(editingTx.id, patch); setEditingTx(null) }}
+          onClose={() => setEditingTx(null)}
+        />
+      )}
     </div>
   )
 }

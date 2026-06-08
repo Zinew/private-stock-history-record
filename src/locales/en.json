@@ -119,7 +119,10 @@
     "unknownDate": "Unknown date",
     "sellExceedsHolding": "Exceeds held quantity",
     "noHoldingsToSell": "No holdings to sell",
-    "type": "Type"
+    "type": "Type",
+    "edit": "Edit",
+    "editTitle": "Edit Transaction",
+    "validationError": "Please enter valid date, quantity, and price."
   },
   "dashboard": {
     "disclaimer": "Data is stored in this browser only · For tracking and visualization, not investment advice"

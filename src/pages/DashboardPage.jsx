@@ -35,6 +35,7 @@ export default function DashboardPage({ portfolio }) {
       <TransactionHistory
         transactions={portfolio.transactions}
         onDelete={portfolio.deleteTransaction}
+        onEdit={portfolio.editTransaction}
       />
       <BackupBar />
       <footer>
