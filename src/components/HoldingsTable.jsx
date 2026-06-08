@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import EditModal from './EditModal.jsx'
 import AddHoldingForm from './AddHoldingForm.jsx'
-import { fmtCurrency, pct } from '../utils/format.js'
+import { fmtCurrency, pctArrow, fmtArrow } from '../utils/format.js'
 import { useTranslation } from 'react-i18next'
 
 export default function HoldingsTable({
@@ -11,6 +11,7 @@ export default function HoldingsTable({
 }) {
   const [editingIndex, setEditingIndex] = useState(null)
   const { t } = useTranslation()
+  const addbarRef = useRef(null)
 
   const hasAutoHoldings = holdings.some(h =>
     (h.currency ?? 'USD') === 'USD' || (h.currency === 'KRW' && h.exchange)
@@ -50,6 +51,7 @@ export default function HoldingsTable({
       {priceError && (
         <div className="price-error">
           ⚠ {priceError}
+          <button className="btn-retry" onClick={onRefresh}>↺ {t('common.retry')}</button>
         </div>
       )}
 
@@ -63,7 +65,21 @@ export default function HoldingsTable({
           </thead>
           <tbody>
             {holdings.length === 0 ? (
-              <tr><td colSpan={9} className="empty">{t('holdings.empty')}</td></tr>
+              <tr>
+                <td colSpan={9}>
+                  <div className="empty-state">
+                    <span className="empty-state-icon">📈</span>
+                    <h3 className="empty-state-title">{t('holdings.emptyTitle')}</h3>
+                    <p className="empty-state-desc">{t('holdings.emptyDesc')}</p>
+                    <button
+                      className="btn empty-state-cta"
+                      onClick={() => addbarRef.current?.scrollIntoView({ behavior: 'smooth' })}
+                    >
+                      {t('holdings.addFirst')}
+                    </button>
+                  </div>
+                </td>
+              </tr>
             ) : (
               holdings.map((h, i) => {
                 const hCur = h.currency ?? 'USD'
@@ -88,8 +104,8 @@ export default function HoldingsTable({
                       {fmtCurrency(h.c, hCur)}
                     </td>
                     <td>{fmtCurrency(val, displayCurrency)}</td>
-                    <td className={p >= 0 ? 'pos' : 'neg'}>{fmtCurrency(p, displayCurrency)}</td>
-                    <td className={r >= 0 ? 'pos' : 'neg'}>{pct(r)}</td>
+                    <td className={p >= 0 ? 'pos' : 'neg'}>{fmtArrow(p, displayCurrency)}</td>
+                    <td className={r >= 0 ? 'pos' : 'neg'}>{pctArrow(r)}</td>
                     <td>{w.toFixed(1)}%</td>
                     <td>
                       <button className="edit" onClick={() => setEditingIndex(i)} title={t('holdings.edit')}>✎</button>
@@ -103,7 +119,9 @@ export default function HoldingsTable({
         </table>
       </div>
 
-      <AddHoldingForm onAddTransaction={onAdd} holdings={rawHoldings} />
+      <div ref={addbarRef}>
+        <AddHoldingForm onAddTransaction={onAdd} holdings={rawHoldings} />
+      </div>
       {editingIndex !== null && (
         <EditModal
           holding={rawHoldings[editingIndex]}
