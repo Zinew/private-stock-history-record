@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { fetchEarningsCalendar } from '../utils/alphavantage.js'
 import i18n from '../i18n.js'
 
@@ -36,6 +36,8 @@ export function useCalendarEvents(holdings) {
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState(null)
+  const [retryCount, setRetryCount] = useState(0)
+  const retry = useCallback(() => setRetryCount(c => c + 1), [])
 
   useEffect(() => {
     const usdHoldings = filterUsdHoldings(holdings)
@@ -72,7 +74,7 @@ export function useCalendarEvents(holdings) {
       }
     })()
     return () => { cancelled = true }
-  }, [holdings])
+  }, [holdings, retryCount])
 
-  return { events, loading, error }
+  return { events, loading, error, retry }
 }

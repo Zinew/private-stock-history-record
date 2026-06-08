@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 
 export default function CalendarPage({ portfolio }) {
   const holdings = portfolio?.holdings ?? []
-  const { events, loading, error } = useCalendarEvents(holdings)
+  const { events, loading, error, retry } = useCalendarEvents(holdings)
   const [manualEvents, setManualEvents] = useLocalStorage('ledger_manual_events', [])
   const [showModal, setShowModal] = useState(false)
   const { t } = useTranslation()
@@ -37,7 +37,12 @@ export default function CalendarPage({ portfolio }) {
       </div>
 
       {loading && <p className="calendar-empty">{t('calendar.loading')}</p>}
-      {error && <div className="price-error">⚠ {error}</div>}
+      {error && (
+        <div className="price-error">
+          ⚠ {error}
+          <button className="btn-retry" onClick={retry}>↺ {t('common.retry')}</button>
+        </div>
+      )}
 
       {!loading && !error && events.length === 0 && (
         <p className="calendar-empty">{t('calendar.noAutoEvents')}</p>
