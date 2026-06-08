@@ -41,12 +41,12 @@ describe('Header', () => {
 
   it('양수 손익에 pos 클래스 적용', () => {
     renderHeader({ ...defaultProps, totalVal: 12450, totalCost: 10000, pl: 2450, ret: 24.5 })
-    expect(screen.getByText('+$2,450.00')).toHaveClass('pos')
+    expect(screen.getByText('▲ $2,450.00')).toHaveClass('pos')
   })
 
   it('음수 손익에 neg 클래스 적용', () => {
     render(<Header {...defaultProps} totalVal={8000} totalCost={10000} pl={-2000} ret={-20} />)
-    expect(screen.getByText('-$2,000.00')).toHaveClass('neg')
+    expect(screen.getByText('▼ $2,000.00')).toHaveClass('neg')
   })
 
   it('환율 있으면 토글 버튼 표시', () => {
