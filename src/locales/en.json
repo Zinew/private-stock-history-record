@@ -35,7 +35,6 @@
     "pnl": "P&L",
     "returnRate": "Return",
     "weight": "Weight",
-    "empty": "No holdings yet. Add your first below.",
     "edit": "Edit",
     "delete": "Delete",
     "priceError": "Failed to fetch prices",

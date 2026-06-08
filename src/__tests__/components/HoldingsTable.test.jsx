@@ -48,7 +48,7 @@ describe('HoldingsTable', () => {
 
   it('종목 없을 때 빈 안내 메시지 표시', () => {
     renderHoldingsTable()
-    expect(screen.getByText(/종목이 없습니다/)).toBeInTheDocument()
+    expect(screen.getByText(/포트폴리오를 시작해보세요/)).toBeInTheDocument()
   })
 
   it('종목 티커 표시', () => {
