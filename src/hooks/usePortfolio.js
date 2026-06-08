@@ -1,10 +1,9 @@
-import { useMemo } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 import { useLocalStorage } from './useLocalStorage.js'
 import { useExchangeRate } from './useExchangeRate.js'
 import { useStockPrices } from './useStockPrices.js'
 import { useKrxPrices } from './useKrxPrices.js'
 import { migrateHoldingsToTransactions, deriveHoldings, deriveRealizedGains } from '../utils/transactions.js'
-import i18n from '../i18n.js'
 
 function runMigrationIfNeeded() {
   if (localStorage.getItem('ledger_migration_v1')) return
@@ -49,6 +48,8 @@ export function usePortfolio() {
 
   const prices = useMemo(() => ({ ...usdPrices, ...krwPrices }), [usdPrices, krwPrices])
   const priceLoading = usdLoading || krwLoading
+  const prevPriceLoading = useRef(false)
+  const snapAfterTx = useRef(false)
   const priceError = usdError || krwError || null
 
   const displayCurrency = exchangeRate.rate ? displayCurrencyRaw : 'USD'
@@ -88,6 +89,7 @@ export function usePortfolio() {
     }
     if (exchange) tx.exchange = exchange
     setTransactions([...transactions, tx])
+    snapAfterTx.current = true
   }
 
   function deleteTransaction(id) {
@@ -107,17 +109,40 @@ export function usePortfolio() {
     ))
   }
 
+  function upsertTodaySnap(total, currency) {
+    if (holdings.length === 0 || !(total > 0)) return
+    const today = new Date().toISOString().slice(0, 10)
+    const d = new Date()
+    const label = `${d.getMonth() + 1}/${d.getDate()}`
+    setSnaps(prev => {
+      const idx = prev.findIndex(s => s.date === today)
+      if (idx >= 0) {
+        const next = [...prev]
+        next[idx] = { ...next[idx], total, currency }
+        return next
+      }
+      const next = [...prev, { label, total, currency, date: today }]
+      return next.length > 60 ? next.slice(-60) : next
+    })
+  }
+
+  useEffect(() => {
+    if (prevPriceLoading.current && !priceLoading && holdings.length > 0 && totalVal > 0) {
+      upsertTodaySnap(totalVal, displayCurrency)
+    }
+    prevPriceLoading.current = priceLoading
+  }, [priceLoading, totalVal, holdings.length, displayCurrency])
+
+  useEffect(() => {
+    if (snapAfterTx.current && holdings.length > 0 && totalVal > 0) {
+      upsertTodaySnap(totalVal, displayCurrency)
+      snapAfterTx.current = false
+    }
+  }, [totalVal])
+
   function toggleCurrency() {
     if (!exchangeRate.rate) return
     setDisplayCurrency(prev => prev === 'USD' ? 'KRW' : 'USD')
-  }
-
-  function takeSnapshot() {
-    if (holdings.length === 0) { alert(i18n.t('holdings.addFirst')); return }
-    const d = new Date()
-    const label = `${d.getMonth() + 1}/${d.getDate()} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`
-    const next = [...snaps, { label, total: totalVal, currency: displayCurrency }]
-    setSnaps(next.length > 60 ? next.slice(-60) : next)
   }
 
   function clearSnaps() {
@@ -158,7 +183,6 @@ export function usePortfolio() {
     delHolding,
     editHolding,
     toggleCurrency,
-    takeSnapshot,
     clearSnaps,
     deleteSnap,
     restoreSnap,
