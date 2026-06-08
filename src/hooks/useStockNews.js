@@ -3,7 +3,7 @@ import { fetchCompanyNews } from '../utils/finnhub.js'
 import { fetchNaverNews } from '../utils/naverNews.js'
 import i18n from '../i18n.js'
 
-export function useStockNews(ticker, currency) {
+export function useStockNews(ticker, currency, name) {
   const [articles, setArticles] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -18,7 +18,7 @@ export function useStockNews(ticker, currency) {
       try {
         let result
         if (currency === 'KRW') {
-          result = await fetchNaverNews(ticker)
+          result = await fetchNaverNews(ticker, name)
           if (result === null) throw new Error('fetch failed')
         } else {
           const to = new Date().toISOString().slice(0, 10)

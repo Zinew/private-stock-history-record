@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 function StockNewsSection({ holding }) {
   const currency = holding.currency ?? 'USD'
-  const { articles, loading, error } = useStockNews(holding.t, currency)
+  const { articles, loading, error } = useStockNews(holding.t, currency, holding.nm)
   const { t } = useTranslation()
 
   return (
