@@ -1056,3 +1056,125 @@ footer {
   vertical-align: middle;
 }
 .btn-retry:hover { background: rgba(232, 101, 79, 0.1); }
+
+/* ===== Mobile card view ===== */
+.holdings-mobile-list { display: none }
+.tx-mobile-list { display: none }
+
+.holding-card,
+.tx-card {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px;
+  margin-bottom: 10px;
+}
+
+.holding-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.holding-card-name {
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.holding-card-sub {
+  color: var(--ink-faint);
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.holding-card-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+}
+
+.holding-card-rate {
+  font-size: 12px;
+  text-align: right;
+  margin-top: 2px;
+}
+
+.holding-card-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 6px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+  text-align: center;
+}
+
+.holding-card-stat-label {
+  color: var(--ink-faint);
+  font-size: 10px;
+  margin-bottom: 3px;
+}
+
+.holding-card-stat-val {
+  color: var(--ink-dim);
+  font-size: 12px;
+}
+
+.holding-card-actions,
+.tx-card-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+}
+
+.tx-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.tx-card-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
+
+.tx-card-badge.buy { background: rgba(63,191,143,.15); color: var(--gain) }
+.tx-card-badge.sell { background: rgba(232,101,79,.15); color: var(--loss) }
+
+.tx-card-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.tx-card-sub {
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 3px;
+}
+
+.tx-card-amount {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--ink);
+  text-align: right;
+}
+
+@media (max-width: 640px) {
+  body { padding: 16px 12px 80px }
+  .table-scroll { display: none }
+  .holdings-mobile-list { display: block }
+  .tx-mobile-list { display: block }
+}
