@@ -50,7 +50,7 @@ describe('HoldingsTable', () => {
 
   it('종목 없을 때 빈 안내 메시지 표시', () => {
     renderHoldingsTable()
-    expect(screen.getByText(/포트폴리오를 시작해보세요/)).toBeInTheDocument()
+    expect(screen.getAllByText(/포트폴리오를 시작해보세요/)[0]).toBeInTheDocument()
   })
 
   it('종목 티커 표시', () => {
@@ -74,14 +74,14 @@ describe('HoldingsTable', () => {
 
   it('✎ 버튼 클릭 시 EditModal 표시', () => {
     renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900 })
-    fireEvent.click(screen.getByTitle('수정'))
+    fireEvent.click(screen.getAllByTitle('수정')[0])
     expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
   })
 
   it('EditModal 저장 시 onEdit 올바른 인덱스·patch로 호출', () => {
     const onEdit = vi.fn()
     renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900, onEdit })
-    fireEvent.click(screen.getByTitle('수정'))
+    fireEvent.click(screen.getAllByTitle('수정')[0])
     fireEvent.change(screen.getByDisplayValue('Apple Inc.'), { target: { value: 'Apple Inc. Updated' } })
     fireEvent.click(screen.getByText('저장'))
     expect(onEdit).toHaveBeenCalledWith(0, { nm: 'Apple Inc. Updated' })
@@ -89,7 +89,7 @@ describe('HoldingsTable', () => {
 
   it('EditModal 취소 시 모달 사라짐', () => {
     renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900 })
-    fireEvent.click(screen.getByTitle('수정'))
+    fireEvent.click(screen.getAllByTitle('수정')[0])
     expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
     fireEvent.click(screen.getByText('취소'))
     expect(screen.queryByText('AAPL 수정')).not.toBeInTheDocument()
@@ -312,5 +312,47 @@ describe('HoldingsTable', () => {
     fireEvent.click(sellSubmitBtn)
     expect(onAddTransaction).not.toHaveBeenCalled()
     expect(screen.getByText(/초과|Exceeds/i)).toBeTruthy()
+  })
+
+  describe('HoldingsTable 모바일 카드', () => {
+    it('holdings-mobile-list 컨테이너 존재', () => {
+      const { container } = renderHoldingsTable()
+      expect(container.querySelector('.holdings-mobile-list')).toBeInTheDocument()
+    })
+
+    it('종목이 있을 때 holding-card 렌더링', () => {
+      const { container } = renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900 })
+      expect(container.querySelectorAll('.holding-card')).toHaveLength(1)
+    })
+
+    it('카드에 ticker와 name 표시', () => {
+      const { container } = renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900 })
+      const list = container.querySelector('.holdings-mobile-list')
+      expect(list).toHaveTextContent('AAPL')
+      expect(list).toHaveTextContent('Apple Inc.')
+    })
+
+    it('수익률 양수 → pos 클래스', () => {
+      const { container } = renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900 })
+      const rate = container.querySelector('.holdings-mobile-list .holding-card-rate')
+      expect(rate).toHaveClass('pos')
+    })
+
+    it('카드 ✎ 버튼 클릭 시 EditModal 표시', () => {
+      const { container } = renderHoldingsTable({
+        holdings: mockHoldings,
+        rawHoldings: mockHoldings,
+        totalVal: 1900,
+      })
+      const editBtn = container.querySelector('.holdings-mobile-list .edit')
+      fireEvent.click(editBtn)
+      expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
+    })
+
+    it('holding-card-stats 3개 stat 항목 렌더링', () => {
+      const { container } = renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900 })
+      const stats = container.querySelectorAll('.holdings-mobile-list .holding-card-stats > div')
+      expect(stats).toHaveLength(3)
+    })
   })
 })
