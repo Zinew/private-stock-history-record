@@ -61,6 +61,33 @@ export default function TransactionHistory({ transactions, onDelete, onEdit }) {
         </table>
       </div>
 
+      <div className="tx-mobile-list">
+        {sorted.length === 0 ? (
+          <p className="empty">{t('tx.empty')}</p>
+        ) : sorted.map(tx => (
+          <div className="tx-card" key={tx.id}>
+            <div className="tx-card-header">
+              <div>
+                <span className={`tx-card-badge ${tx.type}`}>{t(`tx.${tx.type}`)}</span>
+                <div className="tx-card-name">
+                  <span className="tx-card-ticker">{tx.ticker}</span>
+                  {tx.name && tx.name !== tx.ticker && <small>{tx.name}</small>}
+                </div>
+                <div className="tx-card-sub">
+                  {tx.date ?? t('tx.unknownDate')} · {tx.qty.toLocaleString()} {t('tx.qty')} · {fmtCurrency(tx.price, tx.currency)}
+                </div>
+              </div>
+              <div>
+                <div className="tx-card-amount">{fmtCurrency(tx.qty * tx.price, tx.currency)}</div>
+              </div>
+            </div>
+            <div className="tx-card-actions">
+              <button className="edit" onClick={() => setEditingTx(tx)} title={t('tx.edit')}>✎</button>
+            </div>
+          </div>
+        ))}
+      </div>
+
       {editingTx && (
         <TransactionEditModal
           transaction={editingTx}
