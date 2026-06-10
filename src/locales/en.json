@@ -51,8 +51,8 @@
     "unassigned": "unassigned",
     "buy": "Buy",
     "sell": "Sell",
-    "hold_cash": "Hold cash",
-    "use_cash": "Use cash",
+    "hold_cash": "Raise cash",
+    "use_cash": "Invest cash",
     "hold": "Hold"
   },
   "addHolding": {

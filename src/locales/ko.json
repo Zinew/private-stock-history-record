@@ -52,7 +52,7 @@
     "buy": "매수",
     "sell": "매도",
     "hold_cash": "현금화 필요",
-    "use_cash": "현금 사용",
+    "use_cash": "투자 필요",
     "hold": "유지"
   },
   "addHolding": {
