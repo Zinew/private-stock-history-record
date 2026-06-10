@@ -3,7 +3,9 @@
     "minutesAgo": "{{count}}분 전",
     "hoursAgo": "{{count}}시간 전",
     "loading": "조회 중…",
-    "retry": "재시도"
+    "retry": "재시도",
+    "expand": "펼치기",
+    "collapse": "접기"
   },
   "sidebar": {
     "dashboard": "대시보드",

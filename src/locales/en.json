@@ -3,7 +3,9 @@
     "minutesAgo": "{{count}} min ago",
     "hoursAgo": "{{count}} hrs ago",
     "loading": "Loading…",
-    "retry": "Retry"
+    "retry": "Retry",
+    "expand": "Expand",
+    "collapse": "Collapse"
   },
   "sidebar": {
     "dashboard": "Dashboard",

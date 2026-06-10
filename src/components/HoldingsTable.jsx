@@ -12,6 +12,9 @@ export default function HoldingsTable({
 }) {
   const [editingIndex, setEditingIndex] = useState(null)
   const [cashEditing, setCashEditing] = useState(false)
+  const [expandedCards, setExpandedCards] = useState({})
+  const toggleCard = (ticker) =>
+    setExpandedCards(prev => ({ ...prev, [ticker]: !prev[ticker] }))
   const { t } = useTranslation()
   const addbarRef = useRef(null)
 
@@ -166,41 +169,52 @@ export default function HoldingsTable({
           return (
             <div className="holding-card" key={i}>
               <div className="holding-card-header">
-                <div>
+                <div className="holding-card-name-wrap">
                   <div className="holding-card-name">
                     {h.nm || h.t}
                     <span className="market-badge">{market}</span>
                   </div>
-                  <div className="holding-card-sub">{h.t} · {h.q.toLocaleString()} {t('holdings.qty')}</div>
                 </div>
-                <div>
+                <div className="holding-card-summary-right">
                   <div className="holding-card-val">{fmtCurrency(val, displayCurrency)}</div>
                   <div className={`holding-card-rate ${r >= 0 ? 'pos' : 'neg'}`}>{pctArrow(r)}</div>
+                  <button
+                    className="mobile-card-toggle"
+                    onClick={() => toggleCard(h.t)}
+                    title={expandedCards[h.t] ? t('common.collapse') : t('common.expand')}
+                  >
+                    {expandedCards[h.t] ? '∧' : '∨'}
+                  </button>
                 </div>
               </div>
-              <div className="holding-card-stats">
-                <div>
-                  <div className="holding-card-stat-label">{t('holdings.currentPrice')}</div>
-                  <div className="holding-card-stat-val">{fmtCurrency(h.c, hCur)}</div>
-                </div>
-                <div>
-                  <div className="holding-card-stat-label">{t('holdings.avgCost')}</div>
-                  <div className="holding-card-stat-val">{fmtCurrency(h.b, hCur)}</div>
-                </div>
-                <div>
-                  <div className="holding-card-stat-label">{t('holdings.weight')}</div>
-                  <div className="holding-card-stat-val">{w.toFixed(1)}%</div>
-                </div>
-                <div>
-                  <div className="holding-card-stat-label">{t('holdings.targetWeight')}</div>
-                  <div className="holding-card-stat-val">
-                    {targetWeights[h.t] != null ? `${targetWeights[h.t]}%` : '—'}
+              {expandedCards[h.t] && (
+                <>
+                  <div className="holding-card-sub">{h.t} · {h.q.toLocaleString()} {t('holdings.qty')}</div>
+                  <div className="holding-card-stats">
+                    <div>
+                      <div className="holding-card-stat-label">{t('holdings.currentPrice')}</div>
+                      <div className="holding-card-stat-val">{fmtCurrency(h.c, hCur)}</div>
+                    </div>
+                    <div>
+                      <div className="holding-card-stat-label">{t('holdings.avgCost')}</div>
+                      <div className="holding-card-stat-val">{fmtCurrency(h.b, hCur)}</div>
+                    </div>
+                    <div>
+                      <div className="holding-card-stat-label">{t('holdings.weight')}</div>
+                      <div className="holding-card-stat-val">{w.toFixed(1)}%</div>
+                    </div>
+                    <div>
+                      <div className="holding-card-stat-label">{t('holdings.targetWeight')}</div>
+                      <div className="holding-card-stat-val">
+                        {targetWeights[h.t] != null ? `${targetWeights[h.t]}%` : '—'}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-              <div className="holding-card-actions">
-                <button className="edit" onClick={() => setEditingIndex(i)} title={t('holdings.edit')}>✎</button>
-              </div>
+                  <div className="holding-card-actions">
+                    <button className="edit" onClick={() => setEditingIndex(i)} title={t('holdings.edit')}>✎</button>
+                  </div>
+                </>
+              )}
             </div>
           )
         })}

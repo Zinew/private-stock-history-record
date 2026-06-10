@@ -377,11 +377,17 @@ describe('HoldingsTable', () => {
       expect(container.querySelectorAll('.holding-card').length).toBeGreaterThanOrEqual(1)
     })
 
-    it('카드에 ticker와 name 표시', () => {
+    it('카드에 name 표시 (collapsed)', () => {
       const { container } = renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900 })
       const list = container.querySelector('.holdings-mobile-list')
-      expect(list).toHaveTextContent('AAPL')
       expect(list).toHaveTextContent('Apple Inc.')
+    })
+
+    it('카드에 ticker 표시 (expanded)', () => {
+      const { container } = renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900 })
+      fireEvent.click(screen.getByTitle('펼치기'))
+      const card = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
+      expect(card).toHaveTextContent('AAPL')
     })
 
     it('수익률 양수 → pos 클래스', () => {
@@ -390,23 +396,56 @@ describe('HoldingsTable', () => {
       expect(rate).toHaveClass('pos')
     })
 
+    it('holding-card-stats 4개 stat 항목 렌더링', () => {
+      const { container } = renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900 })
+      // Expand the card first (collapsed by default)
+      fireEvent.click(screen.getByTitle('펼치기'))
+      // Check the first non-cash holding card for 4 stats
+      const firstCard = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
+      const stats = firstCard.querySelectorAll('.holding-card-stats > div')
+      expect(stats).toHaveLength(4)
+    })
+
     it('카드 ✎ 버튼 클릭 시 EditModal 표시', () => {
       const { container } = renderHoldingsTable({
         holdings: mockHoldings,
         rawHoldings: mockHoldings,
         totalVal: 1900,
       })
-      const editBtn = container.querySelector('.holdings-mobile-list .edit')
+      // Expand the card first (collapsed by default)
+      fireEvent.click(screen.getByTitle('펼치기'))
+      const editBtn = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card) .edit')
       fireEvent.click(editBtn)
       expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
     })
+  })
 
-    it('holding-card-stats 4개 stat 항목 렌더링', () => {
-      const { container } = renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900 })
-      // Check the first non-cash holding card for 4 stats
-      const firstCard = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
-      const stats = firstCard.querySelectorAll('.holding-card-stats > div')
-      expect(stats).toHaveLength(4)
+  describe('모바일 카드 접기/펼치기', () => {
+    const mobileHoldings = [
+      { t: 'AAPL', nm: 'Apple Inc.', q: 10, b: 150, c: 190, currency: 'USD', exchange: '' },
+    ]
+
+    it('기본 상태: 모바일 카드 stats가 렌더링 안 됨', () => {
+      const { container } = renderHoldingsTable({ holdings: mobileHoldings, totalVal: 1900 })
+      const nonCashCard = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
+      expect(nonCashCard.querySelector('.holding-card-stats')).toBeNull()
+    })
+
+    it('∨ 버튼 클릭 시 stats 렌더링', () => {
+      const { container } = renderHoldingsTable({ holdings: mobileHoldings, rawHoldings: mobileHoldings, totalVal: 1900 })
+      const toggleBtn = screen.getByTitle('펼치기')
+      fireEvent.click(toggleBtn)
+      const nonCashCard = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
+      expect(nonCashCard.querySelector('.holding-card-stats')).toBeInTheDocument()
+    })
+
+    it('∧ 버튼 클릭 시 stats 다시 숨김', () => {
+      const { container } = renderHoldingsTable({ holdings: mobileHoldings, rawHoldings: mobileHoldings, totalVal: 1900 })
+      fireEvent.click(screen.getByTitle('펼치기'))
+      const nonCashCard = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
+      expect(nonCashCard.querySelector('.holding-card-stats')).toBeInTheDocument()
+      fireEvent.click(screen.getByTitle('접기'))
+      expect(nonCashCard.querySelector('.holding-card-stats')).toBeNull()
     })
   })
 })
