@@ -3,6 +3,7 @@ import EditModal from './EditModal.jsx'
 import AddHoldingForm from './AddHoldingForm.jsx'
 import { fmtCurrency, pctArrow, fmtArrow } from '../utils/format.js'
 import { useTranslation } from 'react-i18next'
+import HoldingsDesktopTable from './HoldingsDesktopTable.jsx'
 
 export default function HoldingsTable({
   holdings, totalVal, onAdd, onDelete, displayCurrency, toDisplay,
@@ -17,12 +18,11 @@ export default function HoldingsTable({
     setExpandedCards(prev => ({ ...prev, [ticker]: !prev[ticker] }))
   const { t } = useTranslation()
   const addbarRef = useRef(null)
+  const onAddFirst = () => addbarRef.current?.scrollIntoView({ behavior: 'smooth' })
 
   const hasAutoHoldings = holdings.some(h =>
     (h.currency ?? 'USD') === 'USD' || (h.currency === 'KRW' && h.exchange)
   )
-  const dispSym = displayCurrency === 'KRW' ? '₩' : '$'
-
   function getOtherWeightsTotal(ticker) {
     return Object.entries(targetWeights)
       .filter(([k]) => k !== ticker)
@@ -66,84 +66,19 @@ export default function HoldingsTable({
         </div>
       )}
 
-      <div className="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>{t('holdings.ticker')}</th><th>{t('holdings.qty')}</th><th>{t('holdings.avgCost')}</th><th>{t('holdings.currentPrice')}</th>
-              <th>{t('holdings.value')} ({dispSym})</th><th>{t('holdings.pnl')} ({dispSym})</th><th>{t('holdings.returnRate')}</th><th>{t('holdings.weight')}</th><th>{t('holdings.targetWeight')}</th><th></th>
-            </tr>
-          </thead>
-          <tbody>
-            {holdings.length === 0 ? (
-              <tr>
-                <td colSpan={10}>
-                  <div className="empty-state">
-                    <span className="empty-state-icon">📈</span>
-                    <h3 className="empty-state-title">{t('holdings.emptyTitle')}</h3>
-                    <p className="empty-state-desc">{t('holdings.emptyDesc')}</p>
-                    <button
-                      className="btn empty-state-cta"
-                      onClick={() => addbarRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                    >
-                      {t('holdings.addFirst')}
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ) : (
-              holdings.map((h, i) => {
-                const hCur = h.currency ?? 'USD'
-                const val = toDisplay(h.q * h.c, hCur)
-                const cost = toDisplay(h.q * h.b, hCur)
-                const p = val - cost
-                const r = cost > 0 ? p / cost * 100 : 0
-                const w = totalVal > 0 ? val / totalVal * 100 : 0
-                const isLive = prices[h.t] !== undefined
-                return (
-                  <tr key={i}>
-                    <td>
-                      <span className="tick">
-                        {h.t}
-                        {h.nm && <small>{h.nm}</small>}
-                      </span>
-                    </td>
-                    <td>{h.q.toLocaleString()}</td>
-                    <td>{fmtCurrency(h.b, hCur)}</td>
-                    <td>
-                      {isLive && <span className="live-dot">●</span>}
-                      {fmtCurrency(h.c, hCur)}
-                    </td>
-                    <td>{fmtCurrency(val, displayCurrency)}</td>
-                    <td className={p >= 0 ? 'pos' : 'neg'}>{fmtArrow(p, displayCurrency)}</td>
-                    <td className={r >= 0 ? 'pos' : 'neg'}>{pctArrow(r)}</td>
-                    <td>{w.toFixed(1)}%</td>
-                    <td>{targetWeights[h.t] != null ? `${targetWeights[h.t]}%` : '—'}</td>
-                    <td>
-                      <button className="edit" onClick={() => setEditingIndex(i)} title={t('holdings.edit')}>✎</button>
-                      <button className="del" onClick={() => onDelete(i)} title={t('holdings.delete')}>✕</button>
-                    </td>
-                  </tr>
-                )
-              })
-            )}
-            <tr className="cash-row">
-              <td><span className="tick">CASH<small>{t('holdings.cash')}</small></span></td>
-              <td>—</td>
-              <td>—</td>
-              <td>—</td>
-              <td>{fmtCurrency(Number(cash) || 0, displayCurrency)}</td>
-              <td>—</td>
-              <td>—</td>
-              <td>{totalVal > 0 ? ((Number(cash) || 0) / totalVal * 100).toFixed(1) : '0.0'}%</td>
-              <td>{targetWeights['cash'] != null ? `${targetWeights['cash']}%` : '—'}</td>
-              <td>
-                <button className="edit" onClick={() => setCashEditing(true)} title={t('holdings.edit')}>✎</button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <HoldingsDesktopTable
+        holdings={holdings}
+        totalVal={totalVal}
+        displayCurrency={displayCurrency}
+        toDisplay={toDisplay}
+        prices={prices}
+        targetWeights={targetWeights}
+        cash={cash}
+        onEditRow={setEditingIndex}
+        onDelete={onDelete}
+        onCashEdit={() => setCashEditing(true)}
+        onAddFirst={onAddFirst}
+      />
 
       <div className="holdings-mobile-list">
         {holdings.length === 0 ? (
