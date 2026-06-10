@@ -41,7 +41,17 @@
     "krxPriceError": "Failed to fetch KRX prices",
     "addFirst": "Add your first holding",
     "emptyTitle": "Start your portfolio",
-    "emptyDesc": "Add a holding to track live prices and returns."
+    "emptyDesc": "Add a holding to track live prices and returns.",
+    "targetWeight": "Target(%)",
+    "cash": "Cash",
+    "rebalancingGuide": "Rebalancing Guide",
+    "targetTotal": "Target total",
+    "unassigned": "unassigned",
+    "buy": "Buy",
+    "sell": "Sell",
+    "hold_cash": "Hold cash",
+    "use_cash": "Use cash",
+    "hold": "Hold"
   },
   "addHolding": {
     "ticker": "Ticker",
@@ -65,7 +75,11 @@
     "apiAuto": "API auto",
     "save": "Save",
     "cancel": "Cancel",
-    "validationError": "Please enter valid qty, cost, and price."
+    "validationError": "Please enter valid qty, cost, and price.",
+    "targetWeight": "Target Weight(%)",
+    "cashBalance": "Cash Balance",
+    "weightRemaining": "{{remaining}}% remaining",
+    "weightExceeds100": "Total {{total}}% — exceeds 100%"
   },
   "manualEventModal": {
     "title": "Add Event",
