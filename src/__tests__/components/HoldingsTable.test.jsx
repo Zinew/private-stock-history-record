@@ -365,32 +365,6 @@ describe('HoldingsTable', () => {
     })
   })
 
-  describe('HoldingsTable 리밸런싱 카드', () => {
-    it('hides rebalancing card when no target weights set', () => {
-      renderHoldingsTable({
-        ...defaultProps,
-        holdings: mockHoldings,
-        totalVal: 1900,
-        targetWeights: {},
-        onSetTargetWeight: vi.fn(),
-      })
-      expect(screen.queryByText('리밸런싱 가이드')).toBeNull()
-    })
-
-    it('shows rebalancing card when at least one target weight set', () => {
-      renderHoldingsTable({
-        ...defaultProps,
-        holdings: mockHoldings,
-        rawHoldings: mockHoldings,
-        totalVal: 1900,
-        cash: 0,
-        targetWeights: { AAPL: 50 },
-        onSetTargetWeight: vi.fn(),
-      })
-      expect(screen.getByText('리밸런싱 가이드')).toBeTruthy()
-    })
-  })
-
   describe('HoldingsTable 모바일 카드', () => {
     it('holdings-mobile-list 컨테이너 존재', () => {
       const { container } = renderHoldingsTable()

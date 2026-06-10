@@ -1,5 +1,6 @@
 import Charts from '../components/Charts.jsx'
 import HoldingsTable from '../components/HoldingsTable.jsx'
+import RebalancingGuide from '../components/RebalancingGuide.jsx'
 import TransactionHistory from '../components/TransactionHistory.jsx'
 import BackupBar from '../components/BackupBar.jsx'
 import { useTranslation } from 'react-i18next'
@@ -16,6 +17,7 @@ export default function DashboardPage({ portfolio }) {
         toDisplay={portfolio.toDisplay}
         onDeleteSnap={portfolio.deleteSnap}
         onRestoreSnap={portfolio.restoreSnap}
+        cash={portfolio.cash}
       />
       <HoldingsTable
         holdings={portfolio.effectiveHoldings}
@@ -35,6 +37,14 @@ export default function DashboardPage({ portfolio }) {
         onSetCash={portfolio.setCash}
         targetWeights={portfolio.targetWeights}
         onSetTargetWeight={portfolio.setTargetWeight}
+      />
+      <RebalancingGuide
+        holdings={portfolio.effectiveHoldings}
+        cash={portfolio.cash}
+        targetWeights={portfolio.targetWeights}
+        totalVal={portfolio.totalVal}
+        displayCurrency={portfolio.displayCurrency}
+        toDisplay={portfolio.toDisplay}
       />
       <TransactionHistory
         transactions={portfolio.transactions}
