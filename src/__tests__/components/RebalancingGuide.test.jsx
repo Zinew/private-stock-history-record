@@ -44,7 +44,7 @@ describe('RebalancingGuide', () => {
       totalVal: 1000,
     })
     expect(screen.getByText('리밸런싱 가이드')).toBeInTheDocument()
-    expect(screen.getByText('AAPL')).toBeInTheDocument()
+    expect(screen.getAllByText('AAPL')[0]).toBeInTheDocument()
   })
 
   it('현재 비중 > 목표 비중이면 매도 액션 표시', () => {
@@ -54,7 +54,7 @@ describe('RebalancingGuide', () => {
       targetWeights: { AAPL: 60 },
       totalVal: 1000,
     })
-    expect(screen.getByText('매도')).toBeInTheDocument()
+    expect(screen.getAllByText('매도')[0]).toBeInTheDocument()
   })
 
   it('현재 비중 < 목표 비중이면 매수 액션 표시', () => {
@@ -64,7 +64,7 @@ describe('RebalancingGuide', () => {
       targetWeights: { AAPL: 80 },
       totalVal: 1000,
     })
-    expect(screen.getByText('매수')).toBeInTheDocument()
+    expect(screen.getAllByText('매수')[0]).toBeInTheDocument()
   })
 
   it('목표 합계 100% 미달 시 미설정 힌트 표시', () => {

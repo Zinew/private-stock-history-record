@@ -27,6 +27,8 @@ export default function RebalancingGuide({ holdings, cash, targetWeights, totalV
   return (
     <div className="rebalancing-card">
       <h3 className="rebalancing-title">{t('holdings.rebalancingGuide')}</h3>
+
+      {/* 데스크톱: 테이블 */}
       <table className="rebalancing-table">
         <thead>
           <tr>
@@ -61,6 +63,37 @@ export default function RebalancingGuide({ holdings, cash, targetWeights, totalV
           ))}
         </tbody>
       </table>
+
+      {/* 모바일: 카드 목록 */}
+      <div className="rebalancing-mobile-list">
+        {rebalancingRows.map(row => (
+          <div className="rebal-item-card" key={row.ticker}>
+            <div className="rebal-item-header">
+              <div className="rebal-item-name">
+                <span className="rebal-ticker">{row.ticker}</span>
+                {row.nm && row.nm !== row.ticker && (
+                  <span className="rebal-name"> {row.nm}</span>
+                )}
+              </div>
+              <span className={`rebal-action rebal-action--${row.action}`}>
+                {t(`holdings.${row.action}`)}
+              </span>
+            </div>
+            <div className="rebal-item-body">
+              <span className="rebal-item-pct">
+                {row.currentPct.toFixed(1)}% → {row.targetPct.toFixed(1)}%
+              </span>
+              <span className={row.diffPct >= 0 ? 'pos' : 'neg'}>
+                {row.diffPct >= 0 ? '+' : ''}{row.diffPct.toFixed(1)}%
+              </span>
+              {row.action !== 'hold' && (
+                <span className="rebal-item-amount">{fmtCurrency(row.amount, displayCurrency)}</span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
       {Math.abs(total - 100) >= 0.01 && (
         <p className="rebalancing-hint">
           {t('holdings.targetTotal')}: {total.toFixed(1)}%

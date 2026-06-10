@@ -1060,6 +1060,7 @@ footer {
 /* ===== Mobile card view ===== */
 .holdings-mobile-list { display: none }
 .tx-mobile-list { display: none }
+.rebalancing-mobile-list { display: none }
 
 .holding-card,
 .tx-card {
@@ -1225,6 +1226,8 @@ footer {
   .table-scroll { display: none }
   .holdings-mobile-list { display: block }
   .tx-mobile-list { display: block }
+  .rebalancing-table { display: none }
+  .rebalancing-mobile-list { display: block }
 }
 
 /* Cash row */
@@ -1288,6 +1291,41 @@ footer {
   margin: 10px 0 0;
   font-size: 12px;
   color: var(--ink-faint);
+}
+
+/* 리밸런싱 모바일 카드 */
+.rebal-item-card {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.rebal-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.rebal-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.rebal-item-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.rebal-item-pct {
+  font-family: 'Spline Sans Mono', monospace;
+}
+.rebal-item-amount {
+  margin-left: auto;
+  color: var(--ink);
+  font-family: 'Spline Sans Mono', monospace;
 }
 
 /* EditModal target weight row */
