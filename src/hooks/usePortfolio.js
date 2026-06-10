@@ -28,6 +28,8 @@ export function usePortfolio() {
   const [snaps, setSnaps] = useLocalStorage('ledger_snaps', [])
   const [displayCurrencyRaw, setDisplayCurrency] = useLocalStorage('ledger_display_currency', 'USD')
   const [exchangeRate, setExchangeRate] = useLocalStorage('ledger_exchange_rate', { rate: null, updatedAt: null })
+  const [cash, setCash] = useLocalStorage('ledger_cash', 0)
+  const [targetWeights, setTargetWeightsRaw] = useLocalStorage('ledger_target_weights', {})
 
   useExchangeRate(setExchangeRate)
 
@@ -66,15 +68,27 @@ export function usePortfolio() {
       : amount / exchangeRate.rate
   }
 
-  const totalVal = effectiveHoldings.reduce((s, h) => s + toDisplay(h.q * h.c, h.currency ?? 'USD'), 0)
+  const holdingsVal = effectiveHoldings.reduce((s, h) => s + toDisplay(h.q * h.c, h.currency ?? 'USD'), 0)
+  const totalVal = holdingsVal + (Number(cash) || 0)
   const totalCost = effectiveHoldings.reduce((s, h) => s + toDisplay(h.q * h.b, h.currency ?? 'USD'), 0)
-  const pl = totalVal - totalCost
+  const pl = holdingsVal - totalCost
   const ret = totalCost > 0 ? (pl / totalCost) * 100 : 0
 
   const totalRealizedGain = useMemo(
     () => realizedGains.reduce((s, g) => s + toDisplay(g.gain, g.currency), 0),
     [realizedGains, displayCurrency, exchangeRate.rate]
   )
+
+  function setTargetWeight(ticker, pct) {
+    setTargetWeightsRaw(prev => {
+      if (pct == null) {
+        const next = { ...prev }
+        delete next[ticker]
+        return next
+      }
+      return { ...prev, [ticker]: Number(pct) }
+    })
+  }
 
   function addTransaction({ type, ticker, name, currency, exchange, date, qty, price }) {
     const tx = {
@@ -172,6 +186,10 @@ export function usePortfolio() {
     snaps,
     displayCurrency,
     exchangeRate,
+    cash,
+    setCash,
+    targetWeights,
+    setTargetWeight,
     totalVal,
     totalCost,
     pl,

@@ -53,3 +53,50 @@ describe('restoreSnap', () => {
     expect(result.current.snaps[2].label).toBe('6/7 14:00')
   })
 })
+
+describe('cash', () => {
+  it('initializes cash to 0', () => {
+    const { result } = renderHook(() => usePortfolio())
+    expect(result.current.cash).toBe(0)
+  })
+
+  it('setCash updates cash value', () => {
+    const { result } = renderHook(() => usePortfolio())
+    act(() => { result.current.setCash(500000) })
+    expect(result.current.cash).toBe(500000)
+  })
+
+  it('cash is included in totalVal', () => {
+    localStorage.setItem('ledger_cash', '1000')
+    const { result } = renderHook(() => usePortfolio())
+    expect(result.current.totalVal).toBe(1000)
+  })
+})
+
+describe('targetWeights', () => {
+  it('initializes targetWeights to empty object', () => {
+    const { result } = renderHook(() => usePortfolio())
+    expect(result.current.targetWeights).toEqual({})
+  })
+
+  it('setTargetWeight stores weight for ticker', () => {
+    const { result } = renderHook(() => usePortfolio())
+    act(() => { result.current.setTargetWeight('AAPL', 40) })
+    expect(result.current.targetWeights['AAPL']).toBe(40)
+  })
+
+  it('setTargetWeight with null removes ticker', () => {
+    localStorage.setItem('ledger_target_weights', JSON.stringify({ AAPL: 40 }))
+    const { result } = renderHook(() => usePortfolio())
+    act(() => { result.current.setTargetWeight('AAPL', null) })
+    expect(result.current.targetWeights['AAPL']).toBeUndefined()
+  })
+
+  it('setTargetWeight preserves other tickers', () => {
+    localStorage.setItem('ledger_target_weights', JSON.stringify({ AAPL: 40, SCHD: 20 }))
+    const { result } = renderHook(() => usePortfolio())
+    act(() => { result.current.setTargetWeight('AAPL', 35) })
+    expect(result.current.targetWeights['SCHD']).toBe(20)
+    expect(result.current.targetWeights['AAPL']).toBe(35)
+  })
+})
