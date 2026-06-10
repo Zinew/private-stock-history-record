@@ -1084,7 +1084,16 @@ footer {
   display: flex;
   align-items: center;
   gap: 6px;
-  flex-wrap: wrap;
+  overflow: hidden;
+}
+
+.card-name-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+  flex: 1;
+  max-width: 130px;
 }
 
 .holding-card-sub {

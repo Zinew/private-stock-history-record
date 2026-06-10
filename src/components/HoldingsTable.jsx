@@ -171,7 +171,7 @@ export default function HoldingsTable({
               <div className="holding-card-header">
                 <div className="holding-card-name-wrap">
                   <div className="holding-card-name">
-                    {h.nm || h.t}
+                    <span className="card-name-text">{h.nm || h.t}</span>
                     <span className="market-badge">{market}</span>
                   </div>
                 </div>
