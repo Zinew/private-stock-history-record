@@ -12,7 +12,7 @@ function getGradient(ctx, chartArea, isUp) {
   return gradient
 }
 
-export default function Charts({ holdings, snaps, totalVal, displayCurrency, toDisplay, onDeleteSnap, onRestoreSnap }) {
+export default function Charts({ holdings, snaps, totalVal, displayCurrency, toDisplay, onDeleteSnap, onRestoreSnap, cash = 0 }) {
   const { t } = useTranslation()
   const [popup, setPopup] = useState(null)
   const [undoState, setUndoState] = useState(null)
@@ -108,11 +108,24 @@ export default function Charts({ holdings, snaps, totalVal, displayCurrency, toD
     },
   }
 
+  const cashVal = Number(cash) || 0
+  const chartTotal = holdings.reduce((s, h) => s + toDisplay(h.q * h.c, h.currency ?? 'USD'), 0) + cashVal
+
+  const pieLabels = holdings.map(h => h.t)
+  const pieValues = holdings.map(h => toDisplay(h.q * h.c, h.currency ?? 'USD'))
+  const pieColors = holdings.map((_, i) => PALETTE[i % PALETTE.length])
+
+  if (cashVal > 0) {
+    pieLabels.push(t('holdings.cash'))
+    pieValues.push(cashVal)
+    pieColors.push('#94a3b8')
+  }
+
   const pieData = {
-    labels: holdings.map(h => h.t),
+    labels: pieLabels,
     datasets: [{
-      data: holdings.map(h => toDisplay(h.q * h.c, h.currency ?? 'USD')),
-      backgroundColor: PALETTE,
+      data: pieValues,
+      backgroundColor: pieColors,
       borderColor: '#141816',
       borderWidth: 2,
     }],
@@ -134,8 +147,6 @@ export default function Charts({ holdings, snaps, totalVal, displayCurrency, toD
       },
     },
   }
-
-  const chartTotal = holdings.reduce((s, h) => s + toDisplay(h.q * h.c, h.currency ?? 'USD'), 0)
 
   return (
     <div className="grid">
