@@ -31,6 +31,10 @@ export default function DashboardPage({ portfolio }) {
         onAdd={portfolio.addTransaction}
         onDelete={portfolio.delHolding}
         onEdit={portfolio.editHolding}
+        cash={portfolio.cash}
+        onSetCash={portfolio.setCash}
+        targetWeights={portfolio.targetWeights}
+        onSetTargetWeight={portfolio.setTargetWeight}
       />
       <TransactionHistory
         transactions={portfolio.transactions}
