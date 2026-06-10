@@ -30,7 +30,7 @@ export default function EditModal({
     const patch = {}
     if (cashMode) patch.cashAmount = Number(cashAmt) || 0
     else patch.nm = nm.trim()
-    patch.tw = tw === '' ? null : Number(tw)
+    patch.tw = tw === '' ? null : Math.max(0, Number(tw))
     onSave(patch)
   }
 

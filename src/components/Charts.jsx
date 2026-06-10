@@ -129,11 +129,13 @@ export default function Charts({ holdings, snaps, totalVal, displayCurrency, toD
       },
       tooltip: {
         callbacks: {
-          label: c => ` ${c.label}: ${fmtCurrency(c.parsed, displayCurrency)} (${totalVal > 0 ? (c.parsed / totalVal * 100).toFixed(1) : 0}%)`,
+          label: c => ` ${c.label}: ${fmtCurrency(c.parsed, displayCurrency)} (${chartTotal > 0 ? (c.parsed / chartTotal * 100).toFixed(1) : 0}%)`,
         },
       },
     },
   }
+
+  const chartTotal = holdings.reduce((s, h) => s + toDisplay(h.q * h.c, h.currency ?? 'USD'), 0)
 
   return (
     <div className="grid">
