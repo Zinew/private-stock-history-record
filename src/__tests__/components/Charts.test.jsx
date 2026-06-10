@@ -43,14 +43,14 @@ describe('Charts', () => {
     renderCharts({ cash: 0 })
     const el = screen.getByTestId('doughnut-chart')
     const labels = JSON.parse(el.dataset.labels)
-    expect(labels).not.toContain('현금')
+    expect(labels).not.toContain(i18n.t('holdings.cash'))
   })
 
   it('cash>0 이면 현금 슬라이스 포함', () => {
     renderCharts({ cash: 500 })
     const el = screen.getByTestId('doughnut-chart')
     const labels = JSON.parse(el.dataset.labels)
-    expect(labels).toContain('현금')
+    expect(labels).toContain(i18n.t('holdings.cash'))
   })
 
   it('현금 슬라이스 색상은 #94a3b8', () => {
