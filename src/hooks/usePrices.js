@@ -7,8 +7,11 @@ const RETRY_DELAYS = [3000, 6000, 12000]  // background retry schedule (ms)
 // 공통 가격 조회 훅.
 //   items:     조회 대상 배열 (형태 무관)
 //   getKey:    item → prices 맵의 키 (신규 항목 감지에도 사용)
-//   fetchItem: item → Promise<price | null> (null = 실패)
+//   fetchItem: item → Promise<price | null> (null = 실패, 절대 reject하지 않아야 함 — 내부에서 catch할 것)
 //   errorKey:  첫 패스 전부 실패 시 사용할 i18n 키
+//   반환: { prices, loading, error, lastUpdatedAt, refresh }
+//   동작: 첫 패스 전부 실패 시에만 error 설정, 부분 성공은 prices에 병합.
+//        자동 재조회는 새 키가 추가될 때만 (항목 제거는 재조회 안 함).
 export function usePrices(items, config) {
   const [prices, setPrices] = useState({})
   const [loading, setLoading] = useState(false)
