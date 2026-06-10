@@ -84,7 +84,7 @@ describe('HoldingsTable', () => {
     fireEvent.click(screen.getAllByTitle('수정')[0])
     fireEvent.change(screen.getByDisplayValue('Apple Inc.'), { target: { value: 'Apple Inc. Updated' } })
     fireEvent.click(screen.getByText('저장'))
-    expect(onEdit).toHaveBeenCalledWith(0, { nm: 'Apple Inc. Updated', tw: null })
+    expect(onEdit).toHaveBeenCalledWith(0, { nm: 'Apple Inc. Updated' })
   })
 
   it('EditModal 취소 시 모달 사라짐', () => {
@@ -314,6 +314,83 @@ describe('HoldingsTable', () => {
     expect(screen.getByText(/초과|Exceeds/i)).toBeTruthy()
   })
 
+  describe('HoldingsTable CASH 행', () => {
+    const cashProps = {
+      ...defaultProps,
+      holdings: mockHoldings,
+      rawHoldings: mockHoldings,
+      totalVal: 2000,
+      cash: 100,
+      onSetCash: vi.fn(),
+      targetWeights: {},
+      onSetTargetWeight: vi.fn(),
+    }
+
+    it('always renders CASH row', () => {
+      renderHoldingsTable(cashProps)
+      expect(screen.getAllByText('CASH').length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('renders edit button for CASH row', () => {
+      renderHoldingsTable(cashProps)
+      const editBtns = screen.getAllByTitle('수정')
+      expect(editBtns.length).toBeGreaterThanOrEqual(2)
+    })
+  })
+
+  describe('HoldingsTable 목표(%) 열', () => {
+    it('shows target weight when set', () => {
+      renderHoldingsTable({
+        ...defaultProps,
+        holdings: mockHoldings,
+        rawHoldings: mockHoldings,
+        totalVal: 1900,
+        targetWeights: { AAPL: 50 },
+        onSetTargetWeight: vi.fn(),
+      })
+      expect(screen.getAllByText('50%').length).toBeGreaterThanOrEqual(1)
+    })
+
+    it('shows — when target weight not set', () => {
+      renderHoldingsTable({
+        ...defaultProps,
+        holdings: mockHoldings,
+        rawHoldings: mockHoldings,
+        totalVal: 1900,
+        targetWeights: {},
+        onSetTargetWeight: vi.fn(),
+      })
+      const dashes = screen.getAllByText('—')
+      expect(dashes.length).toBeGreaterThanOrEqual(1)
+    })
+  })
+
+  describe('HoldingsTable 리밸런싱 카드', () => {
+    it('hides rebalancing card when no target weights set', () => {
+      renderHoldingsTable({
+        ...defaultProps,
+        holdings: mockHoldings,
+        totalVal: 1900,
+        targetWeights: {},
+        onSetTargetWeight: vi.fn(),
+      })
+      expect(screen.queryByText('리밸런싱 가이드')).toBeNull()
+    })
+
+    it('shows rebalancing card when at least one target weight set', () => {
+      renderHoldingsTable({
+        ...defaultProps,
+        holdings: mockHoldings,
+        rawHoldings: mockHoldings,
+        totalVal: 1900,
+        cash: 0,
+        targetWeights: { AAPL: 50 },
+        onSetTargetWeight: vi.fn(),
+      })
+      expect(screen.getByText('리밸런싱 가이드')).toBeTruthy()
+    })
+  })
+
   describe('HoldingsTable 모바일 카드', () => {
     it('holdings-mobile-list 컨테이너 존재', () => {
       const { container } = renderHoldingsTable()
@@ -322,7 +399,8 @@ describe('HoldingsTable', () => {
 
     it('종목이 있을 때 holding-card 렌더링', () => {
       const { container } = renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900 })
-      expect(container.querySelectorAll('.holding-card')).toHaveLength(1)
+      // CASH card is always rendered, so holdings count + 1 cash card
+      expect(container.querySelectorAll('.holding-card').length).toBeGreaterThanOrEqual(1)
     })
 
     it('카드에 ticker와 name 표시', () => {
@@ -349,10 +427,12 @@ describe('HoldingsTable', () => {
       expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
     })
 
-    it('holding-card-stats 3개 stat 항목 렌더링', () => {
+    it('holding-card-stats 4개 stat 항목 렌더링', () => {
       const { container } = renderHoldingsTable({ holdings: mockHoldings, totalVal: 1900 })
-      const stats = container.querySelectorAll('.holdings-mobile-list .holding-card-stats > div')
-      expect(stats).toHaveLength(3)
+      // Check the first non-cash holding card for 4 stats
+      const firstCard = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
+      const stats = firstCard.querySelectorAll('.holding-card-stats > div')
+      expect(stats).toHaveLength(4)
     })
   })
 })

@@ -1178,3 +1178,91 @@ footer {
   .holdings-mobile-list { display: block }
   .tx-mobile-list { display: block }
 }
+
+/* Cash row */
+.cash-row {
+  background: rgba(255, 255, 255, 0.02);
+  border-top: 1px solid var(--line);
+}
+.cash-row td {
+  color: var(--ink-dim);
+}
+
+/* Rebalancing card */
+.rebalancing-card {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+  overflow-x: auto;
+}
+.rebalancing-title {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 12px;
+}
+.rebalancing-table {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+.rebalancing-table th,
+.rebalancing-table td {
+  padding: 6px 10px;
+  text-align: right;
+}
+.rebalancing-table th:first-child,
+.rebalancing-table td:first-child {
+  text-align: left;
+}
+.rebalancing-table thead tr {
+  border-bottom: 1px solid var(--line);
+}
+.rebalancing-table th {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.rebal-action { font-weight: 500; }
+.rebal-action--buy { color: var(--gain); }
+.rebal-action--sell { color: var(--loss); }
+.rebal-action--hold_cash { color: #60a5fa; }
+.rebal-action--use_cash { color: #f59e0b; }
+.rebal-action--hold { color: var(--ink-faint); }
+.rebalancing-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* EditModal target weight row */
+.modal-field-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.modal-field-row input {
+  flex: 1;
+}
+.weight-hint {
+  font-size: 11px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+.weight-exceeds {
+  color: var(--loss);
+}
+
+/* Mobile card: 2x2 for 4 stats */
+@media (max-width: 640px) {
+  .holding-card-stats {
+    grid-template-columns: 1fr 1fr;
+  }
+}
