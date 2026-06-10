@@ -69,4 +69,8 @@ describe('totalTargetWeight', () => {
   it('ignores null values', () => {
     expect(totalTargetWeight({ AAPL: 40, SCHD: null })).toBe(40)
   })
+
+  it('ignores undefined values', () => {
+    expect(totalTargetWeight({ AAPL: 40, SCHD: undefined })).toBe(40)
+  })
 })

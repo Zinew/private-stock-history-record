@@ -9,7 +9,7 @@ export function computeRebalancing(allRows, targetWeights, totalVal) {
   return allRows
     .filter(row => targetWeights[row.t] != null)
     .map(row => {
-      const currentPct = (row.displayVal / totalVal) * 100
+      const currentPct = isFinite(row.displayVal) ? (row.displayVal / totalVal) * 100 : 0
       const targetPct = targetWeights[row.t]
       const diffPct = targetPct - currentPct
       const amount = Math.abs(diffPct / 100 * totalVal)
