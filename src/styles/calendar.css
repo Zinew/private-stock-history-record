@@ -1,0 +1,169 @@
+/* ── CalendarPage ── */
+
+.calendar-heading {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0 0 20px;
+}
+
+.calendar-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.calendar-date-header {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 20px 0 8px;
+}
+
+.calendar-date-header:first-child {
+  margin-top: 0;
+}
+
+.calendar-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  margin-bottom: 6px;
+}
+
+.calendar-badge {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.calendar-badge.earnings {
+  background: rgba(63, 191, 143, 0.15);
+  color: #3fbf8f;
+}
+
+.calendar-badge.dividend {
+  background: rgba(100, 149, 237, 0.15);
+  color: #6495ed;
+}
+
+.calendar-card-info {
+  flex: 1;
+}
+
+.calendar-card-ticker {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.calendar-card-name {
+  font-size: 11px;
+  color: var(--ink-dim);
+  margin-left: 6px;
+}
+
+.calendar-card-detail {
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 3px;
+}
+
+.calendar-empty {
+  font-size: 12px;
+  color: var(--ink-faint);
+  text-align: center;
+  padding: 32px 0;
+}
+
+.calendar-note {
+  font-size: 11px;
+  color: var(--ink-faint);
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--line);
+}
+
+.calendar-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 32px 0 8px;
+}
+
+.calendar-section-label {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.calendar-add-btn {
+  background: transparent;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  border-radius: 5px;
+  padding: 3px 10px;
+  font-size: 11px;
+  cursor: pointer;
+  font-family: 'Spline Sans Mono', monospace;
+  transition: background .15s, color .15s;
+}
+.calendar-add-btn:hover {
+  background: var(--accent);
+  color: #0c0e0d;
+}
+
+.calendar-card-delete {
+  background: none;
+  border: none;
+  color: var(--ink-faint);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0 2px;
+  line-height: 1;
+  border-radius: 3px;
+  transition: color .15s;
+  flex-shrink: 0;
+  align-self: center;
+}
+.calendar-card-delete:hover { color: #e8654f; }
+
+.type-toggle {
+  display: flex;
+  gap: 6px;
+}
+.type-btn {
+  flex: 1;
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  color: var(--ink-dim);
+  border-radius: 6px;
+  padding: 7px 0;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.type-btn.active.earnings {
+  background: rgba(63, 191, 143, 0.15);
+  border-color: #3fbf8f;
+  color: #3fbf8f;
+}
+.type-btn.active.dividend {
+  background: rgba(100, 149, 237, 0.15);
+  border-color: #6495ed;
+  color: #6495ed;
+}
+

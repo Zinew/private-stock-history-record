@@ -1,0 +1,89 @@
+/* Rebalancing card */
+.rebalancing-card {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 16px;
+  margin-top: 12px;
+  overflow-x: auto;
+}
+.rebalancing-title {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin: 0 0 12px;
+}
+.rebalancing-table {
+  width: 100%;
+  font-size: 13px;
+  border-collapse: collapse;
+}
+.rebalancing-table th,
+.rebalancing-table td {
+  padding: 6px 10px;
+  text-align: right;
+}
+.rebalancing-table th:first-child,
+.rebalancing-table td:first-child {
+  text-align: left;
+}
+.rebalancing-table thead tr {
+  border-bottom: 1px solid var(--line);
+}
+.rebalancing-table th {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  font-weight: 400;
+}
+.rebal-action { font-weight: 500; }
+.rebal-action--buy { color: var(--gain); }
+.rebal-action--sell { color: var(--loss); }
+.rebal-action--hold_cash { color: #60a5fa; }
+.rebal-action--use_cash { color: #f59e0b; }
+.rebal-action--hold { color: var(--ink-faint); }
+.rebalancing-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+  color: var(--ink-faint);
+}
+
+/* 리밸런싱 모바일 카드 */
+.rebal-item-card {
+  background: var(--panel-2);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+}
+.rebal-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+.rebal-item-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.rebal-item-body {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: var(--ink-dim);
+}
+.rebal-item-pct {
+  font-family: 'Spline Sans Mono', monospace;
+}
+.rebal-item-amount {
+  margin-left: auto;
+  color: var(--ink);
+  font-family: 'Spline Sans Mono', monospace;
+}
+

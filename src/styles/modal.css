@@ -1,0 +1,114 @@
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, .55);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px;
+  min-width: 280px;
+  width: 90%;
+  max-width: 360px;
+}
+.modal-field {
+  margin-bottom: 14px;
+}
+.modal-field label {
+  display: block;
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  margin-bottom: 4px;
+}
+.modal-field input, .modal-field select {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(39, 48, 44, 0.4);
+  border: 1px solid rgba(127, 209, 174, 0.15);
+  border-radius: 10px;
+  color: var(--ink);
+  padding: 9px 11px;
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 13px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.modal-field input:focus, .modal-field select:focus {
+  outline: none;
+  border-color: rgba(127, 209, 174, 0.5);
+  box-shadow: 0 0 0 3px rgba(127, 209, 174, 0.1), inset 0 1px 0 rgba(255,255,255,0.03);
+}
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+/* stock search dropdown (USD + KRW 공용) */
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  z-index: 50;
+  max-height: 200px;
+  overflow-y: auto;
+  margin-top: 2px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.3);
+}
+.search-dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.search-dropdown-item:hover { background: rgba(127,209,174,.08) }
+.search-item-name { font-size: 13px; color: var(--ink); }
+.search-item-meta {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+
+
+.modal-title {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 13px;
+  letter-spacing: 1px;
+  margin-bottom: 20px;
+}
+
+
+/* EditModal target weight row */
+.modal-field-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.modal-field-row input {
+  flex: 1;
+}
+.weight-hint {
+  font-size: 11px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+.weight-exceeds {
+  color: var(--loss);
+}
+

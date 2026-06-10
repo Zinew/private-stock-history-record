@@ -1,0 +1,84 @@
+.chart-box { position: relative; height: 240px; width: 100% }
+
+
+.snapbar { display: flex; align-items: center; gap: 14px; flex-wrap: wrap }
+.snapbar .note {
+  font-size: 12px;
+  color: var(--ink-faint);
+  max-width: 380px;
+  line-height: 1.5;
+}
+
+
+/* Snapshot delete popup */
+.snap-popup {
+  position: absolute;
+  transform: translate(-50%, calc(-100% - 12px));
+  background: #1a211d;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 6px;
+  padding: 8px 10px;
+  z-index: 10;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+.snap-popup-info {
+  font-size: 11px;
+  color: #8a958e;
+  margin-bottom: 6px;
+  font-family: 'Spline Sans Mono', monospace;
+}
+.snap-popup-actions {
+  display: flex;
+  gap: 6px;
+}
+.snap-popup-actions button {
+  padding: 3px 10px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,.15);
+  background: transparent;
+  color: #c8d4cc;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+}
+.snap-popup-delete {
+  background: rgba(232,101,79,.15) !important;
+  border-color: #e8654f !important;
+  color: #e8654f !important;
+}
+
+/* Snapshot undo toast */
+.snap-undo-toast {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1a211d;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 6px;
+  padding: 7px 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  color: #8a958e;
+  z-index: 10;
+  white-space: nowrap;
+  pointer-events: auto;
+}
+.snap-undo-toast button {
+  padding: 2px 8px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,.2);
+  background: transparent;
+  color: #c8d4cc;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+}
+
+
+/* BackupBar */
+.backup-bar { display: flex; gap: 8px; align-items: center; margin-bottom: 0; }
+
