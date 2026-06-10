@@ -1072,9 +1072,21 @@ footer {
 
 .holding-card-header {
   display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+}
+
+.holding-card-name-row {
+  display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+}
+
+.holding-card-val-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .holding-card-name {

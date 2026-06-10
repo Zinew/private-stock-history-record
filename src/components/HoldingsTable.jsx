@@ -169,15 +169,11 @@ export default function HoldingsTable({
           return (
             <div className="holding-card" key={i}>
               <div className="holding-card-header">
-                <div className="holding-card-name-wrap">
+                <div className="holding-card-name-row">
                   <div className="holding-card-name">
                     <span className="card-name-text">{h.nm || h.t}</span>
                     <span className="market-badge">{market}</span>
                   </div>
-                </div>
-                <div className="holding-card-summary-right">
-                  <div className="holding-card-val">{fmtCurrency(val, displayCurrency)}</div>
-                  <div className={`holding-card-rate ${r >= 0 ? 'pos' : 'neg'}`}>{pctArrow(r)}</div>
                   <button
                     className="mobile-card-toggle"
                     onClick={() => toggleCard(h.t)}
@@ -185,6 +181,10 @@ export default function HoldingsTable({
                   >
                     {expandedCards[h.t] ? '∧' : '∨'}
                   </button>
+                </div>
+                <div className="holding-card-val-row">
+                  <div className="holding-card-val">{fmtCurrency(val, displayCurrency)}</div>
+                  <div className={`holding-card-rate ${r >= 0 ? 'pos' : 'neg'}`}>{pctArrow(r)}</div>
                 </div>
               </div>
               {expandedCards[h.t] && (
