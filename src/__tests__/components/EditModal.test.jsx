@@ -25,7 +25,7 @@ describe('EditModal', () => {
     const input = screen.getByRole('textbox')
     fireEvent.change(input, { target: { value: 'Apple Inc Updated' } })
     fireEvent.click(screen.getByText('저장'))
-    expect(onSave).toHaveBeenCalledWith({ nm: 'Apple Inc Updated' })
+    expect(onSave).toHaveBeenCalledWith({ nm: 'Apple Inc Updated', tw: null })
   })
 
   it('trims whitespace from name before saving', () => {
@@ -33,7 +33,7 @@ describe('EditModal', () => {
     renderModal({ onSave })
     fireEvent.change(screen.getByRole('textbox'), { target: { value: '  Apple  ' } })
     fireEvent.click(screen.getByText('저장'))
-    expect(onSave).toHaveBeenCalledWith({ nm: 'Apple' })
+    expect(onSave).toHaveBeenCalledWith({ nm: 'Apple', tw: null })
   })
 
   it('calls onClose when cancel clicked', () => {
@@ -55,5 +55,61 @@ describe('EditModal', () => {
     renderModal({ onClose })
     fireEvent.keyDown(document, { key: 'Escape' })
     expect(onClose).toHaveBeenCalled()
+  })
+})
+
+describe('EditModal 목표 비중 필드', () => {
+  it('renders target weight input', () => {
+    renderModal({ targetWeight: 30, otherWeightsTotal: 60 })
+    const inputs = screen.getAllByRole('spinbutton')
+    expect(inputs.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('shows remaining weight hint when total <= 100', () => {
+    renderModal({ targetWeight: 30, otherWeightsTotal: 50 })
+    expect(screen.getByText(/남음/)).toBeTruthy()
+  })
+
+  it('shows exceeds warning when total > 100', () => {
+    renderModal({ targetWeight: 80, otherWeightsTotal: 60 })
+    expect(screen.getByText(/초과/)).toBeTruthy()
+  })
+
+  it('saves tw value with onSave', () => {
+    const onSave = vi.fn()
+    renderModal({ onSave, targetWeight: '', otherWeightsTotal: 0 })
+    const inputs = screen.getAllByRole('spinbutton')
+    fireEvent.change(inputs[0], { target: { value: '40' } })
+    fireEvent.click(screen.getByText('저장'))
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ tw: 40 }))
+  })
+})
+
+describe('EditModal 현금 모드', () => {
+  function renderCashModal(overrides = {}) {
+    const props = {
+      holding: { t: 'CASH', nm: '현금' },
+      onSave: vi.fn(),
+      onClose: vi.fn(),
+      cashMode: true,
+      cashAmount: 500000,
+      targetWeight: 20,
+      otherWeightsTotal: 70,
+      ...overrides,
+    }
+    return { ...render(<I18nextProvider i18n={i18n}><EditModal {...props} /></I18nextProvider>), ...props }
+  }
+
+  it('renders cash balance input in cash mode', () => {
+    renderCashModal()
+    const inputs = screen.getAllByRole('spinbutton')
+    expect(inputs.some(i => i.value === '500000')).toBeTruthy()
+  })
+
+  it('calls onSave with cashAmount and tw in cash mode', () => {
+    const onSave = vi.fn()
+    renderCashModal({ onSave })
+    fireEvent.click(screen.getByText('저장'))
+    expect(onSave).toHaveBeenCalledWith({ cashAmount: 500000, tw: 20 })
   })
 })

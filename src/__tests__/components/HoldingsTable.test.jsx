@@ -84,7 +84,7 @@ describe('HoldingsTable', () => {
     fireEvent.click(screen.getAllByTitle('수정')[0])
     fireEvent.change(screen.getByDisplayValue('Apple Inc.'), { target: { value: 'Apple Inc. Updated' } })
     fireEvent.click(screen.getByText('저장'))
-    expect(onEdit).toHaveBeenCalledWith(0, { nm: 'Apple Inc. Updated' })
+    expect(onEdit).toHaveBeenCalledWith(0, { nm: 'Apple Inc. Updated', tw: null })
   })
 
   it('EditModal 취소 시 모달 사라짐', () => {
