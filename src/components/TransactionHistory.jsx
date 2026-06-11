@@ -66,22 +66,18 @@ export default function TransactionHistory({ transactions, onDelete, onEdit }) {
           <p className="empty">{t('tx.empty')}</p>
         ) : sorted.map(tx => (
           <div className="tx-card" key={tx.id}>
-            <div className="tx-card-header">
+            <span className={`tx-card-badge ${tx.type}`}>{t(`tx.${tx.type}`)}</span>
+            <div className="tx-card-info">
               <div>
-                <span className={`tx-card-badge ${tx.type}`}>{t(`tx.${tx.type}`)}</span>
-                <div className="tx-card-name">
-                  <span className="tx-card-ticker">{tx.ticker}</span>
-                  {tx.name && tx.name !== tx.ticker && <small>{tx.name}</small>}
-                </div>
-                <div className="tx-card-sub">
-                  {tx.date ?? t('tx.unknownDate')} · {tx.qty.toLocaleString()} {t('tx.qty')} · {fmtCurrency(tx.price, tx.currency)}
-                </div>
+                <span className="tx-card-ticker">{tx.ticker}</span>
+                {tx.name && tx.name !== tx.ticker && <span className="tx-card-name">{tx.name}</span>}
               </div>
-              <div>
-                <div className="tx-card-amount">{fmtCurrency(tx.qty * tx.price, tx.currency)}</div>
+              <div className="tx-card-detail">
+                {tx.date ?? t('tx.unknownDate')} · {tx.qty.toLocaleString()} {t('tx.qty')} · {fmtCurrency(tx.price, tx.currency)}
               </div>
             </div>
-            <div className="tx-card-actions">
+            <div className="tx-card-right">
+              <div className="tx-card-amount">{fmtCurrency(tx.qty * tx.price, tx.currency)}</div>
               <button className="edit" onClick={() => setEditingTx(tx)} title={t('tx.edit')}>✎</button>
             </div>
           </div>
