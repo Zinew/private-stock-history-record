@@ -46,8 +46,15 @@ export default function HoldingsMobileList({
             </div>
             {expandedCards[h.t] && (
               <>
-                <div className="holding-card-sub">{h.t} · {h.q.toLocaleString()} {t('holdings.qty')}</div>
                 <div className="holding-card-stats">
+                  <div>
+                    <div className="holding-card-stat-label">{t('addHolding.ticker')}</div>
+                    <div className="holding-card-stat-val">{h.t}</div>
+                  </div>
+                  <div>
+                    <div className="holding-card-stat-label">{t('holdings.qty')}</div>
+                    <div className="holding-card-stat-val">{h.q.toLocaleString()}</div>
+                  </div>
                   <div>
                     <div className="holding-card-stat-label">{t('holdings.currentPrice')}</div>
                     <div className="holding-card-stat-val">{fmtCurrency(h.c, hCur)}</div>
@@ -77,31 +84,43 @@ export default function HoldingsMobileList({
       })}
       <div className="holding-card cash-card">
         <div className="holding-card-header">
-          <div>
-            <div className="holding-card-name">{t('holdings.cash')}</div>
-            <div className="holding-card-sub">CASH</div>
+          <div className="holding-card-name-row">
+            <div className="holding-card-name">
+              <span className="card-name-text">{t('holdings.cash')}</span>
+            </div>
+            <button
+              className={`mobile-card-toggle${expandedCards.__cash__ ? ' expanded' : ''}`}
+              onClick={() => toggleCard('__cash__')}
+              title={expandedCards.__cash__ ? t('common.collapse') : t('common.expand')}
+            >
+              <span className="chevron" />
+            </button>
           </div>
-          <div>
+          <div className="holding-card-val-row">
             <div className="holding-card-val">{fmtCurrency(Number(cash) || 0, displayCurrency)}</div>
           </div>
         </div>
-        <div className="holding-card-stats">
-          <div>
-            <div className="holding-card-stat-label">{t('holdings.weight')}</div>
-            <div className="holding-card-stat-val">
-              {totalVal > 0 ? ((Number(cash) || 0) / totalVal * 100).toFixed(1) : '0.0'}%
+        {expandedCards.__cash__ && (
+          <>
+            <div className="holding-card-stats">
+              <div>
+                <div className="holding-card-stat-label">{t('holdings.weight')}</div>
+                <div className="holding-card-stat-val">
+                  {totalVal > 0 ? ((Number(cash) || 0) / totalVal * 100).toFixed(1) : '0.0'}%
+                </div>
+              </div>
+              <div>
+                <div className="holding-card-stat-label">{t('holdings.targetWeight')}</div>
+                <div className="holding-card-stat-val">
+                  {targetWeights['cash'] != null ? `${targetWeights['cash']}%` : '—'}
+                </div>
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="holding-card-stat-label">{t('holdings.targetWeight')}</div>
-            <div className="holding-card-stat-val">
-              {targetWeights['cash'] != null ? `${targetWeights['cash']}%` : '—'}
+            <div className="holding-card-actions">
+              <button className="edit" onClick={onCashEdit} title={t('holdings.edit')}>✎</button>
             </div>
-          </div>
-        </div>
-        <div className="holding-card-actions">
-          <button className="edit" onClick={onCashEdit} title={t('holdings.edit')}>✎</button>
-        </div>
+          </>
+        )}
       </div>
     </div>
   )

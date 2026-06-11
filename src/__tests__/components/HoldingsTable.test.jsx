@@ -385,7 +385,7 @@ describe('HoldingsTable', () => {
 
     it('카드에 ticker 표시 (expanded)', () => {
       const { container } = renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900 })
-      fireEvent.click(screen.getByTitle('펼치기'))
+      fireEvent.click(screen.getAllByTitle('펼치기')[0])
       const card = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
       expect(card).toHaveTextContent('AAPL')
     })
@@ -396,14 +396,14 @@ describe('HoldingsTable', () => {
       expect(rate).toHaveClass('pos')
     })
 
-    it('holding-card-stats 4개 stat 항목 렌더링', () => {
+    it('holding-card-stats 6개 stat 항목 렌더링', () => {
       const { container } = renderHoldingsTable({ holdings: mockHoldings, rawHoldings: mockHoldings, totalVal: 1900 })
       // Expand the card first (collapsed by default)
-      fireEvent.click(screen.getByTitle('펼치기'))
-      // Check the first non-cash holding card for 4 stats
+      fireEvent.click(screen.getAllByTitle('펼치기')[0])
+      // Check the first non-cash holding card for 6 stats (ticker+qty+현재가+매수가+비중+목표)
       const firstCard = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
       const stats = firstCard.querySelectorAll('.holding-card-stats > div')
-      expect(stats).toHaveLength(4)
+      expect(stats).toHaveLength(6)
     })
 
     it('카드 ✎ 버튼 클릭 시 EditModal 표시', () => {
@@ -413,7 +413,7 @@ describe('HoldingsTable', () => {
         totalVal: 1900,
       })
       // Expand the card first (collapsed by default)
-      fireEvent.click(screen.getByTitle('펼치기'))
+      fireEvent.click(screen.getAllByTitle('펼치기')[0])
       const editBtn = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card) .edit')
       fireEvent.click(editBtn)
       expect(screen.getByText('AAPL 수정')).toBeInTheDocument()
@@ -433,7 +433,7 @@ describe('HoldingsTable', () => {
 
     it('∨ 버튼 클릭 시 stats 렌더링', () => {
       const { container } = renderHoldingsTable({ holdings: mobileHoldings, rawHoldings: mobileHoldings, totalVal: 1900 })
-      const toggleBtn = screen.getByTitle('펼치기')
+      const toggleBtn = screen.getAllByTitle('펼치기')[0]
       fireEvent.click(toggleBtn)
       const nonCashCard = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
       expect(nonCashCard.querySelector('.holding-card-stats')).toBeInTheDocument()
@@ -441,10 +441,10 @@ describe('HoldingsTable', () => {
 
     it('∧ 버튼 클릭 시 stats 다시 숨김', () => {
       const { container } = renderHoldingsTable({ holdings: mobileHoldings, rawHoldings: mobileHoldings, totalVal: 1900 })
-      fireEvent.click(screen.getByTitle('펼치기'))
+      fireEvent.click(screen.getAllByTitle('펼치기')[0])
       const nonCashCard = container.querySelector('.holdings-mobile-list .holding-card:not(.cash-card)')
       expect(nonCashCard.querySelector('.holding-card-stats')).toBeInTheDocument()
-      fireEvent.click(screen.getByTitle('접기'))
+      fireEvent.click(screen.getAllByTitle('접기')[0])
       expect(nonCashCard.querySelector('.holding-card-stats')).toBeNull()
     })
   })

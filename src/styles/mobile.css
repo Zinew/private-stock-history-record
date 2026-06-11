@@ -206,6 +206,7 @@
   .addbar .field { flex: 1 1 100%; width: 100% }
   .addbar .field input, .addbar .field select { width: 100% }
   .addbar .btn { width: 100% }
+  .addbar .currency-btn { flex: 1 }
 }
 
 
