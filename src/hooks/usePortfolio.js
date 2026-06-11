@@ -1,72 +1,26 @@
-import { useMemo, useEffect, useRef, useCallback } from 'react'
+import { useMemo, useEffect, useRef } from 'react'
 import { useLocalStorage } from './useLocalStorage.js'
-import { useExchangeRate } from './useExchangeRate.js'
-import { useStockPrices } from './useStockPrices.js'
-import { useKrxPrices } from './useKrxPrices.js'
-import { migrateHoldingsToTransactions, deriveHoldings, deriveRealizedGains } from '../utils/transactions.js'
+import { useTransactions } from './useTransactions.js'
+import { useDisplayCurrency } from './useDisplayCurrency.js'
+import { useLivePrices } from './useLivePrices.js'
+import { useSnapshots } from './useSnapshots.js'
 
-function runMigrationIfNeeded() {
-  if (localStorage.getItem('ledger_migration_v1')) return
-  localStorage.setItem('ledger_migration_v1', '1')
-  const rawHoldings = localStorage.getItem('ledger_holdings')
-  if (!rawHoldings) return
-  try {
-    const holdings = JSON.parse(rawHoldings)
-    if (!holdings.length) return
-    const migrated = migrateHoldingsToTransactions(holdings)
-    localStorage.setItem('ledger_transactions', JSON.stringify(migrated))
-    localStorage.removeItem('ledger_holdings')
-  } catch {
-    localStorage.removeItem('ledger_holdings')
-  }
-}
-
-runMigrationIfNeeded()
-
+// 포트폴리오 파사드 — 하위 훅 4개를 조합하고, 교차 의존인 평가액 계산과
+// 자동 스냅샷 트리거(가격 로딩 완료 시점 + 거래 직후)를 소유한다
 export function usePortfolio() {
-  const [transactions, setTransactions] = useLocalStorage('ledger_transactions', [])
-  const [snaps, setSnaps] = useLocalStorage('ledger_snaps', [])
-  const [displayCurrencyRaw, setDisplayCurrency] = useLocalStorage('ledger_display_currency', 'USD')
-  const [exchangeRate, setExchangeRate] = useLocalStorage('ledger_exchange_rate', { rate: null, updatedAt: null })
+  const tx = useTransactions()
+  const { displayCurrency, exchangeRate, toDisplay, toggleCurrency } = useDisplayCurrency()
+  const live = useLivePrices(tx.holdings)
+  const snap = useSnapshots()
+
   const [cash, setCash] = useLocalStorage('ledger_cash', 0)
   const [targetWeights, setTargetWeightsRaw] = useLocalStorage('ledger_target_weights', {})
 
-  useExchangeRate(setExchangeRate)
+  const { holdings, realizedGains } = tx
+  const { effectiveHoldings, priceLoading } = live
 
-  const holdings = useMemo(() => deriveHoldings(transactions), [transactions])
-  const realizedGains = useMemo(() => deriveRealizedGains(transactions), [transactions])
-
-  const usdTickers = useMemo(
-    () => holdings.filter(h => h.currency === 'USD').map(h => h.t),
-    [holdings]
-  )
-  const { prices: usdPrices, loading: usdLoading, error: usdError, lastUpdatedAt, refresh: refreshUsd } = useStockPrices(usdTickers)
-
-  const krwHoldings = useMemo(
-    () => holdings.filter(h => h.currency === 'KRW' && h.exchange).map(h => ({ t: h.t, exchange: h.exchange })),
-    [holdings]
-  )
-  const { prices: krwPrices, loading: krwLoading, error: krwError, refresh: refreshKrw } = useKrxPrices(krwHoldings)
-
-  const prices = useMemo(() => ({ ...usdPrices, ...krwPrices }), [usdPrices, krwPrices])
-  const priceLoading = usdLoading || krwLoading
   const prevPriceLoading = useRef(false)
   const snapAfterTx = useRef(false)
-  const priceError = usdError || krwError || null
-
-  const displayCurrency = exchangeRate.rate ? displayCurrencyRaw : 'USD'
-
-  const effectiveHoldings = useMemo(
-    () => holdings.map(h => ({ ...h, c: prices[h.t] ?? h.b ?? 0 })),
-    [holdings, prices]
-  )
-
-  function toDisplay(amount, fromCurrency) {
-    if (!exchangeRate.rate || fromCurrency === displayCurrency) return amount
-    return displayCurrency === 'KRW'
-      ? amount * exchangeRate.rate
-      : amount / exchangeRate.rate
-  }
 
   const holdingsVal = effectiveHoldings.reduce((s, h) => s + toDisplay(h.q * h.c, h.currency ?? 'USD'), 0)
   const totalVal = holdingsVal + (Number(cash) || 0)
@@ -90,100 +44,33 @@ export function usePortfolio() {
     })
   }
 
-  function addTransaction({ type, ticker, name, currency, exchange, date, qty, price }) {
-    const tx = {
-      id: crypto.randomUUID(),
-      type,
-      ticker: ticker.toUpperCase(),
-      name,
-      currency,
-      date: date || null,
-      qty,
-      price,
-    }
-    if (exchange) tx.exchange = exchange
-    setTransactions([...transactions, tx])
+  // 거래 추가를 래핑해 스냅샷 트리거 신호를 세팅 (useTransactions는 스냅샷을 모름)
+  function addTransaction(args) {
+    tx.addTransaction(args)
     snapAfterTx.current = true
   }
 
-  function deleteTransaction(id) {
-    setTransactions(transactions.filter(tx => tx.id !== id))
-  }
-
-  function editTransaction(id, patch) {
-    setTransactions(transactions.map(tx =>
-      tx.id === id ? { ...tx, ...patch } : tx
-    ))
-  }
-
-  function delHolding(i) {
-    const ticker = holdings[i].t
-    setTransactions(transactions.filter(tx => tx.ticker !== ticker))
-  }
-
-  function editHolding(i, patch) {
-    if (!patch.nm) return
-    const ticker = holdings[i].t
-    setTransactions(transactions.map(tx =>
-      tx.ticker === ticker ? { ...tx, name: patch.nm } : tx
-    ))
-  }
-
-  const upsertTodaySnap = useCallback((total, currency) => {
-    if (holdings.length === 0 || !(total > 0)) return
-    const today = new Date().toISOString().slice(0, 10)
-    const d = new Date()
-    const label = `${d.getMonth() + 1}/${d.getDate()}`
-    setSnaps(prev => {
-      const idx = prev.findIndex(s => s.date === today)
-      if (idx >= 0) {
-        const next = [...prev]
-        next[idx] = { ...next[idx], total, currency }
-        return next
-      }
-      const next = [...prev, { label, total, currency, date: today }]
-      return next.length > 60 ? next.slice(-60) : next
-    })
-  }, [holdings.length])
-
+  // 자동 스냅샷 1: 가격 로딩이 끝나는 순간 기록
   useEffect(() => {
     if (prevPriceLoading.current && !priceLoading && holdings.length > 0 && totalVal > 0) {
-      upsertTodaySnap(totalVal, displayCurrency)
+      snap.upsertTodaySnap(totalVal, displayCurrency)
     }
     prevPriceLoading.current = priceLoading
-  }, [priceLoading, totalVal, holdings.length, displayCurrency, upsertTodaySnap])
+  }, [priceLoading, totalVal, holdings.length, displayCurrency, snap.upsertTodaySnap])
 
+  // 자동 스냅샷 2: 거래 직후 기록
   useEffect(() => {
     if (snapAfterTx.current && holdings.length > 0 && totalVal > 0) {
-      upsertTodaySnap(totalVal, displayCurrency)
+      snap.upsertTodaySnap(totalVal, displayCurrency)
       snapAfterTx.current = false
     }
-  }, [totalVal, holdings.length, displayCurrency, upsertTodaySnap])
-
-  function toggleCurrency() {
-    if (!exchangeRate.rate) return
-    setDisplayCurrency(prev => prev === 'USD' ? 'KRW' : 'USD')
-  }
-
-  function clearSnaps() {
-    if (window.confirm('추이 기록을 모두 지울까요?')) setSnaps([])
-  }
-
-  function deleteSnap(index) {
-    setSnaps(snaps.filter((_, i) => i !== index))
-  }
-
-  function restoreSnap(snap, index) {
-    const next = [...snaps]
-    next.splice(index, 0, snap)
-    setSnaps(next)
-  }
+  }, [totalVal, holdings.length, displayCurrency, snap.upsertTodaySnap])
 
   return {
-    transactions,
+    transactions: tx.transactions,
     holdings,
     effectiveHoldings,
-    snaps,
+    snaps: snap.snaps,
     displayCurrency,
     exchangeRate,
     cash,
@@ -197,19 +84,19 @@ export function usePortfolio() {
     realizedGains,
     totalRealizedGain,
     toDisplay,
-    prices,
+    prices: live.prices,
     priceLoading,
-    priceError,
-    lastUpdatedAt,
-    onRefresh: () => { refreshUsd(); refreshKrw() },
+    priceError: live.priceError,
+    lastUpdatedAt: live.lastUpdatedAt,
+    onRefresh: live.refresh,
     addTransaction,
-    deleteTransaction,
-    editTransaction,
-    delHolding,
-    editHolding,
+    deleteTransaction: tx.deleteTransaction,
+    editTransaction: tx.editTransaction,
+    delHolding: tx.delHolding,
+    editHolding: tx.editHolding,
     toggleCurrency,
-    clearSnaps,
-    deleteSnap,
-    restoreSnap,
+    clearSnaps: snap.clearSnaps,
+    deleteSnap: snap.deleteSnap,
+    restoreSnap: snap.restoreSnap,
   }
 }
