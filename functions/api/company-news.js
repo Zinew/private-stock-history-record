@@ -23,15 +23,17 @@ export async function onRequestGet(context) {
     )
     if (!res.ok) return new Response('[]', { headers })
     const data = await res.json()
-    const result = Array.isArray(data)
-      ? data.slice(0, 10).map(item => ({
-          title: item.headline,
-          summary: item.summary || null,
-          source: item.source,
-          url: item.url,
-          publishedAtUnix: item.datetime,
-        }))
+    // SeekingAlpha 기사는 로그인 장벽이 있어 제외
+    const filtered = Array.isArray(data)
+      ? data.filter(item => !/seeking ?alpha/i.test(item.source || ''))
       : []
+    const result = filtered.slice(0, 10).map(item => ({
+      title: item.headline,
+      summary: item.summary || null,
+      source: item.source,
+      url: item.url,
+      publishedAtUnix: item.datetime,
+    }))
 
     await kv.put(cacheKey, JSON.stringify(result), { expirationTtl: CACHE_TTL })
     return new Response(JSON.stringify(result), { headers })
