@@ -5,6 +5,22 @@ import { useDisplayCurrency } from './useDisplayCurrency.js'
 import { useLivePrices } from './useLivePrices.js'
 import { useSnapshots } from './useSnapshots.js'
 
+// 구형식 현금(숫자) → { amount, currency } 마이그레이션.
+// 형태 가드 방식 — 멱등이며, 구형식 백업 import 후 새로고침 시에도 자동 변환
+function migrateCashIfNeeded() {
+  const raw = localStorage.getItem('ledger_cash')
+  if (raw == null) return
+  try {
+    const parsed = JSON.parse(raw)
+    if (typeof parsed !== 'number') return
+    let currency = 'USD'
+    try { currency = JSON.parse(localStorage.getItem('ledger_display_currency')) || 'USD' } catch { /* 기본 USD */ }
+    localStorage.setItem('ledger_cash', JSON.stringify({ amount: parsed, currency }))
+  } catch { /* 손상값 무시 */ }
+}
+
+migrateCashIfNeeded()
+
 // 포트폴리오 파사드 — 하위 훅 4개를 조합하고, 교차 의존인 평가액 계산과
 // 자동 스냅샷 트리거(가격 로딩 완료 시점 + 거래 직후)를 소유한다
 export function usePortfolio() {
@@ -13,7 +29,7 @@ export function usePortfolio() {
   const live = useLivePrices(tx.holdings)
   const snap = useSnapshots()
 
-  const [cash, setCash] = useLocalStorage('ledger_cash', 0)
+  const [cash, setCash] = useLocalStorage('ledger_cash', { amount: 0, currency: 'USD' })
   const [targetWeights, setTargetWeightsRaw] = useLocalStorage('ledger_target_weights', {})
 
   const { holdings, realizedGains } = tx
@@ -23,7 +39,14 @@ export function usePortfolio() {
   const snapAfterTx = useRef(false)
 
   const holdingsVal = effectiveHoldings.reduce((s, h) => s + toDisplay(h.q * h.c, h.currency ?? 'USD'), 0)
-  const totalVal = holdingsVal + (Number(cash) || 0)
+
+  // 읽기 시점 인라인 가드 — 마이그레이션 전 시드·구형식 백업에도 안전
+  const cashRaw = typeof cash === 'number'
+    ? { amount: cash, currency: displayCurrency }
+    : { amount: Number(cash?.amount) || 0, currency: cash?.currency || 'USD' }
+  const cashDisplay = toDisplay(cashRaw.amount, cashRaw.currency)
+
+  const totalVal = holdingsVal + cashDisplay
   const totalCost = effectiveHoldings.reduce((s, h) => s + toDisplay(h.q * h.b, h.currency ?? 'USD'), 0)
   const pl = holdingsVal - totalCost
   const ret = totalCost > 0 ? (pl / totalCost) * 100 : 0
@@ -73,7 +96,8 @@ export function usePortfolio() {
     snaps: snap.snaps,
     displayCurrency,
     exchangeRate,
-    cash,
+    cash: cashDisplay,
+    cashRaw,
     setCash,
     targetWeights,
     setTargetWeight,
