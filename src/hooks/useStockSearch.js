@@ -28,7 +28,7 @@ export function useStockSearch() {
       if (gen !== genRef.current) return
       const all = [
         ...krwResults.map(r => ({ ...r, market: r.exchange === 'KS' ? 'KOSPI' : 'KOSDAQ' })),
-        ...usdResults.map(r => ({ ...r, market: 'US' })),
+        ...usdResults.map(r => ({ ...r, market: r.exchDisp || 'US' })),
       ].slice(0, MAX_RESULTS)
       setResults(all)
       setOpen(all.length > 0)

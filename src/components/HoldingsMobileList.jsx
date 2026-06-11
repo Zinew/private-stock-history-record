@@ -22,7 +22,7 @@ export default function HoldingsMobileList({
         <HoldingsEmptyState onAddFirst={onAddFirst} />
       ) : holdings.map((h, i) => {
         const { hCur, val, r, w } = computeHoldingView(h, { toDisplay, totalVal })
-        const market = h.exchange === 'KS' ? 'KOSPI' : h.exchange === 'KQ' ? 'KOSDAQ' : 'US'
+        const market = h.exchange === 'KS' ? 'KOSPI' : h.exchange === 'KQ' ? 'KOSDAQ' : (h.exchDisp || 'US')
         return (
           <div className="holding-card" key={i}>
             <div className="holding-card-header">

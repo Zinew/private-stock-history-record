@@ -29,7 +29,7 @@ export function useTransactions() {
   const holdings = useMemo(() => deriveHoldings(transactions), [transactions])
   const realizedGains = useMemo(() => deriveRealizedGains(transactions), [transactions])
 
-  function addTransaction({ type, ticker, name, currency, exchange, date, qty, price }) {
+  function addTransaction({ type, ticker, name, currency, exchange, exchDisp, date, qty, price }) {
     const tx = {
       id: crypto.randomUUID(),
       type,
@@ -41,6 +41,7 @@ export function useTransactions() {
       price,
     }
     if (exchange) tx.exchange = exchange
+    if (exchDisp) tx.exchDisp = exchDisp
     setTransactions([...transactions, tx])
   }
 

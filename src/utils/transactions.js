@@ -29,7 +29,7 @@ export function deriveHoldings(transactions) {
   const sorted = sortByDate(transactions)
   for (const tx of sorted) {
     if (!map[tx.ticker]) {
-      map[tx.ticker] = { ticker: tx.ticker, name: tx.name, currency: tx.currency, exchange: tx.exchange ?? null, qty: 0, totalCost: 0 }
+      map[tx.ticker] = { ticker: tx.ticker, name: tx.name, currency: tx.currency, exchange: tx.exchange ?? null, exchDisp: tx.exchDisp ?? null, qty: 0, totalCost: 0 }
     }
     if (tx.type === 'buy') {
       map[tx.ticker].qty += tx.qty
@@ -49,6 +49,7 @@ export function deriveHoldings(transactions) {
       b: h.totalCost / h.qty,
       currency: h.currency,
       ...(h.exchange ? { exchange: h.exchange } : {}),
+      ...(h.exchDisp ? { exchDisp: h.exchDisp } : {}),
     }))
 }
 

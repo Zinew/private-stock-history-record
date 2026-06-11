@@ -25,6 +25,7 @@ export async function onRequestGet(context) {
         symbol: item.symbol,
         name: item.shortname ?? item.longname ?? item.symbol,
         ticker: item.symbol,
+        exchDisp: item.exchDisp ?? null,
       }))
     return new Response(JSON.stringify(quotes), {
       headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' },

@@ -12,7 +12,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
   const [type, setType] = useState('buy')
   const [date, setDate] = useState(today)
 
-  const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
+  const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '', exchDisp: '' })
   const [priceLoading, setPriceLoading] = useState(false)
   const search = useStockSearch()
 
@@ -22,7 +22,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
   const [sellError, setSellError] = useState('')
 
   function handleNameChange(val) {
-    setForm(f => ({ ...f, name: val, ticker: '', exchange: '', cur: '', currency: 'USD' }))
+    setForm(f => ({ ...f, name: val, ticker: '', exchange: '', exchDisp: '', cur: '', currency: 'USD' }))
     search.search(val)
   }
 
@@ -30,7 +30,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
     search.clear()
     const isKRW = !!item.exchange
     const currency = isKRW ? 'KRW' : 'USD'
-    setForm(f => ({ ...f, name: item.name, ticker: item.ticker, currency, exchange: item.exchange || '', cur: '' }))
+    setForm(f => ({ ...f, name: item.name, ticker: item.ticker, currency, exchange: item.exchange || '', exchDisp: item.exchDisp || '', cur: '' }))
     setPriceLoading(true)
     const price = isKRW
       ? await fetchKrxQuote(item.ticker, item.exchange)
@@ -55,11 +55,12 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
       name: nm,
       currency: form.currency,
       exchange: form.exchange || undefined,
+      exchDisp: form.exchDisp || undefined,
       date,
       qty,
       price,
     })
-    setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
+    setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '', exchDisp: '' })
     setPriceLoading(false)
     search.clear()
     setDate(today)
@@ -96,7 +97,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
   }
 
   const selectedMarket = form.ticker
-    ? (form.exchange === 'KS' ? 'KOSPI' : form.exchange === 'KQ' ? 'KOSDAQ' : 'US')
+    ? (form.exchange === 'KS' ? 'KOSPI' : form.exchange === 'KQ' ? 'KOSDAQ' : (form.exchDisp || 'US'))
     : null
 
   return (
@@ -119,7 +120,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
             onClick={() => {
               setType('sell')
               setSellError('')
-              setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
+              setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '', exchDisp: '' })
               setPriceLoading(false)
               search.clear()
             }}

@@ -83,6 +83,17 @@ describe('deriveHoldings', () => {
     expect(result[0].q).toBe(10)
     expect(result[0].b).toBeCloseTo(150, 5)
   })
+
+  it('buy 거래의 exchDisp가 보유 종목에 보존된다', () => {
+    const holdings = deriveHoldings([
+      { id: 'e1', type: 'buy', ticker: 'AAPL', name: 'Apple', currency: 'USD', date: '2026-01-01', qty: 1, price: 100, exchDisp: 'NASDAQ' },
+      { id: 'e2', type: 'buy', ticker: 'MSFT', name: 'Microsoft', currency: 'USD', date: '2026-01-01', qty: 1, price: 100 },
+    ])
+    const aapl = holdings.find(h => h.t === 'AAPL')
+    const msft = holdings.find(h => h.t === 'MSFT')
+    expect(aapl.exchDisp).toBe('NASDAQ')
+    expect(msft).not.toHaveProperty('exchDisp')
+  })
 })
 
 describe('deriveRealizedGains', () => {
