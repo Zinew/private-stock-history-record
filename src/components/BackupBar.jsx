@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 const BACKUP_KEYS = [
   'ledger_transactions',
   'ledger_snaps',
+  'ledger_cash',
+  'ledger_target_weights',
   'ledger_manual_events',
   'ledger_display_currency',
   'i18nextLng',
