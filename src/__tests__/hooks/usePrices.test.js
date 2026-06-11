@@ -132,4 +132,21 @@ describe('usePrices — 재시도·세대 경합·신규 항목 감지', () => {
     await advance(6000) // 재시도 2회차
     expect(result.current.loading).toBe(false)
   })
+
+  it('첫 패스 진행 중 refresh()하면 구세대 늦은 응답을 무시한다', async () => {
+    let resolveOld
+    mockFetch.mockReturnValueOnce(new Promise(resolve => { resolveOld = resolve })) // 구세대: 미해결
+    mockFetch.mockResolvedValue(500) // 신세대: 성공
+    const { result } = renderHook(() => usePrices(['X'], CONFIG))
+
+    await advance(0) // 구세대 첫 패스 시작 (응답 대기 중)
+    act(() => { result.current.refresh() })
+    await advance(0)
+    expect(result.current.prices).toEqual({ X: 500 })
+
+    // 구세대 응답이 뒤늦게 도착해도 덮어쓰지 않음 (첫 패스 세대 가드)
+    await act(async () => { resolveOld(999) })
+    expect(result.current.prices).toEqual({ X: 500 })
+    expect(result.current.error).toBeNull()
+  })
 })
