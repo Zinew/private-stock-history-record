@@ -110,6 +110,6 @@ describe('EditModal 현금 모드', () => {
     const onSave = vi.fn()
     renderCashModal({ onSave })
     fireEvent.click(screen.getByText('저장'))
-    expect(onSave).toHaveBeenCalledWith({ cashAmount: 500000, tw: 20 })
+    expect(onSave).toHaveBeenCalledWith({ cashAmount: 500000, cashCurrency: 'USD', tw: 20 })
   })
 })

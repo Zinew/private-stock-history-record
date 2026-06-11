@@ -9,7 +9,7 @@ export default function HoldingsTable({
   holdings, totalVal, onAdd, onDelete, displayCurrency, toDisplay,
   prices = {}, priceLoading = false, priceError = null, lastUpdatedAt = null, onRefresh = () => {},
   rawHoldings = [], onEdit = () => {},
-  cash = 0, onSetCash = () => {}, targetWeights = {}, onSetTargetWeight = () => {},
+  cash = 0, cashRaw = { amount: 0, currency: 'USD' }, onSetCash = () => {}, targetWeights = {}, onSetTargetWeight = () => {},
 }) {
   const [editingIndex, setEditingIndex] = useState(null)
   const [cashEditing, setCashEditing] = useState(false)
@@ -109,11 +109,12 @@ export default function HoldingsTable({
         <EditModal
           holding={{ t: 'CASH', nm: t('holdings.cash') }}
           cashMode
-          cashAmount={Number(cash) || 0}
+          cashAmount={cashRaw.amount}
+          cashCurrency={cashRaw.currency}
           targetWeight={targetWeights['cash'] != null ? targetWeights['cash'] : ''}
           otherWeightsTotal={getOtherWeightsTotal('cash')}
           onSave={patch => {
-            onSetCash(patch.cashAmount)
+            onSetCash({ amount: patch.cashAmount, currency: patch.cashCurrency })
             onSetTargetWeight('cash', patch.tw)
             setCashEditing(false)
           }}

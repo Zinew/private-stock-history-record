@@ -7,12 +7,14 @@ export default function EditModal({
   onClose,
   cashMode = false,
   cashAmount = 0,
+  cashCurrency = 'USD',
   targetWeight = '',
   otherWeightsTotal = 0,
 }) {
   const [nm, setNm] = useState(holding.nm ?? '')
   const [tw, setTw] = useState(targetWeight !== '' && targetWeight != null ? String(targetWeight) : '')
   const [cashAmt, setCashAmt] = useState(String(cashAmount))
+  const [cashCur, setCashCur] = useState(cashCurrency)
   const { t } = useTranslation()
 
   useEffect(() => {
@@ -28,7 +30,10 @@ export default function EditModal({
 
   function handleSave() {
     const patch = {}
-    if (cashMode) patch.cashAmount = Number(cashAmt) || 0
+    if (cashMode) {
+      patch.cashAmount = Number(cashAmt) || 0
+      patch.cashCurrency = cashCur
+    }
     else patch.nm = nm.trim()
     patch.tw = tw === '' ? null : Math.max(0, Number(tw))
     onSave(patch)
@@ -47,6 +52,18 @@ export default function EditModal({
               value={cashAmt}
               onChange={e => setCashAmt(e.target.value)}
             />
+            <div className="currency-toggle" style={{ marginTop: 8, alignSelf: 'flex-start' }}>
+              <button
+                type="button"
+                className={`currency-btn ${cashCur === 'KRW' ? 'active' : ''}`}
+                onClick={() => setCashCur('KRW')}
+              >KRW</button>
+              <button
+                type="button"
+                className={`currency-btn ${cashCur === 'USD' ? 'active' : ''}`}
+                onClick={() => setCashCur('USD')}
+              >USD</button>
+            </div>
           </div>
         ) : (
           <div className="modal-field">

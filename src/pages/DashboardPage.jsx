@@ -42,6 +42,7 @@ export default function DashboardPage({ portfolio }) {
         onDelete={portfolio.delHolding}
         onEdit={portfolio.editHolding}
         cash={portfolio.cash}
+        cashRaw={portfolio.cashRaw}
         onSetCash={portfolio.setCash}
         targetWeights={portfolio.targetWeights}
         onSetTargetWeight={portfolio.setTargetWeight}
