@@ -116,6 +116,21 @@
   color: var(--ink);
 }
 
+.mobile-card-toggle .chevron {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform .15s;
+  margin-top: -2px;
+}
+.mobile-card-toggle.expanded .chevron {
+  transform: rotate(225deg);
+  margin-top: 2px;
+}
+
 .holding-card-actions,
 .tx-card-actions {
   display: flex;
@@ -169,6 +184,9 @@
   .tx-mobile-list { display: block }
   .rebalancing-table { display: none }
   .rebalancing-mobile-list { display: block }
+  .addbar .field { flex: 1 1 100%; width: 100% }
+  .addbar .field input, .addbar .field select { width: 100% }
+  .addbar .btn { width: 100% }
 }
 
 

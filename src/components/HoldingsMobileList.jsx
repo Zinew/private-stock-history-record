@@ -32,11 +32,11 @@ export default function HoldingsMobileList({
                   <span className="market-badge">{market}</span>
                 </div>
                 <button
-                  className="mobile-card-toggle"
+                  className={`mobile-card-toggle${expandedCards[h.t] ? ' expanded' : ''}`}
                   onClick={() => toggleCard(h.t)}
                   title={expandedCards[h.t] ? t('common.collapse') : t('common.expand')}
                 >
-                  {expandedCards[h.t] ? '∧' : '∨'}
+                  <span className="chevron" />
                 </button>
               </div>
               <div className="holding-card-val-row">
