@@ -62,6 +62,7 @@ header {
   color: #0c0e0d;
   font-weight: 600;
 }
+.currency-btn.sell-btn.active { background: rgba(232,101,79,.15); color: #e8654f; border-color: #e8654f; }
 .rate-bar {
   display: flex;
   align-items: center;
