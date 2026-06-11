@@ -81,6 +81,7 @@ describe('usePortfolio — 자동 스냅샷 기록 (특성화)', () => {
   })
 
   it('보유 종목이 없으면 기록하지 않는다', () => {
+    localStorage.setItem('ledger_cash', '100') // 현금만 있어도 (totalVal > 0) holdings 가드만으로 기록을 막아야 함
     mockUsd.loading = true
     const { result, rerender } = renderHook(() => usePortfolio())
 
