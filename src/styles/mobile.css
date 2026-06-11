@@ -49,12 +49,6 @@
   max-width: 130px;
 }
 
-.holding-card-sub {
-  color: var(--ink-faint);
-  font-size: 11px;
-  margin-top: 3px;
-}
-
 .holding-card-val {
   font-size: 14px;
   font-weight: 600;

@@ -85,6 +85,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
       name: holding?.nm ?? sellTicker,
       currency: holding?.currency ?? 'USD',
       exchange: holding?.exchange || undefined,
+      exchDisp: holding?.exchDisp || undefined,
       date,
       qty,
       price,
