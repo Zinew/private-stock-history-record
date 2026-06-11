@@ -1,7 +1,9 @@
-import { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { fetchQuote } from '../utils/finnhub.js'
-import { fetchUsdSearch, fetchKrxSearch, fetchKrxQuote } from '../utils/stockSearch.js'
+import { fetchKrxQuote } from '../utils/stockSearch.js'
+import { useStockSearch } from '../hooks/useStockSearch.js'
+import StockSearchField from './StockSearchField.jsx'
 
 export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
   const { t } = useTranslation()
@@ -12,39 +14,20 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
 
   const [form, setForm] = useState({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
   const [priceLoading, setPriceLoading] = useState(false)
-  const [searchResults, setSearchResults] = useState([])
-  const [searchOpen, setSearchOpen] = useState(false)
-  const debounceRef = useRef(null)
+  const search = useStockSearch()
 
   const [sellTicker, setSellTicker] = useState('')
   const [sellQty, setSellQty] = useState('')
   const [sellPrice, setSellPrice] = useState('')
   const [sellError, setSellError] = useState('')
 
-  useEffect(() => { return () => clearTimeout(debounceRef.current) }, [])
-
-  function handleNameChange(e) {
-    const val = e.target.value
+  function handleNameChange(val) {
     setForm(f => ({ ...f, name: val, ticker: '', exchange: '', cur: '', currency: 'USD' }))
-    clearTimeout(debounceRef.current)
-    if (!val.trim()) { setSearchResults([]); setSearchOpen(false); return }
-    debounceRef.current = setTimeout(async () => {
-      const [krwResults, usdResults] = await Promise.all([
-        fetchKrxSearch(val),
-        fetchUsdSearch(val),
-      ])
-      const all = [
-        ...krwResults.map(r => ({ ...r, market: r.exchange === 'KS' ? 'KOSPI' : 'KOSDAQ' })),
-        ...usdResults.map(r => ({ ...r, market: 'US' })),
-      ].slice(0, 8)
-      setSearchResults(all)
-      setSearchOpen(all.length > 0)
-    }, 300)
+    search.search(val)
   }
 
   async function handleSelect(item) {
-    setSearchOpen(false)
-    setSearchResults([])
+    search.clear()
     const isKRW = !!item.exchange
     const currency = isKRW ? 'KRW' : 'USD'
     setForm(f => ({ ...f, name: item.name, ticker: item.ticker, currency, exchange: item.exchange || '', cur: '' }))
@@ -66,7 +49,6 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
       alert(t('addHolding.validationError'))
       return
     }
-    clearTimeout(debounceRef.current)
     onAddTransaction({
       type: 'buy',
       ticker,
@@ -79,8 +61,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
     })
     setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
     setPriceLoading(false)
-    setSearchResults([])
-    setSearchOpen(false)
+    search.clear()
     setDate(today)
   }
 
@@ -140,9 +121,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
               setSellError('')
               setForm({ ticker: '', name: '', qty: '', buy: '', cur: '', currency: 'USD', exchange: '' })
               setPriceLoading(false)
-              setSearchResults([])
-              setSearchOpen(false)
-              clearTimeout(debounceRef.current)
+              search.clear()
             }}
           >{t('tx.sell')}</button>
         </div>
@@ -155,30 +134,22 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
 
       {type === 'buy' ? (
         <>
-          <div className="field nm">
-            <label>
-              {t('addHolding.searchName')}
-              {selectedMarket && <span className="market-badge">{form.ticker} · {selectedMarket}</span>}
-              {priceLoading && <span style={{ marginLeft: 6, opacity: 0.6 }}>{t('addHolding.loading')}</span>}
-            </label>
-            <input
-              placeholder="삼성전자 · Apple · AAPL · 005930"
-              value={form.name}
-              autoComplete="off"
-              onChange={handleNameChange}
-              onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
-            />
-            {searchOpen && searchResults.length > 0 && (
-              <div className="search-dropdown">
-                {searchResults.map(item => (
-                  <div key={item.symbol} className="search-dropdown-item" onClick={() => handleSelect(item)}>
-                    <span className="search-item-name">{item.name}</span>
-                    <span className="search-item-meta">{item.ticker} · {item.market}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <StockSearchField
+            value={form.name}
+            onQueryChange={handleNameChange}
+            onSelect={handleSelect}
+            results={search.results}
+            open={search.open}
+            onClose={search.close}
+            label={t('addHolding.searchName')}
+            badge={
+              <>
+                {selectedMarket && <span className="market-badge">{form.ticker} · {selectedMarket}</span>}
+                {priceLoading && <span style={{ marginLeft: 6, opacity: 0.6 }}>{t('addHolding.loading')}</span>}
+              </>
+            }
+            placeholder="삼성전자 · Apple · AAPL · 005930"
+          />
           <div className="field">
             <label>{t('addHolding.qty')}</label>
             <input type="number" step="any" placeholder="10" value={form.qty} onChange={e => setForm(f => ({ ...f, qty: e.target.value }))} />
