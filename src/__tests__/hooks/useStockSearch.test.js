@@ -84,4 +84,29 @@ describe('useStockSearch', () => {
     expect(fetchUsdSearch).not.toHaveBeenCalled()
     expect(result.current.open).toBe(false)
   })
+
+  it('느린 응답이 clear() 이후 도착해도 결과를 반영하지 않는다', async () => {
+    let resolveUsd
+    fetchKrxSearch.mockResolvedValue([])
+    fetchUsdSearch.mockReturnValue(new Promise(resolve => { resolveUsd = resolve }))
+    const { result } = renderHook(() => useStockSearch())
+    act(() => { result.current.search('aapl') })
+    await act(async () => { await vi.advanceTimersByTimeAsync(300) })
+    act(() => { result.current.clear() })
+    await act(async () => { resolveUsd([{ symbol: 'AAPL', ticker: 'AAPL', name: 'Apple' }]) })
+    expect(result.current.results).toEqual([])
+    expect(result.current.open).toBe(false)
+  })
+
+  it('close()는 드롭다운만 닫고 결과는 유지한다', async () => {
+    fetchKrxSearch.mockResolvedValue([])
+    fetchUsdSearch.mockResolvedValue([{ symbol: 'AAPL', ticker: 'AAPL', name: 'Apple' }])
+    const { result } = renderHook(() => useStockSearch())
+    act(() => { result.current.search('aapl') })
+    await act(async () => { await vi.advanceTimersByTimeAsync(300) })
+    expect(result.current.open).toBe(true)
+    act(() => { result.current.close() })
+    expect(result.current.open).toBe(false)
+    expect(result.current.results).toHaveLength(1)
+  })
 })
