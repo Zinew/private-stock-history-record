@@ -69,10 +69,13 @@
   width: 108px;
   -webkit-appearance: none;
   appearance: none;
+  height: 38px;
+  box-sizing: border-box;
 }
 .field.tk input { width: 88px; text-transform: uppercase }
 .field.nm input { width: 150px }
 .field input[type="date"] { width: 130px }
+.field select { width: auto; min-width: 170px }
 .field input:focus, .field select:focus {
   outline: none;
   border-color: rgba(127, 209, 174, 0.5);
@@ -82,7 +85,7 @@
   background: var(--accent);
   color: #0c0e0d;
   border: none;
-  border-radius: 8px;
+  border-radius: 10px;
   padding: 10px 18px;
   font-family: 'Spline Sans', sans-serif;
   font-weight: 600;
@@ -94,6 +97,8 @@
 .btn:hover { background: #9ee0c4 }
 .btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink-dim) }
 .btn.ghost:hover { border-color: var(--accent); color: var(--accent) }
+.btn.danger { background: var(--loss) }
+.btn.danger:hover { background: #f08672 }
 
 
 /* ── Component classes (extracted from inline styles) ── */
@@ -182,9 +187,6 @@
 .tx-type-badge.buy { background: rgba(63,191,143,.15); color: #3fbf8f; }
 .tx-type-badge.sell { background: rgba(232,101,79,.15); color: #e8654f; }
 .tx-unknown-date { color: var(--ink-faint); font-style: italic; }
-
-.addbar select { background: rgba(39, 48, 44, 0.4); color: var(--ink); border: 1px solid rgba(127, 209, 174, 0.15); border-radius: 10px; padding: 6px 8px; font-family: inherit; font-size: 13px; width: 100%; -webkit-appearance: none; appearance: none; }
-.addbar select:focus { outline: none; border-color: rgba(127, 209, 174, 0.5); box-shadow: 0 0 0 3px rgba(127, 209, 174, 0.1), inset 0 1px 0 rgba(255,255,255,0.03); }
 
 
 /* Empty state onboarding */

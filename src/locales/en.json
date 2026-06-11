@@ -65,7 +65,7 @@
     "currentPrice": "Current Price",
     "loading": "Loading…",
     "notFound": "Ticker not found",
-    "addButton": "+ Add",
+    "addButton": "+ Buy",
     "validationError": "Please enter a valid ticker, qty, cost, and price."
   },
   "editModal": {
@@ -126,6 +126,7 @@
   "tx": {
     "buy": "Buy",
     "sell": "Sell",
+    "sellSubmit": "+ Sell",
     "date": "Date",
     "qty": "Qty",
     "price": "Price",

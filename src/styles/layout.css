@@ -43,7 +43,7 @@ header {
   display: flex;
   background: var(--panel-2);
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
 }
 .currency-btn {
@@ -63,6 +63,8 @@ header {
   font-weight: 600;
 }
 .currency-btn.sell-btn.active { background: rgba(232,101,79,.15); color: #e8654f; border-color: #e8654f; }
+.addbar .currency-toggle { height: 38px }
+.addbar .currency-btn { padding: 0 14px; font-size: 12px }
 .rate-bar {
   display: flex;
   align-items: center;

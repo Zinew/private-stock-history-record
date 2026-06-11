@@ -113,7 +113,7 @@ describe('HoldingsTable', () => {
     await waitFor(() => expect(screen.getByPlaceholderText('190').value).toBe('250'))
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
     fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '200' } })
-    fireEvent.click(screen.getByText('+ 추가'))
+    fireEvent.click(screen.getByText('+ 매수'))
     expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
       type: 'buy', ticker: 'TSLA', qty: 5, price: 200, currency: 'USD',
     }))
@@ -137,7 +137,7 @@ describe('HoldingsTable', () => {
     await waitFor(() => expect(screen.getByPlaceholderText('190').value).toBe('75000'))
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '10' } })
     fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '75000' } })
-    fireEvent.click(screen.getByText('+ 추가'))
+    fireEvent.click(screen.getByText('+ 매수'))
     expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
       type: 'buy', ticker: '005930', qty: 10, price: 75000, currency: 'KRW',
     }))
@@ -218,7 +218,7 @@ describe('HoldingsTable', () => {
     await waitFor(() => expect(screen.getByPlaceholderText('190').value).toBe('195.5'))
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '3' } })
     fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '180' } })
-    fireEvent.click(screen.getByText('+ 추가'))
+    fireEvent.click(screen.getByText('+ 매수'))
     expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
       type: 'buy', ticker: 'AAPL', name: 'Apple Inc.', qty: 3, price: 180, currency: 'USD',
     }))
@@ -267,7 +267,7 @@ describe('HoldingsTable', () => {
     await waitFor(() => expect(fetchKrxQuote).toHaveBeenCalled())
     fireEvent.change(screen.getByPlaceholderText('10'), { target: { value: '5' } })
     fireEvent.change(screen.getByPlaceholderText('150'), { target: { value: '75000' } })
-    fireEvent.click(screen.getByText('+ 추가'))
+    fireEvent.click(screen.getByText('+ 매수'))
     expect(onAddTransaction).toHaveBeenCalledWith(expect.objectContaining({
       type: 'buy', ticker: '005930', name: '삼성전자', qty: 5, price: 75000, currency: 'KRW', exchange: 'KS',
     }))

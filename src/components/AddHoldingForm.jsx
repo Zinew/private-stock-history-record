@@ -192,7 +192,7 @@ export default function AddHoldingForm({ onAddTransaction, holdings = [] }) {
                 <label>{t('tx.price')}</label>
                 <input type="number" step="any" placeholder="200" value={sellPrice} onChange={e => setSellPrice(e.target.value)} />
               </div>
-              <button className="btn" onClick={handleSellSubmit}>{t('tx.sell')}</button>
+              <button className="btn danger" onClick={handleSellSubmit}>{t('tx.sellSubmit')}</button>
             </>
           )}
         </>

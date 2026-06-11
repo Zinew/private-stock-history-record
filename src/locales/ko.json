@@ -65,7 +65,7 @@
     "currentPrice": "현재가",
     "loading": "조회 중…",
     "notFound": "티커를 찾을 수 없습니다",
-    "addButton": "+ 추가",
+    "addButton": "+ 매수",
     "validationError": "티커·수량·매수가·현재가를 올바르게 입력해 주세요."
   },
   "editModal": {
@@ -126,6 +126,7 @@
   "tx": {
     "buy": "매수",
     "sell": "매도",
+    "sellSubmit": "+ 매도",
     "date": "날짜",
     "qty": "수량",
     "price": "단가",
