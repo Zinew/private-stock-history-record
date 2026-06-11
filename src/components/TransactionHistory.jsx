@@ -73,7 +73,8 @@ export default function TransactionHistory({ transactions, onDelete, onEdit }) {
                 {tx.name && tx.name !== tx.ticker && <span className="tx-card-name">{tx.name}</span>}
               </div>
               <div className="tx-card-detail">
-                {tx.date ?? t('tx.unknownDate')} · {tx.qty.toLocaleString()} {t('tx.qty')} · {fmtCurrency(tx.price, tx.currency)}
+                <div>{tx.date ?? t('tx.unknownDate')}</div>
+                <div>{tx.qty.toLocaleString()}{t('tx.sharesUnit')} / {fmtCurrency(tx.price, tx.currency)}</div>
               </div>
             </div>
             <div className="tx-card-right">
