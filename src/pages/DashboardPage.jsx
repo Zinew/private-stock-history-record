@@ -19,6 +19,14 @@ export default function DashboardPage({ portfolio }) {
         onRestoreSnap={portfolio.restoreSnap}
         cash={portfolio.cash}
       />
+      <RebalancingGuide
+        holdings={portfolio.effectiveHoldings}
+        cash={portfolio.cash}
+        targetWeights={portfolio.targetWeights}
+        totalVal={portfolio.totalVal}
+        displayCurrency={portfolio.displayCurrency}
+        toDisplay={portfolio.toDisplay}
+      />
       <HoldingsTable
         holdings={portfolio.effectiveHoldings}
         rawHoldings={portfolio.holdings}
@@ -37,14 +45,6 @@ export default function DashboardPage({ portfolio }) {
         onSetCash={portfolio.setCash}
         targetWeights={portfolio.targetWeights}
         onSetTargetWeight={portfolio.setTargetWeight}
-      />
-      <RebalancingGuide
-        holdings={portfolio.effectiveHoldings}
-        cash={portfolio.cash}
-        targetWeights={portfolio.targetWeights}
-        totalVal={portfolio.totalVal}
-        displayCurrency={portfolio.displayCurrency}
-        toDisplay={portfolio.toDisplay}
       />
       <TransactionHistory
         transactions={portfolio.transactions}

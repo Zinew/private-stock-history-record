@@ -1,19 +1,14 @@
 /* Rebalancing card */
 .rebalancing-card {
-  background: var(--panel-2);
+  background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 12px;
-  padding: 16px;
-  margin-top: 12px;
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 20px;
   overflow-x: auto;
 }
-.rebalancing-title {
-  font-family: 'Spline Sans Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 1.5px;
-  text-transform: uppercase;
-  color: var(--ink-faint);
-  margin: 0 0 12px;
+.rebalancing-card .holdings-title {
+  margin-bottom: 12px;
 }
 .rebalancing-table {
   width: 100%;

@@ -26,7 +26,7 @@ export default function RebalancingGuide({ holdings, cash, targetWeights, totalV
 
   return (
     <div className="rebalancing-card">
-      <h3 className="rebalancing-title">{t('holdings.rebalancingGuide')}</h3>
+      <h2 className="holdings-title">{t('holdings.rebalancingGuide')}</h2>
 
       {/* 데스크톱: 테이블 */}
       <table className="rebalancing-table">
