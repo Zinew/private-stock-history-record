@@ -11,57 +11,74 @@
 }
 
 
-/* ── Static pages (About / Privacy / Help / 404) ── */
+/* ── Static pages (About / Privacy / Help) ── */
 .static-page {
   max-width: 680px;
   margin: 40px auto;
   padding: 0 24px 60px;
 }
 .static-page h1 {
-  font-size: 22px;
+  font-family: 'Fraunces', serif;
+  font-size: 26px;
   font-weight: 700;
+  letter-spacing: -.5px;
   color: var(--ink);
   margin-bottom: 6px;
 }
+.static-page h1 .dot { color: var(--gold) }
 .static-page .static-tagline {
   font-size: 14px;
   color: var(--ink-dim);
-  margin-bottom: 36px;
+  margin-bottom: 28px;
 }
-.static-page h2 {
-  font-size: 13px;
+.static-section {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 22px;
+  margin-bottom: 20px;
+}
+.static-section .holdings-title { margin-bottom: 12px }
+.static-section p {
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--ink);
+  margin: 0 0 8px;
+}
+.static-section p:last-child { margin-bottom: 0 }
+.static-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.static-list li {
+  font-size: 14px;
+  line-height: 1.9;
+  color: var(--ink);
+}
+.static-list li::before {
+  content: '– ';
+  color: var(--accent);
   font-weight: 600;
-  color: var(--ink-faint);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin: 32px 0 8px;
 }
-.static-page p {
-  font-size: 14px;
-  line-height: 1.75;
-  color: var(--ink);
-  margin: 0 0 8px;
-}
-.static-page ul {
-  margin: 0 0 8px;
-  padding-left: 20px;
-}
-.static-page ul li {
-  font-size: 14px;
-  line-height: 1.75;
-  color: var(--ink);
-}
-.static-faq-item { margin-bottom: 16px }
+.static-faq-item { margin-bottom: 14px }
+.static-faq-item:last-child { margin-bottom: 0 }
 .static-faq-q {
   font-size: 14px;
   font-weight: 600;
   color: var(--ink);
   margin-bottom: 4px;
 }
+.static-faq-q::before {
+  content: 'Q ';
+  font-family: 'Spline Sans Mono', monospace;
+  color: var(--accent);
+}
 .static-faq-a {
   font-size: 14px;
-  color: var(--ink-dim);
   line-height: 1.7;
+  color: var(--ink-dim);
+  margin: 0;
 }
 
 /* ── 404 page ── */

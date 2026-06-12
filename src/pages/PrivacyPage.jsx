@@ -4,23 +4,33 @@ export default function PrivacyPage() {
   const { t } = useTranslation()
   return (
     <div className="static-page">
-      <h1>{t('privacy.title')}</h1>
+      <h1>{t('privacy.title')}<span className="dot">.</span></h1>
       <p className="static-tagline">{t('privacy.lastUpdated')}</p>
 
-      <h2>{t('privacy.noCollectionTitle')}</h2>
-      <p>{t('privacy.noCollectionBody')}</p>
+      <section className="static-section">
+        <h2 className="holdings-title">{t('privacy.noCollectionTitle')}</h2>
+        <p>{t('privacy.noCollectionBody')}</p>
+      </section>
 
-      <h2>{t('privacy.localDataTitle')}</h2>
-      <p>{t('privacy.localDataBody')}</p>
+      <section className="static-section">
+        <h2 className="holdings-title">{t('privacy.localDataTitle')}</h2>
+        <p>{t('privacy.localDataBody')}</p>
+      </section>
 
-      <h2>{t('privacy.apisTitle')}</h2>
-      <p>{t('privacy.apisBody')}</p>
+      <section className="static-section">
+        <h2 className="holdings-title">{t('privacy.apisTitle')}</h2>
+        <p>{t('privacy.apisBody')}</p>
+      </section>
 
-      <h2>{t('privacy.cookiesTitle')}</h2>
-      <p>{t('privacy.cookiesBody')}</p>
+      <section className="static-section">
+        <h2 className="holdings-title">{t('privacy.cookiesTitle')}</h2>
+        <p>{t('privacy.cookiesBody')}</p>
+      </section>
 
-      <h2>{t('privacy.contactTitle')}</h2>
-      <p>{t('privacy.contactBody')}</p>
+      <section className="static-section">
+        <h2 className="holdings-title">{t('privacy.contactTitle')}</h2>
+        <p>{t('privacy.contactBody')}</p>
+      </section>
     </div>
   )
 }
