@@ -43,10 +43,10 @@ export default function RebalancingGuide({ holdings, cash, targetWeights, totalV
           {rebalancingRows.map(row => (
             <tr key={row.ticker}>
               <td>
-                <span className="rebal-ticker">{row.ticker}</span>
-                {row.nm && row.nm !== row.ticker && (
-                  <span className="rebal-name"> {row.nm}</span>
-                )}
+                <span className="tick">
+                  {row.ticker}
+                  {row.nm && row.nm !== row.ticker && <small>{row.nm}</small>}
+                </span>
               </td>
               <td>{row.currentPct.toFixed(1)}%</td>
               <td>{row.targetPct.toFixed(1)}%</td>
