@@ -164,7 +164,7 @@
     "whyTitle": "만든 이유",
     "whyBody": "국내와 해외 주식을 함께 보유한 투자자를 위한 도구가 마땅치 않았습니다. 증권사 앱은 해외 주식 경험이 약하고, 해외 트래커는 한국 주식을 모릅니다. Ledger는 두 시장을 하나의 포트폴리오로 보여주되, 개인정보는 어디에도 보내지 않는 것을 원칙으로 만들었습니다.",
     "dataTitle": "데이터 출처",
-    "dataBody": "미국 시세: Finnhub · 실적 캘린더: Alpha Vantage · 한국 시세·뉴스: Naver Finance"
+    "dataBody": "미국 시세: Finnhub · 실적 캘린더: Alpha Vantage · 한국 시세: Yahoo Finance · 한국 뉴스: Naver Finance"
   },
   "privacy": {
     "title": "개인정보처리방침",
@@ -174,7 +174,7 @@
     "localDataTitle": "데이터 저장 위치",
     "localDataBody": "보유 종목, 거래 이력, 자산 추이 기록은 사용 중인 브라우저의 localStorage에만 저장됩니다. 이 데이터는 기기를 벗어나지 않으며 어떤 서버에도 전송되지 않습니다. 브라우저 데이터를 삭제하면 함께 삭제되므로 주기적인 백업(내보내기)을 권장합니다.",
     "apisTitle": "외부 서비스",
-    "apisBody": "실시간 시세·캘린더·뉴스 조회에 Finnhub, Alpha Vantage, Naver Finance API를 사용합니다. 이 과정에서 조회 대상 종목 코드만 해당 서비스에 전달됩니다. 자세한 내용은 각 서비스의 개인정보처리방침을 참고하세요.",
+    "apisBody": "실시간 시세·캘린더·뉴스 조회에 Finnhub, Yahoo Finance, Alpha Vantage, Naver Finance API를 사용합니다. 이 과정에서 조회 대상 종목 코드만 해당 서비스에 전달됩니다. 자세한 내용은 각 서비스의 개인정보처리방침을 참고하세요.",
     "cookiesTitle": "쿠키",
     "cookiesBody": "쿠키를 사용하지 않습니다. 언어 설정(한국어/영어)만 브라우저 localStorage에 저장됩니다.",
     "contactTitle": "문의",

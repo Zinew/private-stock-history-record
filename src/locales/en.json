@@ -164,7 +164,7 @@
     "whyTitle": "Why We Built This",
     "whyBody": "There was no good tool for investors holding both Korean and US stocks. Brokerage apps are weak on foreign markets, and global trackers don't know Korean tickers. Ledger shows both markets as one portfolio — and keeps your data entirely on your device.",
     "dataTitle": "Data Sources",
-    "dataBody": "US prices: Finnhub · Earnings calendar: Alpha Vantage · Korean prices & news: Naver Finance"
+    "dataBody": "US prices: Finnhub · Earnings calendar: Alpha Vantage · Korean prices: Yahoo Finance · Korean news: Naver Finance"
   },
   "privacy": {
     "title": "Privacy Policy",
@@ -174,7 +174,7 @@
     "localDataTitle": "Where Your Data Lives",
     "localDataBody": "Your holdings, transaction history, and portfolio snapshots are stored only in your browser's localStorage. They never leave your device and are never sent to any server. Clearing browser data deletes them too, so we recommend regular backups (Export).",
     "apisTitle": "Third-Party Services",
-    "apisBody": "Ledger uses the Finnhub, Alpha Vantage, and Naver Finance APIs for live prices, earnings, and news. Only the ticker symbols being looked up are transmitted. See each service's privacy policy for details.",
+    "apisBody": "Ledger uses the Finnhub, Yahoo Finance, Alpha Vantage, and Naver Finance APIs for live prices, earnings, and news. Only the ticker symbols being looked up are transmitted. See each service's privacy policy for details.",
     "cookiesTitle": "Cookies",
     "cookiesBody": "Ledger uses no cookies. Only your language preference (Korean/English) is saved in localStorage.",
     "contactTitle": "Contact",
