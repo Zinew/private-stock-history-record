@@ -1,0 +1,184 @@
+/* ── Learn 섹션 — 글 목록 & 아티클 뷰어 ── */
+
+.learn-page {
+  max-width: 760px;
+  margin: 40px auto;
+  padding: 0 24px 60px;
+}
+
+.learn-page h1 {
+  font-family: 'Fraunces', serif;
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: -.5px;
+  color: var(--ink);
+  margin-bottom: 6px;
+}
+
+.learn-page h1 .dot { color: var(--gold) }
+
+.learn-tagline {
+  font-size: 14px;
+  color: var(--ink-dim);
+  margin-bottom: 32px;
+}
+
+/* 글 목록 카드 */
+.article-card {
+  display: flex;
+  gap: 20px;
+  align-items: flex-start;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: border-color .15s;
+}
+
+.article-card:hover { border-color: var(--accent) }
+
+.article-card-thumb {
+  flex-shrink: 0;
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--panel-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.article-card-body { flex: 1; min-width: 0 }
+
+.article-card-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 0 0 6px;
+  line-height: 1.4;
+}
+
+.article-card-desc {
+  font-size: 13px;
+  color: var(--ink-dim);
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.article-card-meta {
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-family: 'Spline Sans Mono', monospace;
+}
+
+/* 개별 글 뷰어 */
+.article-page {
+  max-width: 680px;
+  margin: 40px auto;
+  padding: 0 24px 60px;
+}
+
+.article-hero {
+  width: 100%;
+  border-radius: 14px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  background: var(--panel-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 200px;
+}
+
+.article-header-title {
+  font-family: 'Fraunces', serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.35;
+  margin: 0 0 8px;
+}
+
+.article-meta {
+  font-size: 12px;
+  color: var(--ink-faint);
+  font-family: 'Spline Sans Mono', monospace;
+  margin-bottom: 28px;
+}
+
+.ad-banner-wrap {
+  margin: 24px 0;
+  min-height: 90px;
+  background: var(--panel-2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* 마크다운 본문 */
+.learn-content { font-size: 14px; line-height: 1.85; color: var(--ink) }
+.learn-content h2 {
+  font-family: 'Fraunces', serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 32px 0 12px;
+}
+.learn-content h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 24px 0 8px;
+}
+.learn-content p { margin: 0 0 16px }
+.learn-content ul, .learn-content ol {
+  padding-left: 20px;
+  margin: 0 0 16px;
+}
+.learn-content li { margin-bottom: 6px }
+.learn-content strong { color: var(--ink); font-weight: 600 }
+.learn-content a { color: var(--accent); text-decoration: none }
+.learn-content a:hover { text-decoration: underline }
+.learn-content blockquote {
+  border-left: 3px solid var(--accent);
+  padding: 10px 16px;
+  margin: 0 0 16px;
+  background: var(--panel-2);
+  border-radius: 0 8px 8px 0;
+  color: var(--ink-dim);
+}
+
+/* 글 하단 네비게이션 */
+.article-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 40px;
+  padding-top: 24px;
+  border-top: 1px solid var(--line);
+}
+
+.article-nav a {
+  font-size: 13px;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.article-nav a:hover { text-decoration: underline }
+
+.article-nav-back {
+  font-size: 13px;
+  color: var(--ink-dim);
+  text-align: center;
+  flex: 1;
+}
+
+/* 모바일 */
+@media (max-width: 640px) {
+  .article-card { flex-direction: column; gap: 12px }
+  .article-card-thumb { width: 100%; height: 120px }
+  .article-hero { height: 140px }
+}
