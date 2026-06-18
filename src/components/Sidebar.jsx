@@ -5,6 +5,7 @@ const NAV_ITEMS = [
   { path: '/', key: 'sidebar.dashboard', icon: '📊' },
   { path: '/calendar', key: 'sidebar.calendar', icon: '📅' },
   { path: '/news', key: 'sidebar.news', icon: '📰' },
+  { path: '/learn', key: 'sidebar.learn', icon: '📚' },
 ]
 
 const SUB_NAV_ITEMS = [
