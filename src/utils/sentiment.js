@@ -5,7 +5,7 @@ async function getPipeline() {
     const { pipeline } = await import('@huggingface/transformers')
     _pipe = await pipeline(
       'sentiment-analysis',
-      'Xenova/distilbert-base-uncased-finetuned-sst-2-english',
+      'Xenova/finbert',
     )
   }
   return _pipe

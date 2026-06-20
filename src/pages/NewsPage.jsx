@@ -4,8 +4,8 @@ import { useTranslation } from 'react-i18next'
 import { analyzeSentiment } from '../utils/sentiment.js'
 
 function SentimentDot({ sentiment }) {
-  if (!sentiment || sentiment.score < 0.75) return null
-  const cls = sentiment.label === 'POSITIVE' ? 'positive' : 'negative'
+  if (!sentiment || sentiment.label === 'neutral' || sentiment.score < 0.70) return null
+  const cls = sentiment.label === 'positive' ? 'positive' : 'negative'
   return <span className={`news-sentiment-dot ${cls}`} title={`${sentiment.label} ${Math.round(sentiment.score * 100)}%`} />
 }
 
