@@ -105,6 +105,93 @@ const illustrations = {
       <text x="79" y="81" fontSize="6" fill="#0c0e0d" textAnchor="middle" fontWeight="bold">250만</text>
     </svg>
   ),
+  'isa-account-guide': (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="20" y="25" width="80" height="70" rx="8" fill="#1a201d" stroke="#27302c" strokeWidth="1.5"/>
+      <rect x="30" y="38" width="60" height="8" rx="3" fill="#7fd1ae" opacity=".8"/>
+      <rect x="30" y="52" width="44" height="5" rx="2" fill="#5c6660" opacity=".7"/>
+      <rect x="30" y="62" width="52" height="5" rx="2" fill="#5c6660" opacity=".7"/>
+      <circle cx="88" cy="85" r="14" fill="#7fd1ae" opacity=".15" stroke="#7fd1ae" strokeWidth="1.5"/>
+      <text x="88" y="89" fontSize="11" fill="#7fd1ae" textAnchor="middle" fontWeight="bold">비과세</text>
+    </svg>
+  ),
+  'pension-savings-irp-guide': (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="60" width="22" height="45" rx="4" fill="#7fd1ae" opacity=".7"/>
+      <rect x="48" y="40" width="22" height="65" rx="4" fill="#d4b483" opacity=".8"/>
+      <rect x="78" y="20" width="22" height="85" rx="4" fill="#7fd1ae" opacity=".9"/>
+      <line x1="12" y1="108" x2="108" y2="108" stroke="#27302c" strokeWidth="2"/>
+      <text x="29" y="56" fontSize="7" fill="#7fd1ae" textAnchor="middle">연금</text>
+      <text x="59" y="36" fontSize="7" fill="#d4b483" textAnchor="middle">IRP</text>
+      <text x="89" y="16" fontSize="7" fill="#7fd1ae" textAnchor="middle">복리</text>
+    </svg>
+  ),
+  'overseas-stock-tax-filing': (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="25" y="20" width="70" height="85" rx="6" fill="#1a201d" stroke="#27302c" strokeWidth="1.5"/>
+      <rect x="35" y="35" width="50" height="6" rx="2" fill="#d4b483" opacity=".8"/>
+      <rect x="35" y="48" width="40" height="4" rx="2" fill="#5c6660" opacity=".6"/>
+      <rect x="35" y="58" width="45" height="4" rx="2" fill="#5c6660" opacity=".6"/>
+      <rect x="35" y="68" width="35" height="4" rx="2" fill="#5c6660" opacity=".6"/>
+      <rect x="55" y="82" width="30" height="12" rx="4" fill="#7fd1ae" opacity=".85"/>
+      <text x="70" y="91" fontSize="7" fill="#0c0e0d" textAnchor="middle" fontWeight="bold">신고완료</text>
+    </svg>
+  ),
+  'per-pbr-valuation': (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="45" cy="60" r="28" fill="#1a201d" stroke="#7fd1ae" strokeWidth="1.5"/>
+      <circle cx="75" cy="60" r="28" fill="#1a201d" stroke="#d4b483" strokeWidth="1.5"/>
+      <text x="35" y="56" fontSize="9" fill="#7fd1ae" textAnchor="middle" fontWeight="bold">PER</text>
+      <text x="35" y="68" fontSize="7" fill="#5c6660" textAnchor="middle">수익</text>
+      <text x="85" y="56" fontSize="9" fill="#d4b483" textAnchor="middle" fontWeight="bold">PBR</text>
+      <text x="85" y="68" fontSize="7" fill="#5c6660" textAnchor="middle">자산</text>
+      <text x="60" y="64" fontSize="7" fill="#fff" textAnchor="middle" opacity=".7">밸류</text>
+    </svg>
+  ),
+  'dividend-reinvestment-compounding': (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 95 Q35 80 50 65 Q65 45 80 30 Q90 20 100 15" stroke="#7fd1ae" strokeWidth="2" fill="none" strokeLinecap="round"/>
+      <circle cx="30" cy="88" r="4" fill="#d4b483"/>
+      <circle cx="55" cy="60" r="5" fill="#d4b483"/>
+      <circle cx="80" cy="34" r="6" fill="#d4b483"/>
+      <circle cx="100" cy="18" r="7" fill="#7fd1ae" opacity=".9"/>
+      <path d="M95 75 L105 65 M105 65 L105 75 M105 65 L95 65" stroke="#7fd1ae" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
+  ),
+  'currency-hedged-vs-unhedged-etf': (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="15" y="45" width="40" height="50" rx="6" fill="#1a201d" stroke="#7fd1ae" strokeWidth="1.5"/>
+      <rect x="65" y="45" width="40" height="50" rx="6" fill="#1a201d" stroke="#d4b483" strokeWidth="1.5"/>
+      <text x="35" y="65" fontSize="8" fill="#7fd1ae" textAnchor="middle">환노출</text>
+      <text x="85" y="65" fontSize="8" fill="#d4b483" textAnchor="middle">환헤지</text>
+      <text x="35" y="80" fontSize="7" fill="#5c6660" textAnchor="middle">₩↕$</text>
+      <text x="85" y="80" fontSize="7" fill="#5c6660" textAnchor="middle">₩⊜</text>
+      <path d="M55 70 L65 70" stroke="#27302c" strokeWidth="1.5" strokeDasharray="3 2"/>
+      <text x="60" y="35" fontSize="8" fill="#5c6660" textAnchor="middle">같은 지수</text>
+    </svg>
+  ),
+  'bond-etf-portfolio': (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M20 80 Q35 30 60 40 Q85 50 100 20" stroke="#d4b483" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      <path d="M20 80 Q40 70 60 75 Q80 80 100 60" stroke="#7fd1ae" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      <line x1="15" y1="95" x2="110" y2="95" stroke="#27302c" strokeWidth="1.5"/>
+      <circle cx="25" cy="90" r="3" fill="#d4b483"/>
+      <text x="35" y="94" fontSize="7" fill="#d4b483">주식</text>
+      <circle cx="65" cy="90" r="3" fill="#7fd1ae"/>
+      <text x="75" y="94" fontSize="7" fill="#7fd1ae">채권</text>
+    </svg>
+  ),
+  'dca-strategy': (
+    <svg viewBox="0 0 120 120" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="18" y="75" width="12" height="30" rx="3" fill="#7fd1ae" opacity=".6"/>
+      <rect x="36" y="55" width="12" height="50" rx="3" fill="#7fd1ae" opacity=".7"/>
+      <rect x="54" y="65" width="12" height="40" rx="3" fill="#7fd1ae" opacity=".8"/>
+      <rect x="72" y="45" width="12" height="60" rx="3" fill="#7fd1ae" opacity=".85"/>
+      <rect x="90" y="35" width="12" height="70" rx="3" fill="#7fd1ae" opacity=".9"/>
+      <line x1="12" y1="108" x2="108" y2="108" stroke="#27302c" strokeWidth="1.5"/>
+      <path d="M24 70 L42 50 L60 60 L78 42 L96 30" stroke="#d4b483" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeDasharray="4 2"/>
+    </svg>
+  ),
 }
 
 const DEFAULT_SVG = (
