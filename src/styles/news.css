@@ -96,3 +96,21 @@
   padding: 16px 0;
 }
 
+.news-card-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.news-card-header .news-card-title { flex: 1 }
+
+.news-sentiment-dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  margin-top: 5px;
+}
+.news-sentiment-dot.positive { background: #3fbf8f }
+.news-sentiment-dot.negative { background: #e8654f }
+

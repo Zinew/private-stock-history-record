@@ -1,10 +1,33 @@
+import { useEffect, useState } from 'react'
 import { useStockNews } from '../hooks/useStockNews.js'
 import { useTranslation } from 'react-i18next'
+import { analyzeSentiment } from '../utils/sentiment.js'
+
+function SentimentDot({ sentiment }) {
+  if (!sentiment || sentiment.score < 0.75) return null
+  const cls = sentiment.label === 'POSITIVE' ? 'positive' : 'negative'
+  return <span className={`news-sentiment-dot ${cls}`} title={`${sentiment.label} ${Math.round(sentiment.score * 100)}%`} />
+}
 
 function StockNewsSection({ holding }) {
   const currency = holding.currency ?? 'USD'
   const { articles, loading, error, retry } = useStockNews(holding.t, currency, holding.nm)
   const { t } = useTranslation()
+  const [sentiments, setSentiments] = useState({})
+
+  useEffect(() => {
+    if (!articles.length) return
+    setSentiments({})
+    let cancelled = false
+    ;(async () => {
+      for (let i = 0; i < articles.length; i++) {
+        if (cancelled) break
+        const result = await analyzeSentiment(articles[i].title)
+        if (!cancelled && result) setSentiments(prev => ({ ...prev, [i]: result }))
+      }
+    })()
+    return () => { cancelled = true }
+  }, [articles])
 
   return (
     <div className="news-section">
@@ -34,14 +57,17 @@ function StockNewsSection({ holding }) {
         <div>
           {articles.map((article, i) => (
             <div key={i} className="news-card">
-              <a
-                className="news-card-title"
-                href={article.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                {article.title}
-              </a>
+              <div className="news-card-header">
+                <a
+                  className="news-card-title"
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {article.title}
+                </a>
+                <SentimentDot sentiment={sentiments[i]} />
+              </div>
               {article.summary && (
                 <p className="news-card-summary">{article.summary}</p>
               )}
