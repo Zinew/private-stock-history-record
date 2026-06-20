@@ -18,22 +18,30 @@ async function analyzeSentimentKo(text) {
   const token = import.meta.env.VITE_HF_TOKEN
   if (!token) return null
 
-  const res = await fetch(
-    'https://api-inference.huggingface.co/models/snunlp/KR-FinBert-SC',
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const res = await fetch(
+      'https://api-inference.huggingface.co/models/snunlp/KR-FinBert-SC',
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ inputs: text }),
       },
-      body: JSON.stringify({ inputs: text }),
-    },
-  )
-  if (!res.ok) return null
-  const data = await res.json()
-  // API 응답: [[{label, score}, ...]] — 가장 높은 score 선택
-  const scores = Array.isArray(data[0]) ? data[0] : data
-  return scores.reduce((best, cur) => (cur.score > best.score ? cur : best))
+    )
+    if (res.status === 503) {
+      // 모델 cold start — 잠시 후 재시도
+      await new Promise(r => setTimeout(r, 4000))
+      continue
+    }
+    if (!res.ok) return null
+    const data = await res.json()
+    const scores = Array.isArray(data[0]) ? data[0] : data
+    if (!Array.isArray(scores)) return null
+    return scores.reduce((best, cur) => (cur.score > best.score ? cur : best))
+  }
+  return null
 }
 
 export async function analyzeSentiment(text, { lang = 'en' } = {}) {
