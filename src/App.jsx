@@ -15,6 +15,8 @@ import NotFoundPage from './pages/NotFoundPage.jsx'
 import AboutPage from './pages/AboutPage.jsx'
 import PrivacyPage from './pages/PrivacyPage.jsx'
 import HelpPage from './pages/HelpPage.jsx'
+import LearnPage from './pages/LearnPage.jsx'
+import ArticlePage from './pages/ArticlePage.jsx'
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, ArcElement, Tooltip, Legend, Filler)
 
@@ -44,6 +46,8 @@ export default function App() {
         <Route path="/about" element={<AboutPage />} />
         <Route path="/privacy" element={<PrivacyPage />} />
         <Route path="/help" element={<HelpPage />} />
+        <Route path="/learn" element={<LearnPage />} />
+        <Route path="/learn/:slug" element={<ArticlePage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </div>
