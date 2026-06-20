@@ -1,5 +1,29 @@
 /* ── NewsPage ── */
 
+.news-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+.news-header-row .news-heading {
+  margin-bottom: 0;
+}
+
+.news-sentiment-legend {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.news-legend-label {
+  font-family: 'Spline Sans Mono', monospace;
+  font-size: 9px;
+  letter-spacing: .5px;
+  color: var(--ink-faint);
+  margin-right: 6px;
+}
+.news-legend-label:last-child { margin-right: 0; }
+
 .news-heading {
   font-family: 'Spline Sans Mono', monospace;
   font-size: 11px;

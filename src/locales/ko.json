@@ -114,7 +114,9 @@
     "loading": "조회 중…",
     "empty": "최근 뉴스가 없습니다.",
     "noHoldings": "보유 종목을 추가하면 관련 뉴스가 표시됩니다.",
-    "error": "뉴스를 불러올 수 없습니다"
+    "error": "뉴스를 불러올 수 없습니다",
+    "sentimentPositive": "긍정",
+    "sentimentNegative": "부정"
   },
   "charts": {
     "trend": "자산 추이",

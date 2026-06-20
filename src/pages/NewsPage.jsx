@@ -98,7 +98,15 @@ export default function NewsPage({ portfolio }) {
 
   return (
     <div className="holdings">
-      <h2 className="news-heading">{t('news.title')}</h2>
+      <div className="news-header-row">
+        <h2 className="news-heading">{t('news.title')}</h2>
+        <div className="news-sentiment-legend">
+          <span className="news-sentiment-dot positive" />
+          <span className="news-legend-label">{t('news.sentimentPositive')}</span>
+          <span className="news-sentiment-dot negative" />
+          <span className="news-legend-label">{t('news.sentimentNegative')}</span>
+        </div>
+      </div>
       {holdings.map(h => (
         <StockNewsSection key={h.t} holding={h} />
       ))}

@@ -114,7 +114,9 @@
     "loading": "Loading…",
     "empty": "No recent news.",
     "noHoldings": "Add holdings to see related news.",
-    "error": "Failed to load news"
+    "error": "Failed to load news",
+    "sentimentPositive": "positive",
+    "sentimentNegative": "negative"
   },
   "charts": {
     "trend": "Portfolio Trend",
