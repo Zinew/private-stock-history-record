@@ -14,41 +14,33 @@ async function analyzeSentimentEn(text) {
   return result // { label: 'positive'|'negative'|'neutral', score }
 }
 
-async function analyzeSentimentKo(text) {
-  const token = import.meta.env.VITE_HF_TOKEN
-  if (!token) return null
+const KO_POSITIVE = [
+  '급등', '상승', '흑자', '호실적', '호조', '성장', '상향', '증가', '신고가',
+  '돌파', '수주', '반등', '회복', '개선', '확대', '강세', '역대최대', '최대',
+  '호황', '기대', '긍정', '선방', '견조', '상회', '어닝서프라이즈',
+]
+const KO_NEGATIVE = [
+  '급락', '하락', '손실', '적자', '부진', '우려', '위기', '하향', '감소',
+  '폭락', '추락', '악화', '침체', '둔화', '약세', '충격', '실망', '하회',
+  '경고', '불안', '리스크', '손실', '매도', '이탈', '불황', '둔화', '쇼크',
+]
 
-  for (let attempt = 0; attempt < 3; attempt++) {
-    const res = await fetch(
-      'https://api-inference.huggingface.co/models/snunlp/KR-FinBert-SC',
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ inputs: text }),
-      },
-    )
-    if (res.status === 503) {
-      // 모델 cold start — 잠시 후 재시도
-      await new Promise(r => setTimeout(r, 4000))
-      continue
-    }
-    if (!res.ok) return null
-    const data = await res.json()
-    const scores = Array.isArray(data[0]) ? data[0] : data
-    if (!Array.isArray(scores)) return null
-    return scores.reduce((best, cur) => (cur.score > best.score ? cur : best))
-  }
-  return null
+function analyzeSentimentKo(text) {
+  let pos = 0
+  let neg = 0
+  for (const w of KO_POSITIVE) if (text.includes(w)) pos++
+  for (const w of KO_NEGATIVE) if (text.includes(w)) neg++
+  if (pos === 0 && neg === 0) return null
+  if (pos === neg) return null
+  const label = pos > neg ? 'positive' : 'negative'
+  const score = 0.80 + Math.min((Math.abs(pos - neg) - 1) * 0.05, 0.15)
+  return { label, score }
 }
 
 export async function analyzeSentiment(text, { lang = 'en' } = {}) {
   try {
-    return lang === 'ko'
-      ? await analyzeSentimentKo(text)
-      : await analyzeSentimentEn(text)
+    if (lang === 'ko') return analyzeSentimentKo(text)
+    return await analyzeSentimentEn(text)
   } catch {
     return null
   }
