@@ -22,7 +22,8 @@ function StockNewsSection({ holding }) {
     ;(async () => {
       for (let i = 0; i < articles.length; i++) {
         if (cancelled) break
-        const result = await analyzeSentiment(articles[i].title)
+        const lang = currency === 'KRW' ? 'ko' : 'en'
+        const result = await analyzeSentiment(articles[i].title, { lang })
         if (!cancelled && result) setSentiments(prev => ({ ...prev, [i]: result }))
       }
     })()
