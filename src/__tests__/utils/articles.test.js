@@ -1,4 +1,4 @@
-import { parseFrontmatter, readingMinutes } from '../../utils/articles.js'
+import { parseFrontmatter, readingMinutes } from '../../utils/markdown.js'
 
 describe('parseFrontmatter', () => {
   const raw = `---
