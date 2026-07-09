@@ -89,7 +89,7 @@ export default function HoldingsTable({
         onAddFirst={onAddFirst}
       />
 
-      <div ref={addbarRef}>
+      <div ref={addbarRef} id="add-holding">
         <AddHoldingForm onAddTransaction={onAdd} holdings={rawHoldings} />
       </div>
       {editingIndex !== null && (

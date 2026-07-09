@@ -6,12 +6,16 @@ import BackupBar from '../components/BackupBar.jsx'
 import { useTranslation } from 'react-i18next'
 import { usePageMeta } from '../hooks/usePageMeta.js'
 import { PAGE_META } from '../config/site.js'
+import OnboardingWizard from '../components/home/OnboardingWizard.jsx'
+import HomeGuide from '../components/home/HomeGuide.jsx'
 
 export default function DashboardPage({ portfolio }) {
   const { t } = useTranslation()
   usePageMeta({ ...PAGE_META['/'], path: '/' })
+  const isEmpty = portfolio.holdings.length === 0
   return (
     <>
+      {isEmpty && <OnboardingWizard />}
       <Charts
         holdings={portfolio.effectiveHoldings}
         snaps={portfolio.snaps}
@@ -56,6 +60,7 @@ export default function DashboardPage({ portfolio }) {
         onEdit={portfolio.editTransaction}
       />
       <BackupBar />
+      {isEmpty && <HomeGuide />}
       <footer>
         {t('dashboard.disclaimer')}<br />
         Ledger v2 — live prices via Finnhub (US) · Yahoo Finance (KRX)
