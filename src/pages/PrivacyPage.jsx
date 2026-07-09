@@ -1,7 +1,10 @@
 import { useTranslation } from 'react-i18next'
+import { usePageMeta } from '../hooks/usePageMeta.js'
+import { PAGE_META } from '../config/site.js'
 
 export default function PrivacyPage() {
   const { t } = useTranslation()
+  usePageMeta({ ...PAGE_META['/privacy'], path: '/privacy' })
   return (
     <div className="static-page">
       <h1>{t('privacy.title')}<span className="dot">.</span></h1>

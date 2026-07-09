@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useStockNews } from '../hooks/useStockNews.js'
 import { useTranslation } from 'react-i18next'
 import { analyzeSentiment } from '../utils/sentiment.js'
+import { usePageMeta } from '../hooks/usePageMeta.js'
+import { PAGE_META } from '../config/site.js'
 
 function SentimentDot({ sentiment }) {
   if (!sentiment || sentiment.label === 'neutral' || sentiment.score < 0.70) return null
@@ -86,6 +88,7 @@ function StockNewsSection({ holding }) {
 export default function NewsPage({ portfolio }) {
   const holdings = portfolio?.holdings ?? []
   const { t } = useTranslation()
+  usePageMeta({ ...PAGE_META['/news'], path: '/news' })
 
   if (holdings.length === 0) {
     return (

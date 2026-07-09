@@ -4,9 +4,12 @@ import RebalancingGuide from '../components/RebalancingGuide.jsx'
 import TransactionHistory from '../components/TransactionHistory.jsx'
 import BackupBar from '../components/BackupBar.jsx'
 import { useTranslation } from 'react-i18next'
+import { usePageMeta } from '../hooks/usePageMeta.js'
+import { PAGE_META } from '../config/site.js'
 
 export default function DashboardPage({ portfolio }) {
   const { t } = useTranslation()
+  usePageMeta({ ...PAGE_META['/'], path: '/' })
   return (
     <>
       <Charts

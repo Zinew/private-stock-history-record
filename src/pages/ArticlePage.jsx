@@ -2,10 +2,17 @@ import { useParams, Link } from 'react-router-dom'
 import { getArticleBySlug, getArticles } from '../utils/articles.js'
 import ArticleIllustration from '../components/learn/ArticleIllustration.jsx'
 import AdBanner from '../components/AdBanner.jsx'
+import { usePageMeta } from '../hooks/usePageMeta.js'
+import { SITE_NAME } from '../config/site.js'
 
 export default function ArticlePage() {
   const { slug } = useParams()
   const article = getArticleBySlug(slug)
+  usePageMeta(article ? {
+    title: `${article.title} — ${SITE_NAME}`,
+    description: article.description,
+    path: `/learn/${article.slug}`,
+  } : { title: `글을 찾을 수 없습니다 — ${SITE_NAME}` })
   if (!article) {
     return (
       <div className="article-page">

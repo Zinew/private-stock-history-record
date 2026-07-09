@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://private-stock-history-record.pages.dev/sitemap.xml

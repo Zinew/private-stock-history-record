@@ -3,6 +3,8 @@ import { useCalendarEvents } from '../hooks/useCalendarEvents.js'
 import { useLocalStorage } from '../hooks/useLocalStorage.js'
 import ManualEventModal from '../components/ManualEventModal.jsx'
 import { useTranslation } from 'react-i18next'
+import { usePageMeta } from '../hooks/usePageMeta.js'
+import { PAGE_META } from '../config/site.js'
 
 export default function CalendarPage({ portfolio }) {
   const holdings = portfolio?.holdings ?? []
@@ -10,6 +12,7 @@ export default function CalendarPage({ portfolio }) {
   const [manualEvents, setManualEvents] = useLocalStorage('ledger_manual_events', [])
   const [showModal, setShowModal] = useState(false)
   const { t } = useTranslation()
+  usePageMeta({ ...PAGE_META['/calendar'], path: '/calendar' })
 
   const grouped = events.reduce((acc, ev) => {
     if (!acc[ev.date]) acc[ev.date] = []

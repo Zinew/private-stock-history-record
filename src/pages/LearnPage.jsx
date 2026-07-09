@@ -2,9 +2,12 @@ import { Link } from 'react-router-dom'
 import { getArticles } from '../utils/articles.js'
 import ArticleIllustration from '../components/learn/ArticleIllustration.jsx'
 import AdBanner from '../components/AdBanner.jsx'
+import { usePageMeta } from '../hooks/usePageMeta.js'
+import { PAGE_META } from '../config/site.js'
 
 export default function LearnPage() {
   const articles = getArticles()
+  usePageMeta({ ...PAGE_META['/learn'], path: '/learn' })
   return (
     <div className="learn-page">
       <h1>투자 가이드<span className="dot">.</span></h1>

@@ -1,7 +1,10 @@
 import { useTranslation } from 'react-i18next'
+import { usePageMeta } from '../hooks/usePageMeta.js'
+import { PAGE_META } from '../config/site.js'
 
 export default function AboutPage() {
   const { t } = useTranslation()
+  usePageMeta({ ...PAGE_META['/about'], path: '/about' })
   return (
     <div className="static-page">
       <h1>{t('about.title')}<span className="dot">.</span></h1>
