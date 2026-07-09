@@ -1,5 +1,6 @@
 // 순수 마크다운 유틸 (브라우저·Node 공용 — Vite 전용 API 사용 금지)
 export function parseFrontmatter(raw) {
+  raw = raw.replace(/\r\n/g, '\n') // CRLF 체크아웃에서도 동일하게 동작
   const match = raw.match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/)
   if (!match) return { meta: {}, body: raw }
   const meta = Object.fromEntries(

@@ -27,6 +27,13 @@ description: "설명"
     expect(meta).toEqual({})
     expect(body).toBe('그냥 텍스트')
   })
+
+  it('CRLF 줄바꿈 파일도 파싱한다', () => {
+    const crlf = raw.replace(/\n/g, '\r\n')
+    const { meta, body } = parseFrontmatter(crlf)
+    expect(meta.slug).toBe('test-article')
+    expect(body.trim()).toBe('본문 내용입니다.')
+  })
 })
 
 describe('readingMinutes', () => {
