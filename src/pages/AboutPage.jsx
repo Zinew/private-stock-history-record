@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { usePageMeta } from '../hooks/usePageMeta.js'
-import { PAGE_META } from '../config/site.js'
+import { PAGE_META, CONTACT_EMAIL } from '../config/site.js'
 
 export default function AboutPage() {
   const { t } = useTranslation()
@@ -30,6 +30,13 @@ export default function AboutPage() {
         <h2 className="holdings-title">{t('about.dataTitle')}</h2>
         <p>{t('about.dataBody')}</p>
       </section>
+
+      {CONTACT_EMAIL && (
+        <section className="static-section">
+          <h2 className="holdings-title">{t('about.contactTitle')}</h2>
+          <p>{t('about.contactBody')} <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></p>
+        </section>
+      )}
     </div>
   )
 }

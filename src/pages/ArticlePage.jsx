@@ -1,4 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import { getArticleBySlug, getArticles } from '../utils/articles.js'
 import ArticleIllustration from '../components/learn/ArticleIllustration.jsx'
 import AdBanner from '../components/AdBanner.jsx'
@@ -7,6 +8,7 @@ import { SITE_NAME } from '../config/site.js'
 
 export default function ArticlePage() {
   const { slug } = useParams()
+  const { t } = useTranslation()
   const article = getArticleBySlug(slug)
   usePageMeta(article ? {
     title: `${article.title} — ${SITE_NAME}`,
@@ -31,9 +33,13 @@ export default function ArticlePage() {
         <ArticleIllustration slug={slug} size={180} />
       </div>
       <h1 className="article-header-title">{article.title}</h1>
-      <p className="article-meta">{article.date} · {article.minutes}분 읽기</p>
+      <p className="article-meta">{article.date} · {article.minutes}분 읽기 · {t('article.author')}</p>
       <AdBanner slot="1234567891" />
       <div className="learn-content" dangerouslySetInnerHTML={{ __html: article.html }} />
+      <div className="article-disclaimer">
+        <strong>{t('article.disclaimerTitle')}</strong>
+        <p>{t('article.disclaimerBody')}</p>
+      </div>
       <AdBanner slot="1234567892" />
       <nav className="article-nav">
         {prev ? <Link to={`/learn/${prev.slug}`}>← {prev.title}</Link> : <span />}
