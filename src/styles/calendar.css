@@ -50,12 +50,12 @@
 
 .calendar-badge.earnings {
   background: rgba(63, 191, 143, 0.15);
-  color: #3fbf8f;
+  color: var(--gain);
 }
 
 .calendar-badge.dividend {
   background: rgba(100, 149, 237, 0.15);
-  color: #6495ed;
+  color: var(--info);
 }
 
 .calendar-card-info {
@@ -139,7 +139,7 @@
   flex-shrink: 0;
   align-self: center;
 }
-.calendar-card-delete:hover { color: #e8654f; }
+.calendar-card-delete:hover { color: var(--loss); }
 
 .type-toggle {
   display: flex;
@@ -158,12 +158,12 @@
 }
 .type-btn.active.earnings {
   background: rgba(63, 191, 143, 0.15);
-  border-color: #3fbf8f;
-  color: #3fbf8f;
+  border-color: var(--gain);
+  color: var(--gain);
 }
 .type-btn.active.dividend {
   background: rgba(100, 149, 237, 0.15);
-  border-color: #6495ed;
-  color: #6495ed;
+  border-color: var(--info);
+  color: var(--info);
 }
 

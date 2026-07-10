@@ -8,6 +8,8 @@ export function escapeHtml(s) {
     .replaceAll("'", '&#39;')
 }
 
+export const OG_IMAGE_URL = 'https://private-stock-history-record.pages.dev/og-image.png'
+
 export function buildHeadTags({ title, description, url, ogType = 'website', jsonLd = null }) {
   const t = escapeHtml(title)
   const d = escapeHtml(description)
@@ -21,6 +23,9 @@ export function buildHeadTags({ title, description, url, ogType = 'website', jso
     `<meta property="og:title" content="${t}" />`,
     `<meta property="og:description" content="${d}" />`,
     `<meta property="og:url" content="${u}" />`,
+    `<meta property="og:image" content="${OG_IMAGE_URL}" />`,
+    `<meta property="og:image:width" content="1200" />`,
+    `<meta property="og:image:height" content="630" />`,
   ]
   if (jsonLd) tags.push(`<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>`)
   return tags.join('\n    ')

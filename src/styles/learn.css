@@ -35,10 +35,13 @@
   margin-bottom: 16px;
   text-decoration: none;
   color: inherit;
-  transition: border-color .15s;
+  transition: border-color .15s, transform .15s;
 }
 
-.article-card:hover { border-color: var(--accent) }
+.article-card:hover { border-color: var(--accent); transform: translateY(-2px) }
+@media (prefers-reduced-motion: reduce) {
+  .article-card:hover { transform: none }
+}
 
 .article-card-thumb {
   flex-shrink: 0;

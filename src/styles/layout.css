@@ -62,7 +62,7 @@ header {
   color: #0c0e0d;
   font-weight: 600;
 }
-.currency-btn.sell-btn.active { background: rgba(232,101,79,.15); color: #e8654f; border-color: #e8654f; }
+.currency-btn.sell-btn.active { background: rgba(232,101,79,.15); color: var(--loss); border-color: var(--loss); }
 .addbar .currency-toggle { height: 38px }
 .addbar .currency-btn { padding: 0 14px; font-size: 12px }
 .rate-bar {
@@ -153,7 +153,11 @@ header {
   transition: background .15s, color .15s;
 }
 .nav-item:hover { background: var(--panel-2); color: var(--ink) }
-.nav-item.active { background: var(--panel-2); color: var(--ink) }
+.nav-item.active {
+  background: var(--panel-2);
+  color: var(--ink);
+  box-shadow: inset 2px 0 0 var(--accent);
+}
 .nav-icon { font-size: 14px }
 
 .sidebar-footer {
@@ -211,8 +215,8 @@ header {
 .lang-btn:hover { color: var(--ink); border-color: var(--ink-dim); }
 .lang-btn.active {
   background: rgba(63, 191, 143, 0.12);
-  border-color: #3fbf8f;
-  color: #3fbf8f;
+  border-color: var(--gain);
+  color: var(--gain);
 }
 
 

@@ -33,7 +33,9 @@
   padding: 0;
   background: var(--line);
   cursor: pointer;
+  transition: background .15s, transform .15s;
 }
+.wizard-dot:hover { background: var(--ink-faint); transform: scale(1.25) }
 .wizard-dot.active { background: var(--accent) }
 .wizard-title { font-size: 17px; color: var(--ink); margin: 0 0 10px }
 .wizard-body {
