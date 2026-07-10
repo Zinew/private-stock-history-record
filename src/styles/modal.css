@@ -2,11 +2,12 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, .55);
+  background: rgba(5, 8, 7, .6);
   z-index: 100;
   display: flex;
   align-items: center;
   justify-content: center;
+  animation: overlay-in .18s ease;
 }
 .modal {
   background: var(--panel);
@@ -16,6 +17,17 @@
   min-width: 280px;
   width: 90%;
   max-width: 360px;
+  box-shadow: 0 18px 48px rgba(4, 8, 6, .5);
+  animation: modal-in .2s cubic-bezier(.2, .9, .3, 1.1);
+}
+@keyframes overlay-in {
+  from { background: rgba(5, 8, 7, 0) }
+}
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(8px) scale(.97) }
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-overlay, .modal { animation: none }
 }
 .modal-field {
   margin-bottom: 14px;
@@ -66,7 +78,7 @@
   max-height: 200px;
   overflow-y: auto;
   margin-top: 2px;
-  box-shadow: 0 4px 16px rgba(0,0,0,.3);
+  box-shadow: 0 8px 24px rgba(4, 8, 6, .45);
 }
 .search-dropdown-item {
   padding: 8px 12px;

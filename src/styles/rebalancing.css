@@ -38,8 +38,8 @@
 .rebal-action { font-weight: 500; }
 .rebal-action--buy { color: var(--gain); }
 .rebal-action--sell { color: var(--loss); }
-.rebal-action--hold_cash { color: #60a5fa; }
-.rebal-action--use_cash { color: #f59e0b; }
+.rebal-action--hold_cash { color: var(--info); }
+.rebal-action--use_cash { color: var(--warn); }
 .rebal-action--hold { color: var(--ink-faint); }
 .rebalancing-hint {
   margin: 10px 0 0;

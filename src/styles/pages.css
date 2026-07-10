@@ -104,10 +104,13 @@
   margin-top: 8px;
   padding: 10px 20px;
   background: var(--accent);
-  color: #fff;
-  border-radius: 6px;
+  color: #0c0e0d;
+  font-weight: 600;
+  border-radius: 10px;
   text-decoration: none;
   font-size: 14px;
+  transition: background .15s, transform .1s;
 }
-.not-found-page a:hover { opacity: 0.85 }
+.not-found-page a:hover { background: #9ee0c4 }
+.not-found-page a:active { transform: translateY(1px) }
 

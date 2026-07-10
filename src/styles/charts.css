@@ -44,8 +44,8 @@
 }
 .snap-popup-delete {
   background: rgba(232,101,79,.15) !important;
-  border-color: #e8654f !important;
-  color: #e8654f !important;
+  border-color: var(--loss) !important;
+  color: var(--loss) !important;
 }
 
 /* Snapshot undo toast */

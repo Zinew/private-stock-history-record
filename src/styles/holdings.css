@@ -95,6 +95,7 @@
   height: 38px;
 }
 .btn:hover { background: #9ee0c4 }
+.btn:active { transform: translateY(1px) }
 .btn.ghost { background: transparent; border: 1px solid var(--line); color: var(--ink-dim) }
 .btn.ghost:hover { border-color: var(--accent); color: var(--accent) }
 .btn.danger { background: var(--loss) }
@@ -127,7 +128,9 @@
   cursor: pointer;
   font-size: 12px;
   padding: 2px 8px;
+  transition: color .15s, border-color .15s;
 }
+.refresh-btn:hover:not(:disabled) { color: var(--accent); border-color: var(--accent) }
 .refresh-btn:disabled {
   opacity: 0.5;
   cursor: default;
@@ -143,14 +146,14 @@
   background: rgba(232, 101, 79, .12);
   border: 1px solid rgba(232, 101, 79, .3);
   border-radius: 6px;
-  color: #e8654f;
+  color: var(--loss);
   font-size: 12px;
   margin-bottom: 12px;
   padding: 6px 12px;
 }
 
 .live-dot {
-  color: #3fbf8f;
+  color: var(--gain);
   font-size: 9px;
   margin-right: 3px;
 }
@@ -167,7 +170,7 @@
   opacity: 0.85;
 }
 .ticker-error {
-  color: #e8654f;
+  color: var(--loss);
   font-size: 10px;
   display: block;
   margin-top: 2px;
@@ -184,8 +187,8 @@
 /* Transaction History */
 .tx-section { margin-top: 20px; }
 .tx-type-badge { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
-.tx-type-badge.buy { background: rgba(63,191,143,.15); color: #3fbf8f; }
-.tx-type-badge.sell { background: rgba(232,101,79,.15); color: #e8654f; }
+.tx-type-badge.buy { background: rgba(63,191,143,.15); color: var(--gain); }
+.tx-type-badge.sell { background: rgba(232,101,79,.15); color: var(--loss); }
 .tx-unknown-date { color: var(--ink-faint); font-style: italic; }
 
 
@@ -199,8 +202,8 @@
 /* API error retry button */
 .btn-retry {
   background: transparent;
-  border: 1px solid #e8654f;
-  color: #e8654f;
+  border: 1px solid var(--loss);
+  color: var(--loss);
   border-radius: 6px;
   padding: 2px 10px;
   font-size: 11px;

@@ -12,9 +12,13 @@
   --loss: #e8654f;
   --gold: #d4b483;
   --accent: #7fd1ae;
+  --info: #7ba7cc;
+  --warn: #d9a662;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0 }
+
+html { scroll-behavior: smooth }
 
 body {
   background:
@@ -25,6 +29,25 @@ body {
   min-height: 100vh;
   padding: 32px 24px 80px;
 }
+
+/* 미세 그레인 — 평면적인 디지털 표면에 질감 부여 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+  opacity: .035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* 키보드 포커스 링 — 마우스 클릭에는 표시 안 함 */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+h1, h2, h3 { text-wrap: balance }
 
 /* 전역 테이블 기본 스타일 — 모든 <table>에 적용 (보유종목·리밸런싱 등) */
 table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; min-width: 680px }
